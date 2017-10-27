@@ -1,4 +1,5 @@
 .DS_Store
+docs/whitepaper/src/citations/
 budget.csv
 
 dist/*

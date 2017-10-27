@@ -4,5 +4,5 @@ pandoc \
     -s \
     -S \
     --filter pandoc-citeproc \
-    -o visionAV.docx \
+    -o ../visionAV.docx \
     visionAV.md
