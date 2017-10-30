@@ -66,7 +66,7 @@ csl: './src/bib/chicago-fullnote-bibliography.csl'
         - Stream Performance
     - Patent and Royalty Free
 4. Conclusion
-    - *{algined with }*
+    - *{algined with open source tools}*
     - *{avoids vendor/platform (clear up) lock-in}*
     - *{inclusiveness ("community aware")}*
     - *{increases visibility of difficult engineering issues}*
