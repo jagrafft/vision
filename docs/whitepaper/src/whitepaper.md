@@ -1,5 +1,5 @@
 ---
-title: visionAV
+title: visionAV White Paper
 author: Jason A. Grafft
 bibliography: './src/bib/library.bib'
 csl: './src/bib/chicago-fullnote-bibliography.csl'
@@ -7,10 +7,10 @@ csl: './src/bib/chicago-fullnote-bibliography.csl'
 ## Table of Contents
 1. Introduction
 2. Summary of Current Issues
-    - Engineering and Technical Challenges
-    - Legal Complexities
-    - Closed Development Community
+    - Engineering and Technical
+    - Patents and Ownership
     - Market Pressures
+        - Closed Development Community
     - *{summary}*
 3. Technical Considerations
     - Limited Ecosystem
@@ -123,12 +123,16 @@ Given that AV systems are an essential debriefing tool, and that debriefing is t
 ## Summary of Current Issues
 The AV marketplace is largely composed of small, specialized companies investigating problems of well-defined scope. By-and-large, however, market activity is directed by the small number of large companies with deep interests in AV transmission. This state likely owes to the blurry line between *technology which processes signals* and ownership of the *content encoded in those signals*. In brief, technology is used to sell content: the market for consumers of content exponentially larger than the market for specialized hardware and software, thus the bulk of revenue is available to the advertisers who use AV processing technology as an encapsulated service.
 
-However, capture and delivery of AV data is decidedly *not* an encapsulated service; it relies on an extensive technology stack crossing many domains[^EngTechChal] that evolve independently, largely without AV services in mind, and according to their own needs. <!--AV service vendors for medical simulation must produce a stable product from these pieces or undertake the effor to introduce new standards, the adoption of which is likely precluded by their small operating budgets and tiny market share. -->
+However, capture and delivery of AV data is decidedly *not* an encapsulated service; it relies on an extensive technology stack crossing many domains[^EngTechChal] that evolve independently and according to their own needs. Thus AV vendors are consumers and users of a wide range of technology products used to deliver a service to *their* customers, who implicitly "buy in" to these decisions when they deploy a given service. Though there is nothing inherently wrong with this practice, it is heavily obfuscated in marketing and sales materials, which focus on per-device specification and leave the buyer to discern whether their deployment environment can accommodate those devices *{REWORD}*. Given the cost and specificity of deploying an AV service within a medical simulation laboratory, consumers deserve a chance to review and question decisions ostensibly made on their behalf.
 
-### Engineering and Technical Challenges
+For convenience, this paper summarizes current issues and challenges facing developers and consumers of AV services using three broad categories of interest to both parties: *Engineering and Technical*, *Patents and Ownership*, and *Market Pressures*. It is the author's opinion the interaction of these categories accurately depicts the realities and peculiarities of the market vendors and consumers of AV services for medical simulation laboratories find themselves in. *visionAV* is built to make these issues clear, and address as many of them as is practical in an *open* and *collaborative* way.
+
+### Engineering and Technical
 The following table summarizes engineering and technical challenges to the development of an audiovisual service for medical simulation.
 
 ***{TABLE}***
+
+### Patents and Ownership
 
 ### Market Pressures
 Research and development of AV technology occurs in a niche market protective of Intellectual Property (IP) where there is no clear incentive for collaboration and large device manufacturers have considerable influence over standard adoption. Reporting in October 2017 for August 2017 data, market shares for Apple and Samsung were 35.0% and 35.2% respectively.[@KantarAppleMarketShare:2017:online] Several of Samsung's devices already support the High Efficiency Video Codec (HEVC), and Apple formally announced HEVC adoption for their devices in June of 2017.
@@ -136,6 +140,6 @@ Research and development of AV technology occurs in a niche market protective of
 ## References
 
 [^cite]: **THIS NEEDS A CITATION!!**
-[^EngTechChal]: See *Summary of Current Issues, Engineering and Technical Challenges*.
+[^EngTechChal]: See *Engineering and Technical Challenges* below.
 [^HighFidelity_comment]: Consider that in 2003, access to a mannequin such as SimMan (now SimMan Classic) *was the definition of* a "high fidelity" simulation program. Ten years later, a properly equipped program would have *one or more* "high fidelity" mannequins, several "mid"- and "low"- fidelity mannequins, dedicated simulation space, and an AV system able to capture at least one room.
 [^Megapixel_comment]: As an example, see advertisers' use of megapixel calcuations for advertising digital cameras.
