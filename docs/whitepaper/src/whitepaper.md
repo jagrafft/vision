@@ -1,5 +1,5 @@
 ---
-title: visionAV White Paper
+title: vision White Paper
 author: Jason A. Grafft
 bibliography: './src/bib/library.bib'
 csl: './src/bib/chicago-fullnote-bibliography.csl'
@@ -118,14 +118,14 @@ These items encourage vendor dependence, especially in resource limited laborato
 
 Given that AV systems are an essential debriefing tool, and that debriefing is the most important part of simulation,[^cite] difficulty matching tool to task is likely to degrade Return on Investment (ROI) for a simulation laboratory and its constituents.
 
-*visionAV*, an open-source data and audiovisual (AV) platform for medical simulation, offers a service-equivalent model for the capture and utilization of AV data in medical simulation laboratories. It is based on patent- and royalty-free technologies, implemented with modern architecture patterns, and targeted at commodity hardware. In all, *visionAV* lowers the cost-of-entry for simulation laboratories seeking an AV solution and provides a needed focal point for the medical simulation community to examine critical issues related to AV service.
+*vision*, an open-source data and audiovisual (AV) platform for medical simulation, offers a service-equivalent model for the capture and utilization of AV data in medical simulation laboratories. It is based on patent- and royalty-free technologies, implemented with modern architecture patterns, and targeted at commodity hardware. In all, *vision* lowers the cost-of-entry for simulation laboratories seeking an AV solution and provides a needed focal point for the medical simulation community to examine critical issues related to AV service.
 
 ## Summary of Current Issues
 The AV marketplace is largely composed of small, specialized companies investigating problems of well-defined scope. By-and-large, however, market activity is directed by the small number of large companies with deep interests in AV transmission. This state likely owes to the blurry line between *technology which processes signals* and ownership of the *content encoded in those signals*. In brief, technology is used to sell content: the market for consumers of content exponentially larger than the market for specialized hardware and software, thus the bulk of revenue is available to the advertisers who use AV processing technology as an encapsulated service.
 
 However, capture and delivery of AV data is decidedly *not* an encapsulated service; it relies on an extensive technology stack crossing many domains[^EngTechChal] that evolve independently and according to their own needs. Thus AV vendors are consumers and users of a wide range of technology products used to deliver a service to *their* customers, who implicitly "buy in" to these decisions when they deploy a given service. Though there is nothing inherently wrong with this practice, it is heavily obfuscated in marketing and sales materials, which focus on per-device specification and leave the buyer to discern whether their deployment environment can accommodate those devices *{REWORD}*. Given the cost and specificity of deploying an AV service within a medical simulation laboratory, consumers deserve a chance to review and question decisions ostensibly made on their behalf.
 
-For convenience, this paper summarizes current issues and challenges facing developers and consumers of AV services using three broad categories of interest to both parties: *Engineering and Technical*, *Patents and Ownership*, and *Market Pressures*. It is the author's opinion the interaction of these categories accurately depicts the realities and peculiarities of the market vendors and consumers of AV services for medical simulation laboratories find themselves in. *visionAV* is built to make these issues clear, and address as many of them as is practical in an *open* and *collaborative* way.
+For convenience, this paper summarizes current issues and challenges facing developers and consumers of AV services using three broad categories of interest to both parties: *Engineering and Technical*, *Patents and Ownership*, and *Market Pressures*. It is the author's opinion the interaction of these categories accurately depicts the realities and peculiarities of the market vendors and consumers of AV services for medical simulation laboratories find themselves in. *vision* is built to make these issues clear, and address as many of them as is practical in an *open* and *collaborative* way.
 
 ### Engineering and Technical
 The following table summarizes engineering and technical challenges to the development of an audiovisual service for medical simulation.
