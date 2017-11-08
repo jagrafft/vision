@@ -133,6 +133,7 @@ The following table summarizes engineering and technical challenges to the devel
 ***{TABLE}***
 
 ### Patents and Ownership
+Modern AV file formats developed in tandem with, and largely in service of, the expansion of digital 
 
 ### Market Pressures
 Research and development of AV technology occurs in a niche market protective of Intellectual Property (IP) where there is no clear incentive for collaboration and large device manufacturers have considerable influence over standard adoption. Reporting in October 2017 for August 2017 data, market shares for Apple and Samsung were 35.0% and 35.2% respectively.[@KantarAppleMarketShare:2017:online] Several of Samsung's devices already support the High Efficiency Video Codec (HEVC), and Apple formally announced HEVC adoption for their devices in June of 2017.
