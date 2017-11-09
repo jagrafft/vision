@@ -10,7 +10,6 @@ csl: './src/bib/chicago-fullnote-bibliography.csl'
     - Engineering and Technical
     - Patents and Ownership
     - Market Pressures
-        - Closed Development Community
     - *{summary}*
 3. Technical Considerations
     - Limited Ecosystem
@@ -25,6 +24,7 @@ csl: './src/bib/chicago-fullnote-bibliography.csl'
             - AV1 *{where does this fit?}*
         - Adaptive Bit Rate (ABR) Streaming
             - MPEG-DASH
+            - Live
             - Video on Demand (VOD)
     - Rapid, Independent Evolution of Technology Market
         - Digital Audio and Video
@@ -46,7 +46,10 @@ csl: './src/bib/chicago-fullnote-bibliography.csl'
             - Motion (video)
             - Natural Language (audio)
     - Legal
-        - Codecs
+        - Free
+            - VP9, AV1, ...
+            - Open Source Licenses *{and their issues}*
+        - Nonfree
             - MPEG-LA, HEVC Advance, Technicolor, Velos Media, ...
             - Wide Variance of Patent Laws
         - Content
@@ -133,7 +136,15 @@ The following table summarizes engineering and technical challenges to the devel
 ***{TABLE}***
 
 ### Patents and Ownership
-Modern AV file formats developed in tandem with, and largely in service of, the expansion of digital 
+AV transmission standards largely concern the owners of content delivery services, who charge for the privilege of access to users on their networks. From 2006 to 2016, internet advertising revenues in *the United States alone* grew approximately 429.0% from $16.9 billion to $72.5 billion,[@IABRevenueReport:2017:online, 5] with the "top ten" (10) companies commanding 69-75% of revenue over the same period.[@IABRevenueReport:2017:online, 9] 
+
+The first digital AV format, H.120, was published by a telecommunications industry group in 1984.[@CCITT:1988:incollection, 1] It was not usable, but a revision to it, H.261, became the first production-ready standard when it was published in 1988. As digital audio and video data proliferated throughout the 1990s, H.261 and its successors emerged as the de facto industry standard--studied, licensed, or re-implemented by a majority of avaialble AV formats--and to this day is likely the standard most accessible to the largest number of end users.[^mpeg_accessibility_comment]
+
+H.26\*/MPEG standards are
+
+access to essential patents for implementing the MPEG-2 standard had become such a problem that MPEG LA, LLC was formed to facilitate access to the technologies associated with individual H.26\*/MPEG standards via patent pools.[^mpegla_history]
+
+These formats, and their successors, target the needs of participating industry stakeholders and are largely based on technologies owned or controlled by them. While this practice is common in many industries, 
 
 ### Market Pressures
 Research and development of AV technology occurs in a niche market protective of Intellectual Property (IP) where there is no clear incentive for collaboration and large device manufacturers have considerable influence over standard adoption. Reporting in October 2017 for August 2017 data, market shares for Apple and Samsung were 35.0% and 35.2% respectively.[@KantarAppleMarketShare:2017:online] Several of Samsung's devices already support the High Efficiency Video Codec (HEVC), and Apple formally announced HEVC adoption for their devices in June of 2017.
@@ -144,3 +155,5 @@ Research and development of AV technology occurs in a niche market protective of
 [^EngTechChal]: See *Engineering and Technical Challenges* below.
 [^HighFidelity_comment]: Consider that in 2003, access to a mannequin such as SimMan (now SimMan Classic) *was the definition of* a "high fidelity" simulation program. Ten years later, a properly equipped program would have *one or more* "high fidelity" mannequins, several "mid"- and "low"- fidelity mannequins, dedicated simulation space, and an AV system able to capture at least one room.
 [^Megapixel_comment]: As an example, see advertisers' use of megapixel calcuations for advertising digital cameras.
+[^mpeg_accessibility_comment]: Including methodological clones and partial implementations of H.26\*/MPEG standards, this is especially likely to be true.
+[^mpegla_history]: See http://www.mpegla.com/main/Pages/AboutHistory.aspx.
