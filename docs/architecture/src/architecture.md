@@ -1,7 +1,7 @@
 ---
 title: visionAV Architecture
 author: Jason A. Grafft
-bibliography: './src/bib/library.bib'
-csl: './src/bib/chicago-fullnote-bibliography.csl'
+bibliography: './architecture/src/bib/references.bib'
+csl: './architecture/src/bib/chicago-fullnote-bibliography.csl'
 ---
 ## Table of Contents
