@@ -1,9 +1,9 @@
-package co.grafft.visionav.vision
+package co.grafft.vision.vision
 
 object Vision extends Version with App {
   println(version)
 }
 
-trait Version {
+trait Vision {
   lazy val version: String = "0.1.0-SNAPSHOT"
 }

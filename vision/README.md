@@ -1,3 +1,3 @@
 # vision
 
-visionAV's central broker or "master" node. All nodes rely on *vision* to coordinate services.
+Data structures and objects common to *vision*. Used by all microservices.
