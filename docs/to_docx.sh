@@ -2,7 +2,7 @@
 pandoc \
     --filter pandoc-citeproc \
     -f markdown+smart ./architecture/src/architecture.md \
-    -o vision_Architecture.docx
+    -o vision_Service_Architecture.docx
 
 pandoc \
     --filter pandoc-citeproc \
