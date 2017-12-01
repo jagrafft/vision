@@ -7,4 +7,4 @@ pandoc \
 pandoc \
     --filter pandoc-citeproc \
     -f markdown+smart ./whitepaper/src/whitepaper.md \
-    -o vision_nEeDS-TitLe.docx
+    -o vision_sUbtiTlE-hErE.docx

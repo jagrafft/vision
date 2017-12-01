@@ -1,6 +1,6 @@
 ---
 title: vision
-subtitle: tiTlE nEEdEd
+subtitle: sUbtiTlE hErE (suGgeStiOnS?)
 author: Jason A. Grafft
 bibliography: './whitepaper/src/bib/references.bib'
 csl: './whitepaper/src/bib/chicago-fullnote-bibliography.csl'
@@ -9,7 +9,7 @@ csl: './whitepaper/src/bib/chicago-fullnote-bibliography.csl'
 1. Introduction
 2. Engineering Challenges
     - User Experience (UX)
-    - Limited Technology Ecosystem
+    - Limited Ecosystem of Essential Technologies
     - Security
     - Globally Escalating Computational Overhead
 3. Barries to Competetion
@@ -19,9 +19,9 @@ csl: './whitepaper/src/bib/chicago-fullnote-bibliography.csl'
 5. Summary
 
 ## Introduction
-Utilization of simulation-based training for healthcare providers has expanded rapidly since the early 2000's, when the first "high fidelity" patient simulator mannequins were made available by manufacturers at price points accessible to smaller programs. Over that time, simulation technology has diviersified considerably, lowering per-item cost while deepening the "stack" required for an appropriately-equipped laboratory.[^high-fidelity-comment] Though buy-in costs have remained high, the health education sector views simulation technology as valuable,[@Cook:2011:article] and there is growing evidence improved education outcomes are beginning to show across an increasing spectrum of psychomotor skills.[@Kennedy:2014:article][@McGaghie:2011:article][@McKinney:2013:article]
+Utilization of simulation-based training for healthcare providers has expanded rapidly since the early 2000's, when the first "high fidelity" patient simulator mannequins were made available by manufacturers at price points accessible to smaller programs. Over that time, simulation technology has diviersified considerably, lowering per-item cost while deepening the "stack" required for an appropriately-equipped laboratory.[^high-fidelity-comment] Though buy-in costs have remained high, the health education sector views simulation technology as valuable,[@Cook:2011:article] and there is accumulating evidence of improved education outcomes from simulation training across an increasing spectrum of psychomotor skills.[@McGaghie:2011:article][@McKinney:2013:article][@Kennedy:2014:article]
 
-Audiovisual (AV) systems are an essential part of the technology stack for modern simulation laboratories; they are complex, expensive, specialized services which are difficult to maintain without access to an AV specialist. In addition to engineering challenges, the decoding, encoding, and transmission of AV data is deeply mired in a crytpic network of patent protections and proprietary technologies.[@Zimmerman:2017:online] Simulation laboratories in need of AV services have few options: select one of several commercially available products, contract for a customized system, or develop their own. Each option introduces significant up-front and downstream costs, and the latter two are not realistic for a majority of simulation centers.
+Data capture systems are an essential part of the technology stack for modern simulation laboratories; they are complex, expensive, specialized services which are difficult to maintain without access to a specialist. In addition to engineering challenges, the decoding, encoding, and transmission of AV data is deeply mired in a crytpic network of patent protections and proprietary technologies.[@Zimmerman:2017:online] Simulation laboratories in need of AV services have few options: select one of several commercially available products, contract for a customized system, or develop their own. Each option introduces significant up-front and downstream costs, and the latter two are not realistic for a majority of simulation centers.
 
 These items encourage vendor dependence, especially in resource limited laboratories, and increase the dfficulty of accurate decision-making by consumers. Vendors are not forthcoming on details related to the architecture, implementation, or performance of their service, and, if it is made available, the information is written in a marketing language that conflates and obfuscates important technical details.[^megapixel-comment] Given that AV systems are an essential debriefing tool, and that debriefing is the most important part of simulation,[@Issenberg:2005:article][@Sawyer:2016:article] difficulty matching tool to task degrades Return on Investment (ROI) for simulation laboratories and their constituents.
 
@@ -41,14 +41,39 @@ Moving forward, some nomenclature will be helpful.
     - *Decoders* decompress data for viewing.
 
 ## Engineering Challenges
-Capture and delivery of distrubted data is *not* an encapsulated service, despite manufacturers' attempts to present their services otherwise. It relies on an extensive technology stack crossing many domains that evolve independently and according to their own needs. Thus these vendors are consumers and users of a wide range of technology products used to deliver a service to *their* customers, who implicitly "buy in" to these decisions when they deploy a given service. Though there is nothing inherently wrong with this practice, it is heavily obfuscated in marketing and sales materials, which focus on per-device specification and leave the buyer to discern whether their deployment environment can acheive advertised performance. Given the cost and specificity of deploying a distributed data service within a medical simulation laboratory, consumers deserve a chance to review and question decisions ostensibly made on their behalf.
+Capture and delivery of distrubted data is *not* an encapsulated service, despite vendors' attempts to present their services otherwise. It relies on an extensive technology stack crossing many domains that evolve independently and according to their own needs. Thus these vendors are consumers and users of a wide range of technology products used to deliver a service to *their* customers, who implicitly "buy in" to these decisions when they deploy a given service. Though there is nothing inherently wrong with this practice, it is heavily obfuscated in marketing and sales materials, which focus on per-device specification and leave the buyer to discern whether their deployment environment can acheive advertised performance. Given the cost and specificity of deploying a distributed data service within a medical simulation laboratory, consumers deserve a chance to review and question decisions ostensibly made on their behalf.
 
 ### User Experience (UX)
-Humans have low tolerance for latency in interactive computer systems.[@Nielsen:2009:online] Engineering a consistent experience for users
+Humans have low tolerance for latency when interacting with a computer.[@Nielsen:2009:online] Engineering a consistent experience across a distributed, high-bandwidth service is extremely difficult. This is due to the increased complexity of distributed systems and their depedence on networks for data transmission: if the network is underperfomant, the system has limited ways to adjust, with each adjustment adding complexity and consuming system resources.
 
-\* - lack of transparency => hindered diagnosis => difficulty addressing on-site issues
+Near real-time is a typical use case for a medical simulation data system. Captured data are expected to be available immediately following the conclusion of a simulation exercise and delivered smoothly enough to not interrupt the educational process. Distributed systems also distribute their errors, so when a system underperforms--as it is occassionaly guaranteed to do--it can be difficult to discern the source *even for those with great familiarity*.[^chaos-engineering]
 
-### Limited Technology Ecosystem
+Vendors sell closed technology, and spend precious little time at client sites. They cannot be expected to have robust knowledge of a client's network characteristics, nor can they be expected to change their product if it is a bad fit; which will be discovered *after* the client has made a capital investment. This lack of transparency makes performance guarantees tenuous, gives vendors a side-out for issues (blame the network), and strongly limits the ability of a simulation laboratory to get the most out of their service. In general,
+
+> lack of transparency => hindered diagnoses => difficult to address local problems [graphic]
+
+While *vision* is certainly a complex distributed system prone to the same set of issues, it is **reviewable, modifiable, and provides information-rich logs** which empower simulation laboratories to adapt *vision* and/or their network to better meet the needs of their users.
+
+### Limited Ecosystem of Essential Technologies
+What a simulation data service can offer is limited by what its clients can consume. Codec support on end-user devices cannot be taken for granted, nor can it be assumed client devices are properly equipped to deliver a reasonable experience. Considering the essential "base" technologies, there are
+
+- Two (2) widely-supported AV formats: H.26\* and VP9.
+- Four (4) common browsers: Chrome, Edge, Firefox, and Safari.[^vp9-support]
+- Five (5) common operating systems: Andriod, iOS, Linux, MacOS, and Windows.
+- One (1) appropriate streaming method with one (1) standard impelemtation: Adaptive Bitrate (ABR) Streaming via MPEG-DASH.[^abr-implementations]
+
+That's 2\*4\*5\*1, or 40, possible combinations, and, looking from the client's side, we can safely exclude Linux and scale back to 2\*3\*4\*1, or 24, *likely* combinations. Vendors may also choose to develop a native client, sidestepping the browser and reducing the total number of combinations to 2\*4\*1 (8), but more likely to 2\*3\*1 (6) because tablets predominatly run Andriod or iOS, and occasionally Windows.
+
+Considered from the service side, there are
+
+- Two (2) likely operating system choices: Linux and Windows.
+- One (1) standard utility for maniuplating AV data: FFmpeg.[^ffmpeg-dominance]
+
+That's 2\*1 (2) combinations. The operating system does little more than host a simulation data service and its associated processes. This job is certainly important, but modern operating systems are reliable enough for engineers to put a majority of their focus elsewhere and assume the operating system is able to support their service.
+
+Programming languages are discounted because even bad code runs fast on modern systems. Despite probable claims from vendors that their service is faster because it is written in a given language, an overwhelming majority of computationally-intensive tasks are handled by third-party services. Simulation data services are, a priori, distributed systems, so engineers are obligated to follow a single design pattern regardless of their choice of language. Architecture--which determines how a service distributes computational load--is a far better predictor of performance.
+
+Thus simulation data services fail to meaningfully differentiate, contrary to vendor claims, and their closed-source nature makes it impossible for consumers to evaluate which implementation they desire. *vision* is robustly open-source, and based entirely on open-source technologies, allowing anyone to deeply review the service and its design.
 
 ### Security
 Security is a central problem of information storage, transfer, and retrieval. 
@@ -77,7 +102,7 @@ The first digital AV format, H.120, was published by a telecommunications indust
 
 Numerous free and/or open source options have been introduced concurrent to the rise in popularity of the H.26\* standards. Generally these can be divided into encoding **libraries**, such as *libx264*, *libx265*, and *libpvx*--for H.264, HEVC/H.265, and VP9 respectively--and **formats**, such as Matroska, Ogg, WebM, and VP9--which define data structures and are used to interpret individual AV files. Here some interesting catch-22s arise
 
-1. While *libx264* and *libx265* are free and open sourced, the H.26\* family of formats is not. Anyone wishing to use them in production must negotiate a license agreement via
+1. While the codecs *libx264* and *libx265* are free and open sourced, the H.26\* family of formats is not. Anyone wishing to use them in production must negotiate a license agreement via
     - MPEG LA, LLC. Private, for-profit, licenses H.26\* patent pools.[^mpeg-la]
     - HEVC Advance. Private, for-profit, licenses H.265/HEVC patent pools.[^hevc-advance]
     - Velos Media. Private, for-profit, licenses H.265/HEVC patent pools.[^velos-media]
@@ -87,7 +112,7 @@ Numerous free and/or open source options have been introduced concurrent to the 
     - Google, the owner and developer of VP9, grants an "in-kind" license that terminates on patent litigation.[@WebMLicense:misc]
 3. H.264 is ubiquitous and there is already widespread support for HEVC/H.265 *and* VP9. Exposure to royalty fees depends on the engineering of a particular content service.[@Ozer:2017:online]
 
-As of this writing, there are at least three (3) patent pools for H.265/HEVC,[@Rayburn:2017:online] one (1) for the H.26\* pools,[^mpeg-la] and at least one significant patent holder which does not participate in any pool.[@IAMTechnicolor:2016:online] Inconsistent participation by patent holders has been identifed as a barrier to adoption of the HEVC standard,[@Vaughn:2016:online] and waiting in the wings is the Alliance for Open Media's AV1
+As of this writing, there are at least three (3) patent pools for H.265/HEVC,[@Rayburn:2017:online] one (1) for the H.26\* pools,[^mpeg-la] and at least one significant patent holder which does not participate in any pool.[@IAMTechnicolor:2016:online] Inconsistent participation by patent holders has been identifed as a barrier to adoption of the HEVC standard,[@Vaughn:2016:online] and waiting in the wings is the Alliance for Open Media's AV1--an as-of-yet untested format whose adoption is expected but by no means guaranteed.
 
 ## Addressing Challenges and Removing Barriers
 - aligned with open source tools
@@ -100,6 +125,8 @@ As of this writing, there are at least three (3) patent pools for H.265/HEVC,[@R
 
 ## References
 [^cite]: **THIS NEEDS A CITATION!!**
+[^chaos-engineering]: For Netflix, understanding the fail points of their system became so difficult they introduced a testing method called Chaos Engineering which involves delibeately crashing their production servers, sometimes under peak loads. See https://medium.com/netflix-techblog/tagged/chaos-engineering
+[^ffmpeg-dominance]: Though other AV utilities are available FFmpeg is mature, performant, and free and open-source, making it a very popular choice. The author is not aware of any simulation data services that use an alternate AV utility.
 [^h26-patent-license-terms]: See https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding#Patent_license_terms
 [^hevc-advance]: https://www.hevcadvance.com/
 [^high-fidelity-comment]: Consider that in 2003, access to a mannequin such as SimMan (now SimMan Classic) *was the definition of* a "high fidelity" simulation program. Ten years later, a properly equipped program owns *one or more* "high fidelity" mannequins--such as Laerdal's SimMan3G, CAE's iStan, or Guamard's HAL--several "mid"- and "low"- fidelity mannequins, dedicated simulation space, and an AV system able to capture at least one room.
@@ -107,3 +134,4 @@ As of this writing, there are at least three (3) patent pools for H.265/HEVC,[@R
 [^mpeg-la]: http://www.mpegla.com/
 [^mpeg-patents]: The patent list for the most common format as of this writing, AVC/H.264, is 112 pages.[@AVCPatents:2017:misc] The patent list for it's successor, HEVC/H.265, is 91 pages.[@HEVCPatents:2017:misc]
 [^velos-media]: http://velosmedia.com/
+[^vp9-support]: Safari does not support VP9.
