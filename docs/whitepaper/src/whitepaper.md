@@ -104,14 +104,12 @@ Research and development of AV technology occurs in a niche market protective of
 
 Standards create consistency, something that largely benefits the owners of content delivery networks who charge for the privilege of access to the users on their networks. From 2006 to 2016, internet advertising revenues in *the United States alone* grew approximately 429.0% from $16.9 billion to $72.5 billion,[@IABRevenueReport:2017:online, 5] with the "top ten" (10) companies commanding 69-75% of revenue over the same period.[@IABRevenueReport:2017:online, 9] In this case standardization is a revenue optimization strategy: the more devices end users own which support the standard, the larger the potential customer pool for advertisers.
 
-Standards are also expensive and time-consuming to create. Many of the participants in standards-setting processes feel justified asking for compensation for their time and effort. This is reasonable
+Standards are also expensive and time-consuming to create. Many of the participants in standards-setting processes feel justified asking for compensation for their time and effort. Patent pools and strong notions of ownership have exploited this simple, and likely reasonable, request to create a market space advantageous to them.[@Balto:2013:online] This limits market growth and stifles innovation,[@Balto:2013:online] making vendors implicit consumers of a single, closed standard. These costs are ultimately borne by consumers, who pay higher prices due to license and royalty fees paid on their behalf.
 
-Though VP9 is widespread, and the standard format for YouTube, Apple has repeatedly passed on implementing it in Safari for iOS or macOS.[^cite] Thus Safari users cannot access VP9-encoded content and must change browsers or rely on vendors to support multiple formats, which introduces additional frustrations for users.
+*vision* uses the open and royalty-free format VP9 by default. It is the default encoding for YouTube, and well supported across the modern device ecosystem. Users may also implement other formats and encoding strategies, taking advantage of the open and free nature of *vision*.
 
 ### Patents and Ownership
 H.26L formats are based heavily on patetented technology.[^mpeg-patents] And while a reasonable number of other formats are available, many require some type of licensing or implement part(s) of an H.26L format. A majority of these agreements separate encoding, streaming, and decoding; which allows the introduction of fees at each step in the delivery chain.
-
-The first digital AV format, H.120, was published by a telecommunications industry group in 1984.[@CCITT:1988:incollection, 1] It was not usable, but a revision to it, H.261, became the first production-ready standard when it was published in 1988. A number of formats were introduced as digital audio and video data proliferated throughout the 1990s but none found the traction of H.261 and its successors, which emerged as the de facto industry standard--studied, licensed, or re-implemented by a majority of avaialble AV formats.
 
 Numerous free and/or open source options have been introduced concurrent to the rise in popularity of the H.26L standards. Generally these can be divided into encoding **libraries**, such as *libx264*, *libx265*, and *libpvx*--for H.264, HEVC/H.265, and VP9 respectively--and **formats**, such as H.26L, Matroska, Ogg, WebM, and VP9--which define data structures and are used to interpret individual AV files. Here some interesting catch-22s arise
 
@@ -125,17 +123,14 @@ Numerous free and/or open source options have been introduced concurrent to the 
     - Google, the owner and developer of VP9, grants an "in-kind" license that terminates on patent litigation.[@WebMLicense:misc]
 3. H.264 is ubiquitous and there is already widespread support for HEVC/H.265 *and* VP9. Exposure to royalty fees depends on the engineering of a particular content service.[@Ozer:2017:online]
 
-As of this writing, there are at least three (3) patent pools for H.265/HEVC,[@Rayburn:2017:online] one (1) for the H.26L pools,[^mpeg-la] and at least one significant patent holder which does not participate in any pool.[@IAMTechnicolor:2016:online] Inconsistent participation by patent holders has been identifed as a barrier to adoption of the HEVC standard,[@Vaughn:2016:online] and waiting in the wings is the Alliance for Open Media's AV1--an as-of-yet untested format whose adoption is expected but by no means guaranteed.
+At least one significant patent holder, Technicolor, does not participate in any pool,[@IAMTechnicolor:2016:online] and inconsistent participation by patent holders has been identifed as a barrier to adoption of the HEVC standard.[@Vaughn:2016:online] Google offers VP9-related patents royalty-free, a trend the Alliance for Open Media will likely continue with the forthcoming AV1 format, which is as-of-yet untested and cannot be assumed market viable.
+
+*vision*'s open and free codebase allows medical simulation laboratories to control how and where patent-protected technologies penetrate their ecosystem. As formats and technologies change, *vision* can be modified to accommodate, further enabling medical simulation laboratories to meet their needs.
 
 ## Addressing Challenges and Removing Barriers
-- aligned with open source tools
-- avoids vendor/platform (clear up) lock-in
-- inclusiveness ("community aware")
-- increases visibility of difficult engineering issues
-- fundamentally different motivations
+*vision* increases the visibility of genuine engineering challenges and responds with a resillient, modern, reactive microservice-based architecture that is performant, stable, and scalable. It is a free and open codebase that utilizes free and open techonology by default, avoding vendor lock-in and insulating users from profit-motivated licensing schemes. *vision* is community-focused, developed specifically to meet the needs of medical simulation laboratories while ensuring their data remain their own. 
 
 ## References
-[^cite]: **THIS NEEDS A CITATION!!**
 [^chaos-engineering]: For Netflix, understanding the fail points of their system became so difficult they introduced a testing method called Chaos Engineering which involves delibeately crashing their production servers, sometimes under peak loads. See https://medium.com/netflix-techblog/tagged/chaos-engineering
 [^ffmpeg-dominance]: Though other AV utilities are available FFmpeg is mature, performant, and free and open-source, making it a very popular choice. The author is not aware of any simulation data services that use an alternate AV utility.
 [^h26-patent-license-terms]: See https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding#Patent_license_terms
