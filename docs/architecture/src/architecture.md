@@ -12,18 +12,19 @@ csl: './architecture/src/bib/chicago-fullnote-bibliography.csl'
     3. Internal Communication
 2. Microservices
     1. Master
-    2. LogManager
-    3. FileSystem
-    4. Database
-    5. AuthManager
-    6. Capture
-    7. Streaming
-3. Traits
+    2. AuthManager
+    3. Capture
+    4. Streaming
+3. Classes
+    1. Database
+    2. FileSystem
+    3. LogManager
+4. Traits
     1. Credentials
     2. Location
 
 ## Global Service Architecture
-![Figure 1: vision Global Service Architecture][GlobalService]
+<!-- ![Figure 1: vision Global Service Architecture][GlobalService] -->
 
 The *vision* data service is an asynchronous, distributed system composed of independent, reactive microservices called Workers, who collaborate to deliver a service to end-users. Users interact with a Master worker, responsible for activation, coordination, and oversight of all *vision* workers. Communication between the Master and other workers occurs at a level inaccessible to users, who are limited to making requests of the Master worker. A controlled, central access point helps normalize state across the distributed system, reducing the potential for bugs and errant behavior.
 
@@ -48,56 +49,53 @@ Communication between *vision* workers is carried out by Akka Actors[@AkkaDocs:2
 ### Master
 ![Figure 2: Master Microservice Architecture][Master]
 
-*Associated Workers:* Database, LogManager
+*Implements:* Database, LogManager
 
 The Master microservice coordinates the effort of all *vision* workers, and serves as the sole point-of-contact for end users. All user requests are received and disseminated to *vision* workers at the discretion of the Master worker. It is allowed to hand off communication tasks to other workers, thus providing implicit permission for the designated worker(s) to communicate with external entities; in these cases, the worker is required to be literate in the necessary communication protocols.
 
 The Master microservice is allocated a dedicated, local Database worker for storage and retrieval of worker access information. Only the minimum information set required to communicate with an individual worker should be committed to the Master's database, all other needed credentials should be passed to or retreived by the activated worker.
 
-### LogManager
-![Figure 3: LogManager Microservice Architecture][LogManager]
-
-*Associated Workers:* FileSystem, LogManager (global)
-
-The LogManager microservice creates, maintains, and provides access methods for append-only log files of the events passing through connected workers. It also pushes a copy of these event records to a global LogManager via Akka Distributed Data,[@AkkaDocs:2017:online] an eventual consistency service based on Conflict-free Replicated Data Types.[@Shapiro:2011:article] Information appended to these logs is used by *vision* for dynamic allocation of service resources, and thus essential to the stability of *vision* itself.
-
-Redundancy is employed as a failsafe and to ensure robust data capture. The increase in complexity from implementation of an eventual consistency pattern is acceptable given the value of the information.
-
-### FileSystem
-![Figure 4: FileSystem Microservice Architecture][FileSystem]
-
-*Associated Workers:* LogManager
-
-The FileSystem microservice reads, writes, and provides access to physical file systems. The primary purpose of FileSystem workers is to ensure separation of concerns within *vision*. They are expected to be literate in a single file format and provide methods for the essential operations of their connected *vision* microservices.
-
-### Database
-![Figure 5: Database Microservice Architecture][Database]
-
-*Associated Workers:* LogManager
-
-The Database microservice provides methods for *vision* microservices to interact with third-party database services. The primary purpose of Database workers is to ensure separation of concerns within *vision*. They are expected to be literate in 
-a single database protocol and provide methods for the essential operations of their connected *vision* microservices.
-
 ### AuthManager
-![Figure 6: AuthManager Microservice Architecture][AuthManager]
+![Figure 3: AuthManager Microservice Architecture][AuthManager]
 
-*Associated Workers:* LogManager
+*Implements:* Database, LogManager
 
 The AuthManager microservice provides methods for *vision* microservice to validate credentials passed in by associated workers. They are expected to be literate in a single authentication method, and return the minimum information set required to demonstrate validity or invalidity.
 
 ### Capture
-![Figure 7: Capture Microservice Architecture][Capture]
+![Figure 4: Capture Microservice Architecture][Capture]
 
-*Associated Workers:* FileSytem, LogManager
+*Implements:* FileSytem, LogManager
 
 The Capture microservice provides an interface for the **intake** of data **from** sources **external** to *vision*. They are expected to be literate in a single communication protocol and a single strategy of handling the data to be written to disk. Confirmation, validation, and the like are optional and should only be implemented if a need can be demonstrated. Capture workers are **write-only**.
 
 ### Streaming
-![Figure 8: Streaming Microservice Architecture][Streaming]
+![Figure 5: Streaming Microservice Architecture][Streaming]
 
-*Associated Workers:* FileSytem, LogManager
+*Implements:* FileSytem, LogManager
 
-The Streaming microservice provides and interface for the **output** of data **to** sources **external** to *vision*. They are expected to be literate in a single communication protocol and a single strategy of handling the data to be read from a disk. Confirmation, validation, and the like are optional and should only be implemented if a need can be demonstrated. Streaming workers are **read-only**.
+The Streaming microservice provides and interface for the **transmission** of data **to** sources **external** to *vision*. They are expected to be literate in a single communication protocol and a single strategy of handling the data to be read from a disk. Confirmation, validation, and the like are optional and should only be implemented if a need can be demonstrated. Streaming workers are **read-only**.
+
+## Classes
+*vision* classes ...
+
+### Database
+<!-- ![Figure 6: Database Microservice Architecture][Database] -->
+
+The Database class provides methods for *vision* microservices to interact with third-party database services. The primary purpose of Database workers is to ensure separation of concerns within *vision*. They are expected to be literate in 
+a single database protocol and provide methods for the essential operations of their connected *vision* microservices.
+
+### FileSystem
+<!-- ![Figure 7: FileSystem Microservice Architecture][FileSystem] -->
+
+The FileSystem class reads, writes, and provides access to physical file systems. The primary purpose of FileSystem workers is to ensure separation of concerns within *vision*. They are expected to be literate in a single file format and provide methods for the essential operations of their connected *vision* microservices.
+
+### LogManager
+<!-- ![Figure 8: LogManager Microservice Architecture][LogManager] -->
+
+The LogManager class creates, maintains, and provides access methods for append-only log files of the events passing through connected workers. It also pushes a copy of these event records to a global LogManager via Akka Distributed Data,[@AkkaDocs:2017:online] an eventual consistency service based on Conflict-free Replicated Data Types.[@Shapiro:2011:article] Information appended to these logs is used by *vision* for dynamic allocation of service resources, and thus essential to the stability of *vision* itself.
+
+Redundancy is employed as a failsafe and to ensure robust data capture. The increase in complexity from implementation of an eventual consistency pattern is acceptable given the value of the information.
 
 ## Traits
 Traits represent information *vision* workers require for interacting with associated workers and third-party services. They are optional, and should only be used when necessary.
