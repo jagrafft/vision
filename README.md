@@ -1,8 +1,8 @@
 # vision
 Repository for the *vision* project, and open-source data and audiovisual server developed by [SimPORTAL](https://www.simportal.umn.edu/) at the University of Minnesota.
 
-* Project [Documentation][docs]
-* *vision* [codebase][code]
+* [Codebase][code]
+* [Documentation][docs]
 
 ## Tentative Punch List
 - [ ] White Paper (docs)
@@ -18,5 +18,5 @@ Repository for the *vision* project, and open-source data and audiovisual server
 - [ ] Deployment (system)
 
 
-[code]: vision/README.md
-[docs]: docs/README.md
+[code]: vision/
+[docs]: docs/

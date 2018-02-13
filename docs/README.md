@@ -1,6 +1,8 @@
-# vision Documentation
+# Documentation
 
-## Architecture
+- Architecture
+    - *vision*
+    - Microservices
+- White Paper
+    - Details the design philosophy and rationale for the *vision* project.
 
-## White Paper
-Details the design philosophy and rationale for the *vision* project.
