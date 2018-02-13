@@ -1,0 +1,15 @@
+akka {
+    actor {
+        provider = "akka.remote.RemoteActorRefProvider"
+    }
+
+    remote {
+        enabled-transports = ["akka.remote.netty.tcp"]
+        netty.tcp {
+            hostname = "localhost"
+            port = 7000
+        }
+        log-sent-messages = on
+        log-received-messages = on
+    }
+}

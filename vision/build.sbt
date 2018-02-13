@@ -1,12 +1,72 @@
 import Dependencies._
 
-lazy val root = (project in file(".")).
-  settings(
-    inThisBuild(List(
-      organization := "co.grafft",
-      scalaVersion := "2.12.4",
-      version      := "0.1.0-SNAPSHOT"
-    )),
-    name := "vision",
-    libraryDependencies += scalaTest % Test
+name := "vision"
+organization in ThisBuild := "co.grafft"
+version in ThisBuild := "0.1.0-SNAPSHOT"
+scalaVersion in ThisBuild := "2.12.4"
+
+// PROJECTS
+lazy val global = project
+    .in(file("."))
+    .settings(settings)
+    .aggregate(
+        core,
+        av
+    )
+
+lazy val core = project
+    .settings(
+        name := "core",
+        settings,
+        libraryDependencies ++= commonDependencies
+    )
+
+lazy val av = project
+    .settings(
+        name := "av",
+        settings,
+        assemblySettings,
+        libraryDependencies ++= commonDependencies ++ resourcePoolDependencies
+    )
+    .dependsOn(
+        core
+    )
+
+// DEPENDENCIES
+lazy val commonDependencies = Seq(
+    scalaTest % Test
+)
+
+lazy val resourcePoolDependencies = Seq(
+    akkaActors,    
+    lightbendConfig,
+    akkaTestKit % Test
+)
+
+// SETTINGS
+lazy val settings = Seq(
+  scalacOptions ++=  Seq(
+      "-unchecked",
+      "-feature",
+      "-language:existentials",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      "-language:postfixOps",
+      "-deprecation",
+      "-encoding",
+      "utf8"
+    ),
+  resolvers ++= Seq(
+    "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
+    Resolver.sonatypeRepo("releases"),
+    Resolver.sonatypeRepo("snapshots")
   )
+)
+
+lazy val assemblySettings = Seq(
+    assemblyJarName in assembly := "vision-" + name.value + ".jar",
+    assemblyMergeStrategy in assembly := {
+        case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+        case _                             => MergeStrategy.first
+    }
+)
