@@ -1,0 +1,6 @@
+id,label,location,dataSource,dataTypeId,address,port,protocol,username,password,accessString,streamString,streamProtocol,lastUpdate
+1,FFmpeg Actor 1,Anesthesia visionAV,0,2,localhost,6001,akka.tcp://,FFmpeg,NULL,/user/FFmpegActor,NULL,,2017-08-10 14:33:21
+2,Patient Left,Anesthesia,1,5,192.168.1.201,554,rtsp://,vision,vi5ion,/axis-media/media.amp?streamprofile=Streaming,/mjpg/1/video.mjpg,http://,2017-08-10 14:55:12
+3,Patient Foot,Anesthesia,1,5,192.168.1.202,554,rtsp://,vision,vi5ion,/axis-media/media.amp?streamprofile=Streaming,/mjpg/1/video.mjpg,http://,2017-08-10 14:55:36
+5,Overhead,Lap/Endo,1,5,192.168.1.203,554,rtsp://,vision,vi5ion,/axis-media/media.amp?streamprofile=Streaming,/mjpg/1/video.mjpg,http://,2017-08-10 14:56:37
+6,Audio Source 1,Anesthesia visionAV,1,1,hw:0,0,0,,NULL,NULL,NULL,NULL,2017-08-17 16:40:56
