@@ -38,9 +38,7 @@ lazy val commonDependencies = Seq(
 )
 
 lazy val resourcePoolDependencies = Seq(
-    akkaActors,    
-    lightbendConfig,
-    akkaTestKit % Test
+    cirisCore
 )
 
 // SETTINGS

@@ -2,9 +2,6 @@
 - last update 16.02.2018
 - [Instructions to do WebM live streaming via DASH](http://wiki.webmproject.org/adaptive-streaming/instructions-to-do-webm-live-streaming-via-dash)
 
-## Test Utils
-- [Dash.js Reference Client 2.6.6](http://reference.dashif.org/dash.js/v2.6.6/samples/dash-if-reference-player/index.html)
-
 ## Create Streams
 `export VP9_LIVE_PARAMS="-speed 6 -tile-columns 4 -frame-parallel 1 -threads 8 -static-thresh 0 -max-intra-rate 300 -deadline realtime -lag-in-frames 0 -error-resilient 1"`
 
