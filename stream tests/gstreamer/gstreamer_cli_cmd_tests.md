@@ -4,6 +4,8 @@
 ## No conflicts or grossly obvious interrupts
 gst-launch -e rtspsrc location=rtsp://192.168.1.202:554/axis-media/media.amp?Streamprofile=Streaming ! avidemux ! avimux ! filesink location=test.avi // large files
 
+gst-launch -e rtspsrc location=rtsp://192.168.1.202:554/axis-media/media.amp?Streamprofile=Streaming ! avidemux ! avimux ! filesink location=test.avi
+
 gst-launch playbin2 uri=rtsp://192.168.1.201:554/axis-media/media.amp?Streamprofile=Streaming
 
 ## Works with errors
