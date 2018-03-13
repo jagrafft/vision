@@ -1,13 +1,10 @@
-var cmd = 'gst-launch-1.0';
-var args = ['autovideosrc', 'horizontal-speed=1', 'is-live=true',
-    '!', 'videoconvert',
-    '!', 'vp8enc', 'cpu-used=5', 'deadline=1', 'keyframe-max-dist=10',
+var cmd = 'gst-launch';
+// anesthesia server => alsa_input.pci-0000_00_1f.3.analog-stereo
+var args = ['pulsesrc', 'device="alsa_input.pci-0000_00_1f.3.analog-stereo"', 'volume=7',
+    '!', 'audio/x-raw,rate=48000,channels=1',
+    '!', 'opusenc', 'bitrate=64000', 'bitrate-type=vbr', 'complexity=2',
     '!', 'queue', 'leaky=1',
-    '!', 'm.', 'pulsesrc',
-    '!', 'audioconvert',
-    '!', 'opusenc',
-    '!', 'queue', 'leaky=1',
-    '!', 'm.', 'webmmux', 'name=m', 'streamable=true',
+    '!', 'webmmux', 'name=m', 'streamable=true',
     '!', 'queue', 'leaky=1',
     '!', 'tcpserversink', 'host=127.0.0.1', 'port=12001', 'sync-method=2'];
 
@@ -33,8 +30,8 @@ app.get('/', function (req, res) {
         'Date': date.toUTCString(),
         'Connection': 'close',
         'Cache-Control': 'private',
-        'Content-Type': 'video/webm',
-        'Server': 'CustomStreamer/0.0.1',
+        'Content-Type': 'audio/webm;codecs=opus',
+        'Server': 'vision-streamer/0.0.1',
     });
 
     var net = require('net');

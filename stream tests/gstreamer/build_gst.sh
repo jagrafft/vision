@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Builds and installs GStreamer 1.12.x
+# Builds and installs GStreamer $GST_RELEASE.x
 # Targeted for and tested on Ubuntu 16.04 LTS
 # last updated 14.02.2108
 
@@ -9,6 +9,7 @@ if [ `id -u` -ne 0 ] ; then
     exit 1
 else
     BUILD_DIR="$HOME/gstreamer-build"
+    GST_RELEASE=1.12
     NUM_PROCS=`getconf _NPROCESSORS_ONLN`
 
     BUILD_DEPS='
@@ -49,7 +50,7 @@ else
     # BUILD gstreamer
     git clone https://github.com/GStreamer/gstreamer.git
     cd gstreamer/
-    checkout 1.12
+    checkout $GST_RELEASE
     sh autogen.sh
     make -j $NUM_PROCS
     make install
@@ -62,7 +63,7 @@ else
     # BUILD gst-plugins-base
     git clone https://github.com/GStreamer/gst-plugins-base.git
     cd gst-plugins-base/
-    checkout 1.12
+    checkout $GST_RELEASE
     sh autogen.sh
     make -j $NUM_PROCS
     make install
@@ -72,7 +73,7 @@ else
     # BUILD gst-plugins-good
     git clone https://github.com/GStreamer/gst-plugins-good.git
     cd gst-plugins-good/
-    checkout 1.12
+    checkout $GST_RELEASE
     sh autogen.sh
     make -j $NUM_PROCS
     make install
