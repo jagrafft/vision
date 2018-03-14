@@ -9,10 +9,12 @@ if [ `id -u` -ne 0 ] ; then
     exit 1
 else
     BUILD_DIR="$HOME/ffmpeg-build"
+    # DECKLINK_LIBS="$HOME/.../include/"
     FFMPEG_RELEASE=3.4
     NUM_PROCS=`getconf _NPROCESSORS_ONLN`
 
     BUILD_DEPS='
+        alsa-base
         autoconf
         automake
         build-essential
@@ -21,6 +23,7 @@ else
         git
         openssl
         pkg-config
+        pulseaudio
         texi2html
         texinfo
         yasm
@@ -28,8 +31,10 @@ else
     '
 
     AV_LIBS='
+        libasound2-dev
         libogg-dev
         libopus-dev
+        libpulse-dev
         libsdl1.2-dev
         libssl-dev
         libtool
@@ -52,7 +57,6 @@ else
     cd $BUILD_DIR
 
     git checkout release/$FFMPEG_RELEASE
-    cd $BUILD_DIR
     
     ./configure
             --pkg-config-flags="--static"
@@ -66,8 +70,12 @@ else
             --disable-podpages
             --disable-txtpages
             --enable-libopus
+            --enable-libpulse
             --enable-libvorbis
             --enable-libvpx
+            # --enable-decklink
+            # --extra-cflags=-I$DECKLINK_LIBS
+            # --extra-ldflags=-L$DECKLINK_LIBS
     make -j $NUM_PROCS
     make install
     

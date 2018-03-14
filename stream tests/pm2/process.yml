@@ -1,7 +1,0 @@
-apps:
-	- script: ffserver.js
-	  instances: 1
-	  watch: true
-	- script: audio.anes.pulse.ffserver.js
-	  instances: 1
-	  watch: true

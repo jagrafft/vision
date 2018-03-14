@@ -13,6 +13,7 @@ else
     NUM_PROCS=`getconf _NPROCESSORS_ONLN`
 
     BUILD_DEPS='
+        alsa-base
         autoconf
         automake
         autopoint
@@ -28,6 +29,7 @@ else
         libxext-dev
         make
         pkg-config
+        pulseaudio
     '
 
     PLUGINS='
