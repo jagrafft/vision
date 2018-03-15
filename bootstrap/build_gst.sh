@@ -18,6 +18,7 @@ else
         automake
         autopoint
         bison
+        ca-certificates
         flex
         g++
         gettext
@@ -46,7 +47,7 @@ else
 	apt upgrade --yes --no-install-recommends
 	apt install --yes --no-install-recommends $BUILD_DEPS $PLUGINS
 
-    mkdir $BUILD_DIR
+    mkdir -p $BUILD_DIR
     cd $BUILD_DIR
 
     # BUILD gstreamer
@@ -58,7 +59,7 @@ else
     make install
     cd plugins/
     make install
-    export LD_LIBRARY_CONFIG=$LD_LIBRARY_CONFIG:/usr/local/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
     
     cd $BUILD_DIR
 
