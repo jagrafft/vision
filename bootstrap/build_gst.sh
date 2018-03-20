@@ -26,6 +26,7 @@ else
         gtk-doc-tools
         libglib2.0-dev
         liborc-dev
+        libsoup2.4-dev
         libtool
         libxext-dev
         make
@@ -53,7 +54,7 @@ else
     # BUILD gstreamer
     git clone https://github.com/GStreamer/gstreamer.git
     cd gstreamer/
-    checkout $GST_RELEASE
+    git checkout $GST_RELEASE
     sh autogen.sh
     make -j $NUM_PROCS
     make install
@@ -66,7 +67,7 @@ else
     # BUILD gst-plugins-base
     git clone https://github.com/GStreamer/gst-plugins-base.git
     cd gst-plugins-base/
-    checkout $GST_RELEASE
+    git checkout $GST_RELEASE
     sh autogen.sh
     make -j $NUM_PROCS
     make install
@@ -76,7 +77,7 @@ else
     # BUILD gst-plugins-good
     git clone https://github.com/GStreamer/gst-plugins-good.git
     cd gst-plugins-good/
-    checkout $GST_RELEASE
+    git checkout $GST_RELEASE
     sh autogen.sh
     make -j $NUM_PROCS
     make install
