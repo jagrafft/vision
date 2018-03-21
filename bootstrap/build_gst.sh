@@ -9,8 +9,9 @@ if [ `id -u` -ne 0 ] ; then
     exit 1
 else
     BUILD_DIR="$HOME/gstreamer-build"
-    GST_RELEASE=1.12
+    GST_RELEASE=1.14
     NUM_PROCS=`getconf _NPROCESSORS_ONLN`
+    UBUNTU_CODENAME=`lsb_release --codename | cut -f2`
 
     BUILD_DEPS='
         alsa-base
@@ -42,6 +43,11 @@ else
         libvorbis-dev
         libvpx-dev
     '
+
+    echo deb http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME multiverse >> /etc/apt/sources.list
+	echo deb-src http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME multiverse >> /etc/apt/sources.list
+    echo deb http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME-updates multiverse >> /etc/apt/sources.list
+	echo deb-src http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME-updates multiverse >> /etc/apt/sources.list
 
     # INSTALL system upgrades, dependencies
 	apt update

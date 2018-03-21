@@ -1,5 +1,7 @@
-import riot from 'riot'
-import './app.tag'
-import './md.tag'
+/*jslint es6*/
+import riot from "riot";
 
-riot.mount('app')
+import {} from "./app.tag";
+import {} from "./mjpeg.tag";
+
+riot.mount("app");

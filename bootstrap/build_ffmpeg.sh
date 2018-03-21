@@ -12,6 +12,7 @@ else
     # DECKLINK_LIBS="$HOME/.../include/"
     FFMPEG_RELEASE=3.4
     NUM_PROCS=`getconf _NPROCESSORS_ONLN`
+    UBUNTU_CODENAME=`lsb_release --codename | cut -f2`
 
     BUILD_DEPS='
         alsa-base
@@ -44,10 +45,10 @@ else
         libvpx-dev
     '
 
-    echo deb http://us.archive.ubuntu.com/ubuntu/ zesty multiverse >> /etc/apt/sources.list
-	echo deb-src http://us.archive.ubuntu.com/ubuntu/ zesty multiverse >> /etc/apt/sources.list
-    echo deb http://us.archive.ubuntu.com/ubuntu/ zesty-updates multiverse >> /etc/apt/sources.list
-	echo deb-src http://us.archive.ubuntu.com/ubuntu/ zesty-updates multiverse >> /etc/apt/sources.list
+    echo deb http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME multiverse >> /etc/apt/sources.list
+	echo deb-src http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME multiverse >> /etc/apt/sources.list
+    echo deb http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME-updates multiverse >> /etc/apt/sources.list
+	echo deb-src http://us.archive.ubuntu.com/ubuntu/ $UBUNTU_CODENAME-updates multiverse >> /etc/apt/sources.list
     
     apt-get update
     apt-get upgrade --yes --no-install-recommends

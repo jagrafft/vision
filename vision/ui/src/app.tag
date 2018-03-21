@@ -1,20 +1,11 @@
 <app>
-  <h1>Hi Riot!</h1>
-  <md content={ content } />
-
+  <mjpeg each={ feed in feeds } feed={ feed } />
+  
   <script>
-    const name = 'Rollup'
-    this.content = `Hello **${ name }**!`
-  </script>
-
-  <style>
-    :scope {
-      --riot-color: #f04;
-      display: block;
-    }
-    h1 {
-      color: var(--riot-color);
-      border-bottom: 1px solid var(--riot-color);
-    }
-  </style>
+    this.feeds = [
+      { id: "1", name: "Anes Foot", location: "192.168.1.201" },
+      { id: "2", name: "Anes Left", location: "192.168.1.202" },
+      { id: "3", name: "Lap/Endo", location: "192.168.1.203" }
+    ]
+</script>
 </app>
