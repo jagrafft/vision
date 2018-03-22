@@ -1,5 +1,7 @@
-~*
 .DS_Store
+bundle.min.js.map
+
+~*
 .vscode/
 docs/whitepaper/src/citations/
 docs/whitepaper/src/notes.md
