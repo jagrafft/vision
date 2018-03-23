@@ -1,13 +1,13 @@
 /*jslint es6*/
 const cmd = 'gst-launch';
-// const args = ['pulsesrc', 'device="alsa_input.pci-0000_00_1f.3.analog-stereo"',// 'volume=7',
-//     '!', 'queue', 'max-size-bytes=1000000', 'max-size-time=0',
-//     '!', 'audio/x-raw,format=S16LE,rate=48000,channels=1',
-//     '!', 'opusenc', 'bitrate=64000', //'bitrate-type=vbr',
-//     '!', 'webmmux', 'name=m', 'streamable=true',
-//     '!', 'tcpserversink', 'host=127.0.0.1', 'port=12001', 'sync-method=1'];
+const args = ['pulsesrc', //'device="alsa_input.pci-0000_00_1f.3.analog-stereo"',// 'volume=7',
+    '!', 'queue', 'max-size-bytes=1000000', 'max-size-time=0',
+    '!', 'audio/x-raw,format=S16LE,rate=48000,channels=1',
+    '!', 'opusenc', 'bitrate=64000', //'bitrate-type=vbr',
+    '!', 'webmmux', 'name=m', 'streamable=true',
+    '!', 'tcpserversink', 'host=127.0.0.1', 'port=12001', 'sync-method=1'];
 
-const args = ['pulsesrc', '!', 'opusenc', '!', 'webmmux', 'name=mux', '!', 'queue', '!', 'tcpserversink', 'host=127.0.0.1', 'port=12001'];
+// const args = ['pulsesrc', '!', 'audioconvert', '!', 'opusenc', '!', 'webmmux', 'name=mux', '!', 'queue', '!', 'tcpserversink', 'host=127.0.0.1', 'port=12001'];
 
 const child = require('child_process');
 const gstreamer = child.spawn(cmd, args, {stdio: 'inherit'});
