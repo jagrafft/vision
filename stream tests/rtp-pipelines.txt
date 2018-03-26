@@ -1,9 +1,0 @@
-gst-launch -v autoaudiosrc ! decodebin ! audioconvert ! rtpL16pay ! udpsink port=6969 host=127.0.0.1
-
-gst-launch -v udpsrc port=6969 caps="application/x-rtp, media=(string)audio, format=(string)S32LE, layout=(string)interleaved, clock-rate=(int)44100, channels=(int)2, payload=(int)0" ! rtpL16depay ! playsink
-
-###################
-
-gst-launch -v autoaudiosrc ! audio/x-raw,format=S16LE,rate=48000,channels=1 ! decodebin ! audioconvert ! opusenc ! rtpopuspay ! udpsink port=13000 host=127.0.0.1
-
-gst-launch -v udpsrc port=13000 caps="application/x-rtp, media=(string)audio, payload=(int)96, clock-rate=(int)48000, encoding-name=(string){ OPUS, X-GST-OPUS-DRAFT-SPITTKA-00 }" ! rtpopusdepay ! opusdec ! playsink
