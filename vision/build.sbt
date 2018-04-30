@@ -3,7 +3,7 @@ import Dependencies._
 name := "vision"
 organization in ThisBuild := "co.grafft"
 version in ThisBuild := "0.1.0-SNAPSHOT"
-scalaVersion in ThisBuild := "2.12.4"
+scalaVersion in ThisBuild := "2.12.5"
 
 // PROJECTS
 lazy val global = project
