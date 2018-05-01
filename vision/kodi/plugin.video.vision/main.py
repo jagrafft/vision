@@ -21,10 +21,14 @@ FEEDS = {
             'A574': [
                 {'name': 'Overhead','addr': 'rtsp://192.168.1.203:554/axis-media/media.amp?profile=Quality'}
             ],
-            'Anesthesia Server': [
+            'Anesthesia RTSP': [
                 {'name': 'Beaumont (mp4)','addr': 'rtsp://160.94.183.61:8555/test'},
                 {'name': 'SimMan (mp4)','addr': 'rtsp://160.94.183.61:8556/test'},
                 {'name': 'Traffic (mp4)','addr': 'rtsp://160.94.183.61:8557/test'}
+            ],
+            'Anesthesia DASH': [
+                {'name': '001','addr': 'http://160.94.183.61/dash/mp4/001/manifest.mpd'},
+                {'name': '002','addr': 'http://160.94.183.61/dash/mp4/002/manifest.mpd'}
             ]
         }
 

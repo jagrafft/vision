@@ -1,0 +1,3 @@
+#KODIPROP:inputstreamaddon=inputstream.adaptive
+#KODIPROP:inputstream.adaptive.manifest_type=mpd
+http://160.94.183.61/dash/mp4/002/manifest.mpd
