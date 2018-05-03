@@ -7,7 +7,7 @@ const height = 720;
 const addr = "rtsp://192.168.1.201:554/axis-media/media.amp?profile=Quality";
 const outfile = `${process.cwd()}/testRecs/${Date.now()}-${name}-${width}x${height}.mp4`;
 
-const cmd = ``;
+const cmd = `gst-launch-1.0 -e rtspsrc location="${addr}" ! rtph264depay ! video/x-h264,width=${width},height=${height} ! avdec_h264 ! queue ! x264enc ! mp4mux ! filesink location="${outfile}"`;
 
 exec(cmd, { maxBuffer: 134217728 }, (error, stdout, stderr) => {
     if (error) {
@@ -23,4 +23,3 @@ process.on("SIGINT", () => {
         process.exit(0);
     }, 1200);
 });
-

@@ -7,7 +7,7 @@ const device = "alsa_input.pci-0000_00_1f.3.analog-stereo";
 
 const outfile = `${process.cwd()}/testRecs/${Date.now()}-${name}-${bitrate}k.m4a`;
 
-const cmd = `ffmpeg -thread_queue_size 512 -f pulse -sample_rate 48k -channels 2 -frame_size 2 -i "${device}" -c:a libfdk_aac -b:a ${bitrate}k "${outfile}"`;
+const cmd = `ffmpeg -thread_queue_size 512 -f pulse -sample_rate 48k -channels 2 -frame_size 2 -i "${device}" -c:a libfdk_aac -b:a ${bitrate}k -vn "${outfile}"`;
 
 exec(cmd, { maxBuffer: 134217728 }, (error, stdout, stderr) => {
     if (error) {
