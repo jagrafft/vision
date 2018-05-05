@@ -7,7 +7,7 @@ const height = 720;
 const addr = "rtsp://192.168.1.202:554/axis-media/media.amp?profile=Quality";
 const outfile = `${process.cwd()}/testRecs/${Date.now()}-${name}-${width}x${height}.mp4`;
 
-const cmd = `ffmpeg -y -thread_queue_size 1024 -rtsp_transport tcp -f rtsp -r 30 -i "${addr}" -c:v libx264 -an -f mp4 "${outfile}"`;
+const cmd = `ffmpeg -y -thread_queue_size 1024 -rtsp_transport tcp -f rtsp -r 30 -i "${addr}" -c:v libx264 -keyint_min 60 -g 60 -preset veryfast -tune zerolatency -an -f mp4 "${outfile}"`;
 
 exec(cmd, { maxBuffer: 134217728 }, (error, stdout, stderr) => {
     if (error) {
