@@ -2,12 +2,12 @@
 const {exec} = require("child_process");
 
 const name = "ANES_1f.3";
-const bitrate = 96000;
+const bitrate = 96;
 const device = "alsa_input.pci-0000_00_1f.3.analog-stereo";
 
-const outfile = `${process.cwd()}/testRecs/${Date.now()}-${name}-${bitrate}k.m4a`;
+const outfile = `${process.cwd()}/testRecs/${Date.now()}-${name}-${bitrate}k.opus`;
 
-const cmd = `gst-launch-1.0 pulsesrc device="${device}" ! audioconvert ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! queue ! fdkaacenc bitrate=${bitrate} ! queue ! aacparse ! queue ! mp4mux ! filesink location="${outfile}"`;
+const cmd = `ffmpeg -thread_queue_size 512 -f pulse -sample_rate 48k -channels 2 -frame_size 2 -i "${device}" -c:a libopus -b:a ${bitrate}k -f webm "${outfile}"`;
 
 exec(cmd, { maxBuffer: 134217728 }, (error, stdout, stderr) => {
     if (error) {

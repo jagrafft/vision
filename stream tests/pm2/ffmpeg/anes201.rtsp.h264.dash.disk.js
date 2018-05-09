@@ -2,12 +2,10 @@
 const {exec} = require("child_process");
 
 const name = "ANES_201";
-const width = 1280;
-const height = 720;
 const addr = "rtsp://192.168.1.201:554/axis-media/media.amp?profile=Quality";
-const outfile = `${process.cwd()}/testRecs/${Date.now()}-${name}-${width}x${height}.mp4`;
+const segment_duration = 2;
 
-const cmd = `gst-launch-1.0 -e rtspsrc timeout=10 drop_on_latency=TRUE location="${addr}" ! queue ! rtph264depay ! video/x-h264,width=1280,height=720,framerate=25/1 ! h264parse ! mp4mux ! filesink location="${outfile}"`;
+const cmd = `mkdir ${name}; cd ${name}; ffmpeg -y -hide_banner -thread_queue_size 1024 -rtsp_transport tcp -f rtsp -r 25 -i "${addr}" -keyint_min 30 -g 30 -an -seg_duration ${segment_duration} -remove_at_exit 0 -use_template 0 -use_timeline 1 -streaming 0 -index_correction 0 -hls_playlist 0 -f dash manifest.mpd`;
 
 exec(cmd, { maxBuffer: 134217728 }, (error, stdout, stderr) => {
     if (error) {
