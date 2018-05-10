@@ -1,3 +1,3 @@
-# core
+# Gateway
 
-Data structures and objects common to *vision*. Used by all microservices.
+*vision* gateway service. Provides a central point of contact for all nodes in the *vision* ecosystem.
