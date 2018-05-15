@@ -1,0 +1,11 @@
+// RTSP -> MPEG-TS -> hlssink (video only, working w/ ~2 sec delay)
+gst-launch-1.0 -e rtspsrc location="rtsp://192.168.1.201:554/axis-media/media.amp?profile=Quality" ! queue ! rtph264depay ! video/x-h264,width=1280,height=720,framerate=30/1 ! h264parse ! queue ! mpegtsmux ! hlssink max-files=9000 playlist-length=9000 target-duration=1
+
+// RTSP -> Pulse -> MPEG-TS -> hlssink (audio + video, working)
+gst-launch-1.0 rtspsrc location="rtsp://192.168.1.201:554/axis-media/media.amp?profile=Quality" ! queue ! rtph264depay ! video/x-h264,width=1280,height=720,framerate=30/1 ! h264parse ! mux. pulsesrc ! audioconvert ! avenc_aac bitrate=96000 ! mux. mpegtsmux name=mux ! hlssink max-files=9000 playlist-length=9000 target-duration=1
+
+// Live Media Playlist -> VOD Media Playlist
+echo "#EXT-X-ENDLIST" >> playlist.m3u8; sed -i '6s/$/#EXT-X-PLAYLIST-TYPE:VOD/' playlist.m3u8
+
+// Kodi STRM file
+__ADDR_TO_M3U8__
