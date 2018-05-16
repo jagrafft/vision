@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.co.grafft.vision" version="0.0.1" name="vision A/V" provider-name="jason a. grafft">
+<addon id="plugin.co.grafft.vision" version="0.0.1" name="vision | Kodi Client" provider-name="jason a. grafft">
 <requires>
   <import addon="xbmc.python" version="2.25.0"/>
 </requires>
