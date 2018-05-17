@@ -29,7 +29,7 @@ export default {
         buble(),
         uglify()
     ]
-}
+};
 
 function cssnext (tagName, css) {
     css = css.replace(/:scope/g, ":root");

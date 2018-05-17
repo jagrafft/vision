@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "npm run watch & npm run server",
-    "build": "./node_modules/.bin/rollup -c",
+    "build": "rollup -c",
     "watch": "chokidar 'src/**' -c 'npm run build'",
     "server": "browser-sync start --files 'dist/*, index.html' --server"
   },
