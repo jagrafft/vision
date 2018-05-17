@@ -1,0 +1,19 @@
+{
+    "name": "monocle",
+    "version": "0.0.1",
+    "description": "Preact-based UI for vision's cortex service.",
+    "private": true,
+    "scripts": {
+      "start": "npm run watch & npm run server",
+      "build": "./node_modules/.bin/rollup -c",
+      "watch": "chokidar 'src/**' -c 'npm run build'",
+      "server": "browser-sync start --files 'dist/*, index.html' --server"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+    },
+    "license": "MIT",
+    "author": "jason a. grafft <jason@grafft.co>"
+}
+  

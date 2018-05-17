@@ -1,22 +1,18 @@
 # vision
-Repository for the *vision* project, and open-source data and audiovisual server developed by [SimPORTAL](https://www.simportal.umn.edu/) at the University of Minnesota.
+*vision* is an open-source human factors data service developed by Jason A. Grafft (<graf0096@umn.edu>) at the University of Minnesota[SimPORTAL](https://www.simportal.umn.edu/).
 
-* [Codebase][code]
-* [Documentation][docs]
+- [vision][vision]
+    - [Cortex](cortex) - Data node
+    - [Horizon](horizon) - Kodi Addon
+    - [Looking Glass](looking-glass) - UI for *vision*, based on Riot.js
+    - [Monocle](monocle) - Lightweight UI for Cortex, based on Preact
+    - [Retina](retina) - Gateway service
+- [docs][docs]
 
-## Tentative Punch List
-- [ ] White Paper (docs)
-- [ ] Requirements (docs)
-- [ ] Architecture (docs)
-- [ ] Statement of Work (docs)
-- [ ] Roadmap, rolled out in phases (docs)
-- [ ] Configuration Management (docs)
-- [ ] Unit Tests (code)
-- [ ] Development (code)
-- [ ] Integration Tests (code)
-- [ ] Bug Tracking (system)
-- [ ] Deployment (system)
-
-
-[code]: vision/
 [docs]: docs/
+[vision]: vision/
+[cortex]: vision/cortex/
+[horizon]: vision/horizon/
+[looking-glass]: vision/looking-glass/
+[monocle]: vision/monocle/
+[retina]: vision/retina/
