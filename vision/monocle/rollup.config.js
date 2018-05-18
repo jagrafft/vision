@@ -1,32 +1,21 @@
-/*jslint es6*/
-
-import nodeResolve from "rollup-plugin-node-resolve";
-import commonjs from "rollup-plugin-commonjs";
+/*jslint es6 */
 import json from "rollup-plugin-json";
 import babel from "rollup-plugin-babel";
-import dotenv from "dotenv";
-
-dotenv.config();
+import npm from "rollup-plugin-npm";
 
 export default {
-    input: "src/monocle.js",
-    sourceMap: process.env.NODE_ENV === "development",
-    output: {
-        format: "umd",
-        file: "dist/bundle.js"
-    },
+    entry: "src/monocle.js",
+    format: "iife",
     plugins: [
         json(),
-        babel(),
-        nodeResolve({ jsnext: true }),
-        commonjs()
+        babel({
+            exclude: "node_modules/**"
+        }),
+        npm({
+            jsnext: true,
+            main: true,
+            browser: true
+        })
     ],
-    dest: "public/bundle.js"
-};
-
-// function cssnext (tagName, css) {
-//     css = css.replace(/:scope/g, ":root");
-//     css = postcss([postcssCssnext]).process(css).css;
-//     css = css.replace(/:root/g, ":scope");
-//     return css;
-// }
+    dest: "dist/bundle.js"
+}

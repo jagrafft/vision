@@ -1,26 +1,22 @@
 {
-  "name": "monocle",
   "version": "0.0.1",
-  "description": "Preact-based UI for vision's cortex service.",
-  "private": true,
+  "description": "UI for Cortex",
   "scripts": {
     "start": "npm run watch & npm run server",
     "build": "rollup -c",
     "watch": "chokidar 'src/**' -c 'npm run build'",
     "server": "browser-sync start --files 'dist/*, index.html' --server"
   },
-  "dependencies": {
-    "preact": "^8.2.9"
-  },
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-plugin-transform-react-jsx": "^6.24.1",
-    "babel-preset-es2015-rollup": "^3.0.0",
-    "dotenv": "^5.0.1",
-    "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-commonjs": "^9.1.3",
-    "rollup-plugin-json": "^3.0.0",
-    "rollup-plugin-node-resolve": "^3.3.0"
+    "babel-plugin-transform-react-jsx": "^6.4.0",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "rollup-plugin-babel": "^2.3.9",
+    "rollup-plugin-json": "^2.0.0",
+    "rollup-plugin-npm": "^1.4.0"
+  },
+  "dependencies": {
+    "preact": "^2.8.3"
   },
   "license": "MIT",
   "author": "jason a. grafft <jason@grafft.co>"

@@ -3,8 +3,8 @@
 
 - [vision][vision]
     - [Cortex](cortex) - Data node
-    - [Horizon](horizon) - Kodi Addon
-    - [Looking Glass](looking-glass) - UI for *vision*, based on Riot.js
+    - [Mirror](mirror) - Kodi Addon
+    - [Window](window) - UI for *vision*, based on Riot.js
     - [Monocle](monocle) - Lightweight UI for Cortex, based on Preact
     - [Retina](retina) - Gateway service
 - [docs][docs]
@@ -12,7 +12,7 @@
 [docs]: docs/
 [vision]: vision/
 [cortex]: vision/cortex/
-[horizon]: vision/horizon/
-[looking-glass]: vision/looking-glass/
+[Mirror]: vision/mirror/
+[window]: vision/window/
 [monocle]: vision/monocle/
 [retina]: vision/retina/

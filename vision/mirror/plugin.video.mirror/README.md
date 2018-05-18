@@ -1,4 +1,4 @@
-# Horizon
+# Mirror
 
 Kodi client for *vision*.
 

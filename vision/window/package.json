@@ -1,8 +1,7 @@
 {
-  "name": "looking-glass",
+  "name": "window",
   "version": "0.0.1",
-  "description": "vision UI",
-  "private": true,
+  "description": "UI for vision",
   "scripts": {
     "start": "npm run watch & npm run server",
     "build": "rollup -c",
