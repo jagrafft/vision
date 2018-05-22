@@ -8,10 +8,6 @@
     "watch": "chokidar 'src/**' -c 'npm run build'",
     "server": "browser-sync start --files 'dist/*, index.html' --server"
   },
-  "dependencies": {
-    "marked": "^0.3.19",
-    "riot": "^3.10.0"
-  },
   "devDependencies": {
     "browser-sync": "^2.24.4",
     "chokidar-cli": "^1.2.0",
@@ -26,6 +22,14 @@
     "rollup-plugin-riot": "^2.0.0",
     "rollup-plugin-uglify": "^3.0.0"
   },
-  "license": "MIT",
-  "author": "jason a. grafft <jason@grafft.co>"
+  "dependencies": {
+    "marked": "^0.3.19",
+    "riot": "^3.10.0"
+  },
+  "license": "GPL3",
+  "author": "jason a. grafft <jason@grafft.co>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jagrafft/vision"
+  }
 }

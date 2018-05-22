@@ -1,9 +1,21 @@
-/*jslint es6 */
-import preact, { h } from "preact";
+import { div, h1, hr, input, label, makeDOMDriver } from '@cycle/dom';
+import { run } from '@cycle/run';
 
-preact.render(
-  <div>
-    <button onClick={() => alert("w00t!")}>Click THIS!</button>
-  </div>,
-  document.getElementById("app")
-);
+function main(sources) {
+  const input$ = sources.DOM.select('.field').events('input')
+
+  const name$ = input$.map(ev => ev.target.value).startWith('')
+
+  const vdom$ = name$.map(name =>
+    div([
+      label('w00t:'),
+      input('.field', {attrs: {type: 'text'}}),
+      hr(),
+      h1('Høla, ' + name),
+    ])
+  )
+
+  return { DOM: vdom$ }
+}
+
+run(main, { DOM: makeDOMDriver('#app') })

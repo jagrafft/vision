@@ -1,21 +1,22 @@
 /*jslint es6*/
-import riot from "rollup-plugin-riot";
-import nodeResolve from "rollup-plugin-node-resolve";
-import commonjs from "rollup-plugin-commonjs";
 import buble from "rollup-plugin-buble";
-import uglify from "rollup-plugin-uglify";
+import commonjs from "rollup-plugin-commonjs";
+import dotenv from "dotenv";
+import nodeResolve from "rollup-plugin-node-resolve";
+import path from "path";
 import postcss from "postcss";
 import postcssCssnext from "postcss-cssnext";
-import dotenv from "dotenv";
+import riot from "rollup-plugin-riot";
+import uglify from "rollup-plugin-uglify";
 
 dotenv.config();
 
 export default {
-    input: "src/main.js",
-    sourceMap: process.env.NODE_ENV === "development",
+    input: path.join(__dirname, "src/main.js"),
     output: {
         format: "iife",
-        file: "dist/bundle.min.js"
+        file: path.join(__dirname, "dist/bundle.min.js"),
+        sourcemap: process.env.NODE_ENV === "development",
     },
     plugins: [
         riot({

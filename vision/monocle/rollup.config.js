@@ -1,21 +1,32 @@
 /*jslint es6 */
-import json from "rollup-plugin-json";
-import babel from "rollup-plugin-babel";
-import npm from "rollup-plugin-npm";
+import buble from "rollup-plugin-buble";
+import commonjs from "rollup-plugin-commonjs";
+import dotenv from "dotenv";
+import nodeResolve from "rollup-plugin-node-resolve";
+import path from "path";
+import { uglify } from "rollup-plugin-uglify";
+
+dotenv.config();
 
 export default {
-    entry: "src/monocle.js",
-    format: "iife",
+    input: path.join(__dirname, "src/monocle.js"),
+    output: {
+        format: "iife",
+        file: path.join(__dirname, "dist/bundle.min.js"),
+        sourcemap: process.env.NODE_ENV === "development"
+    },
     plugins: [
-        json(),
-        babel({
-            exclude: "node_modules/**"
-        }),
-        npm({
+        nodeResolve({
+            browser: true,
             jsnext: true,
-            main: true,
-            browser: true
-        })
-    ],
-    dest: "dist/bundle.js"
+            preferBuiltins: false
+        }),
+        commonjs({
+            namedExports: {
+                "node_modules/xstream/index.js": ["xs"]
+            }
+        }),
+        buble(),
+        uglify()
+    ]
 }
