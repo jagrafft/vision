@@ -1,0 +1,21 @@
+{
+  "name": "cortex",
+  "version": "0.0.1",
+  "description": "Data broker for vision",
+  "main": "js/app.js",
+  "scripts": {
+    "app": "node js/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "GPL3",
+  "author": "jason a. grafft <jason@grafft.co>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jagrafft/vision"
+  },
+  "dependencies": {
+    "pm2": "^2.10.4",
+    "ws": "^5.2.0",
+    "xstream": "^11.4.0"
+  }
+}

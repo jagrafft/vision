@@ -1,7 +1,7 @@
 {
   "name": "window",
   "version": "0.0.1",
-  "description": "UI for vision",
+  "description": "Code name for \"full featured\" vision web interface.",
   "scripts": {
     "start": "npm run watch & npm run server",
     "build": "rollup -c",
