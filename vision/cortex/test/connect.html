@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head><title>Cortext WSS Connection Test</title>
+</head>
+<body>
+    <h1>See console...</h1>
+    <script type="text/javascript">
+        const ws = new WebSocket("ws://localhost:12131");
+        ws.addEventListener('open', (event) => {
+            ws.send(JSON.stringify({
+                req: "query",
+                val: {}
+            }));
+        });
+        ws.addEventListener('message', (msg) => {console.log('msg = ' + msg.data);});
+    </script>
+</body>
+</html>

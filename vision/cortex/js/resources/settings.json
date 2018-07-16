@@ -1,0 +1,22 @@
+{
+    "defaults": {
+        "db": ".dbs",
+        "audio": {
+            "bitrate": 96000,
+            "channels": 2
+        },
+        "hls": {
+            "duration": 1,
+            "maxFiles": 9999
+        },
+        "utils": {
+            "audio": "gstreamer",
+            "video": "gstreamer"
+        },
+        "video": {
+            "bitrate": 96000,
+            "height": 720,
+            "width": 1280
+        }
+    }
+}

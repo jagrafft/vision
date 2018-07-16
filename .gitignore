@@ -4,8 +4,10 @@ bundle.min.js.map
 *.mp4
 *.opus
 *.webm
+simportal-sources.json
 
 ~*
+.dbs
 .vscode/
 docs/whitepaper/src/citations/
 docs/whitepaper/src/notes.md

@@ -13,11 +13,11 @@ function List(sources) {
         {label: "p00t", id: 5}
     ]);
 
-    function isolateList (props) {
+    const isolateList = (props) => {
         return props.reduce(function (prev, prop) {
             return prev.concat(isolate(ListItem)({Props: xs.of(prop), DOM: sources.DOM}).DOM);
         }, []);
-    }
+    };
 
     const vdom_ = xs.combine.apply(null, isolateList(props))
         .map((x) => div(".list", x));
@@ -30,7 +30,6 @@ function List(sources) {
 function ListItem(sources) {
     const domSource = sources.DOM;
     const props_ = sources.Props;
-    let selectedIds = [];
 
     const srcIds_ = domSource
         .select(".src")
@@ -49,19 +48,18 @@ function ListItem(sources) {
         }
     });
 
-    const state$ = props_
+    const state_ = props_
         .map((props) => srcIds_
             .map(() => ({id: props.id, label: props.label}))
             .startWith(props)
         )
         .flatten();
 
-    const vdom_ = state$
+    const vdom_ = state_
         .map((state) => div(".list-item", [
             span(".src", {
                 attrs: {id: state.id}
-            }, state.label),
-            span(localStoreLookup(`src${state.id}`) ? "*" : "")
+            }, `${state.label}${localStoreLookup(`src${state.id}`) ? "*" : ""}`)
         ]));
 
     return {
