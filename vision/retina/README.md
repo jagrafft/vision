@@ -1,5 +1,5 @@
 # Retina
 
-Provides a central point of contact for all nodes in the *vision* ecosystem, turning a group of [Cortex](cortex) servers into a *vision* service.
+Retina provides a gateway to a group of [Cortex](cortex) servers. It is intended to allow multi-site deployment of *vision* services.
 
-[cortex]: ../cortex/
+[cortex]: https://github.com/jagrafft/vision/tree/master/vision/cortex
