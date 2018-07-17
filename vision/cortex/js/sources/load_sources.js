@@ -3,10 +3,10 @@
 const Datastore = require("nedb");
 const path = require("path");
 
-const settings = require("../settings.json");
+const settings = require("../resources/settings.json");
 const sources = require("./simportal-sources.json");
 
-const p = path.join(__dirname, "..", "..", "..", settings.defaults.db);
+const p = path.join(__dirname, "..", "..", settings.defaults.db);
 const db = new Datastore({filename: `${p}/cortex-ne.db`, autoload: true});
 
 sources.forEach(e => {

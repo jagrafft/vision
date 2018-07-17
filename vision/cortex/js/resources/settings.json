@@ -5,13 +5,13 @@
             "bitrate": 96000,
             "channels": 2
         },
+        "handlers": {
+            "audio": ["http-live-stream.js", "m4a.js"],
+            "video": ["http-live-stream.js", "h264.js"]
+        },
         "hls": {
             "duration": 1,
             "maxFiles": 9999
-        },
-        "utils": {
-            "audio": "gstreamer",
-            "video": "gstreamer"
         },
         "video": {
             "bitrate": 96000,

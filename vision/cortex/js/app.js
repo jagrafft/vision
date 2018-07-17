@@ -1,8 +1,11 @@
 /*jslint es6*/
 "use strict";
+
 const Datastore = require("nedb");
+const filters = require("./filters");
 const moment = require("moment");
 const path = require("path");
+// const record = require("./record");
 const WebSocket = require("ws");
 
 const settings = require("./resources/settings.json");
@@ -16,48 +19,24 @@ wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
         const json = JSON.parse(msg);
         console.log(`(wss) msg = ${msg}`);
-        switch(json.req) {
-            case "create":
-                ws.send(JSON.stringify({
-                    req: json.req,
-                    res: "REQUEST NOT ALLOWED"
-                }));
-                break;
-            case "delete":
-                ws.send(JSON.stringify({
-                    req: json.req,
-                    res: "REQUEST NOT ALLOWED"
-                }));
-                break;
-            case "query":
+        switch (json.req) {
+            // case "create": return "NOT ALLOWED";
+            // case "detele": return "NOT ALLOWED";
+            // case "update": return "NOT ALLOWED";
+            case "queryDevices":
                 db.find(json.val, (err, res) => {
                     if (err) console.error(err);
-                    ws.send(JSON.stringify(res));
+
+                    ws.send(JSON.stringify({
+                        req: json.req,
+                        res: filters.devices(res)
+                    }));
                 });
                 break;
-            case "record":
-                ws.send(JSON.stringify({
-                    req: json.req,
-                    res: "REQUEST NOT YET IMPLEMENTED"
-                }));
-                break;
-            case "stop":
-                ws.send(JSON.stringify({
-                    req: json.req,
-                    res: "REQUEST NOT YET IMPLEMENTED"
-                }));
-                break;
-            case "update":
-                ws.send(JSON.stringify({
-                    req: json.req,
-                    res: "REQUEST NOT ALLOWED"
-                }));
-                break;
-            default:
-                ws.send(JSON.stringify({
-                    req: json.req,
-                    res: "REQUEST NOT RECOGNIZED"
-                }));
+            // case "queryRecords": return "NOT YET IMPLEMENTED";
+            // case "record": return "NOT YET IMPLEMENTED";
+            // case "stop": return "NOT YET IMPLEMENTED";
+            default: return "NOT RECOGNIZED";
         }
     });
 });
