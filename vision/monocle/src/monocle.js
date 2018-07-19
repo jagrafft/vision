@@ -1,8 +1,8 @@
 /*jslint es6*/
-import xs from "xstream";
-import isolate from "@cycle/isolate";
-import {div, span, makeDOMDriver} from "@cycle/dom";
-import {run} from "@cycle/run";
+// import xs from "xstream";
+// import isolate from "@cycle/isolate";
+// import {div, span, makeDOMDriver} from "@cycle/dom";
+// import {run} from "@cycle/run";
 
 import {wsDriver} from "./wsdriver";
 
@@ -14,8 +14,18 @@ const StreamPrinter = {
     complete: () => console.log("StreamPrinter complete")
 };
 
-const status = ws_.filter(x => x.req === "status").map(x => `status: ${x}`).addListener(StreamPrinter);
-const devices = ws_.filter(x => x.req === "queryDevices").map(x => `devices: ${x.res}`).addListener(StreamPrinter);
+const status = (str_) => str_.filter(x => x.req === "status").map(x => `status: ${JSON.stringify(x)}`);
+const devices = (str_) => str_.filter(x => x.req === "queryDevices").map(x => `devices: ${JSON.stringify(x.res)}`);
+
+status(ws_).addListener(StreamPrinter);
+devices(ws_).addListener(StreamPrinter);
+
+setTimeout(() => {
+    console.log("status");
+    console.log(status);
+    console.log("devices");
+    console.log(devices);
+}, 8000);
 
 // const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
 
