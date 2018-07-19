@@ -4,74 +4,90 @@ import isolate from "@cycle/isolate";
 import {div, span, makeDOMDriver} from "@cycle/dom";
 import {run} from "@cycle/run";
 
-function List(sources) {
-    const props = Object.freeze([
-        {label: "w00t", id: 1},
-        {label: "s00t", id: 2},
-        {label: "r00t", id: 3},
-        {label: "b00t", id: 4},
-        {label: "p00t", id: 5}
-    ]);
+import {wsDriver} from "./wsdriver";
 
-    const isolateList = (props) => {
-        return props.reduce(function (prev, prop) {
-            return prev.concat(isolate(ListItem)({Props: xs.of(prop), DOM: sources.DOM}).DOM);
-        }, []);
-    };
+const ws_ = wsDriver();
 
-    const vdom_ = xs.combine.apply(null, isolateList(props))
-        .map((x) => div(".list", x));
+const StreamPrinter = {
+    next: (v) => console.log(v),
+    error: (e) => console.error(e),
+    complete: () => console.log("StreamPrinter complete")
+};
 
-    return {
-        DOM: vdom_
-    };
-}
+const status = ws_.filter(x => x.req === "status").map(x => `status: ${x}`).addListener(StreamPrinter);
+const devices = ws_.filter(x => x.req === "queryDevices").map(x => `devices: ${x.res}`).addListener(StreamPrinter);
 
-function ListItem(sources) {
-    const domSource = sources.DOM;
-    const props_ = sources.Props;
+// const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
 
-    const srcIds_ = domSource
-        .select(".src")
-        .events("click")
-        .map((ev) => ({id: ev.target.id}));
+// const localStoreTransact = (obj) => {
+//     const key = `src${obj.id}`;
+//     localStorage.getItem(key) === null ? localStorage.setItem(key, obj.id) : localStorage.removeItem(key);
+// }
 
-    srcIds_.addListener({
-        next: function handleNextEvent(event) {
-            localStoreTransact(event);
-        },
-        error: function handleError(error) {
-            console.error(`error: ${error}`);
-        },
-        complete: function handleCompleted() {
-            console.log(`completed`);
-        }
-    });
+// const List = (sources) => {
+//     // const props = devices;
+//     const props = Object.freeze([
+//         {label: "w00t", id: 1},
+//         {label: "s00t", id: 2},
+//         {label: "r00t", id: 3},
+//         {label: "b00t", id: 4},
+//         {label: "p00t", id: 5}
+//     ]);
 
-    const state_ = props_
-        .map((props) => srcIds_
-            .map(() => ({id: props.id, label: props.label}))
-            .startWith(props)
-        )
-        .flatten();
+//     const isolateList = (props) => {
+//         return props.reduce(function (prev, prop) {
+//             return prev.concat(isolate(ListItem)({Props: xs.of(prop), DOM: sources.DOM}).DOM);
+//         }, []);
+//     };
+//     // console.log(isolateList);
 
-    const vdom_ = state_
-        .map((state) => div(".list-item", [
-            span(".src", {
-                attrs: {id: state.id}
-            }, `${state.label}${localStoreLookup(`src${state.id}`) ? "*" : ""}`)
-        ]));
+//     const vdom_ = xs.combine.apply(null, isolateList(props))
+//         .map((x) => div(".list", x));
 
-    return {
-        DOM: vdom_
-    };
-}
+//         // console.log(vdom_);
+//     return {
+//         DOM: vdom_
+//     };
+// }
 
-const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
+// const ListItem = (sources) => {
+//     const domSource = sources.DOM;
+//     const props_ = sources.Props;
 
-function localStoreTransact(obj) {
-    const key = `src${obj.id}`;
-    localStorage.getItem(key) === null ? localStorage.setItem(key, obj.id) : localStorage.removeItem(key);
-}
+//     const srcIds_ = domSource
+//         .select(".src")
+//         .events("click")
+//         .map((ev) => ({id: ev.target.id}));
 
-run(List, {DOM: makeDOMDriver("#app")});
+//     srcIds_.addListener({
+//         next: function handleNextEvent(event) {
+//             localStoreTransact(event);
+//         },
+//         error: function handleError(error) {
+//             console.error(`error: ${error}`);
+//         },
+//         complete: function handleCompleted() {
+//             console.log(`completed`);
+//         }
+//     });
+
+//     const state_ = props_
+//         .map((props) => srcIds_
+//             .map(() => ({id: props.id, label: props.label}))
+//             .startWith(props)
+//         )
+//         .flatten();
+
+//     const vdom_ = state_
+//         .map((state) => div(".list-item", [
+//             span(".src", {
+//                 attrs: {id: state.id}
+//             }, `${state.label}${localStoreLookup(`src${state.id}`) ? "*" : ""}`)
+//         ]));
+
+//     return {
+//         DOM: vdom_
+//     };
+// }
+
+// run(List, {DOM: makeDOMDriver("#app")});

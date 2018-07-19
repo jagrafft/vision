@@ -26,7 +26,7 @@ export default {
                 "node_modules/xstream/index.js": ["xs"]
             }
         }),
-        buble(),
-        uglify()
+        buble()
+        // uglify()
     ]
 };
