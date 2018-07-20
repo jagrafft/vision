@@ -1,31 +1,33 @@
 /*jslint es6*/
 // import xs from "xstream";
+import {div, span, makeDOMDriver} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
-// import {div, span, makeDOMDriver} from "@cycle/dom";
-// import {run} from "@cycle/run";
+import {run} from "@cycle/run";
 
-import {wsDriver} from "./wsdriver";
+import {makeWSdriver} from "./wsdriver";
 
-const ws_ = wsDriver();
+const main = (sources) => {
+    // const devices = ws_.filter(x => x.req === "queryDevices").map(x => `devices: ${x.res}`);
+    const status = sources.ws.filter(x => x.req === "status");
 
-const StreamPrinter = {
-    next: (v) => console.log(v),
-    error: (e) => console.error(e),
-    complete: () => console.log("StreamPrinter complete")
+    const vdom_ = status.map((x) => {
+        div(".w00t-item", [
+            span(".src", {
+                attrs: {id: x.id}
+            }, `${x.label}`)
+        ]);
+    });
+    
+    return {
+        DOM: vdom_,
+        ws: status
+    }
 };
-
-const status = (str_) => str_.filter(x => x.req === "status").map(x => `status: ${JSON.stringify(x)}`);
-const devices = (str_) => str_.filter(x => x.req === "queryDevices").map(x => `devices: ${JSON.stringify(x.res)}`);
-
-status(ws_).addListener(StreamPrinter);
-devices(ws_).addListener(StreamPrinter);
-
-setTimeout(() => {
-    console.log("status");
-    console.log(status);
-    console.log("devices");
-    console.log(devices);
-}, 8000);
+  
+run(main, {
+    ws: makeWSdriver(),
+    DOM: makeDOMDriver("#app")
+});
 
 // const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
 

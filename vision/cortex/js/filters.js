@@ -28,8 +28,8 @@ module.exports.devices = ((d) => {
         }
         return r;
     });
-    // return groupBy(m, "dataType");
-    return m;
+    return groupBy(m, "dataType");
+    // return m;
 });
 
 module.exports.records = ((r) => {

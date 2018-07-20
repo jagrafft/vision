@@ -1,30 +1,35 @@
 /*jslint es6*/
 "use strict";
+import {adapt} from '@cycle/run/lib/adapt';
 import xs from "xstream";
 
-export const wsDriver = () => {
-    return xs.create({
-        start: listener => {
-            const ws = new WebSocket("ws://localhost:12131");
+export const makeWSdriver = () => {
+    const ws = new WebSocket("ws://localhost:12131");
 
-            ws.onerror = (err) => {
-                listener.error(err)
+    const wsDriver = (out_) => {
+        out_.addListener({
+            next: (o) => {
+                // ws.send(o);
+                console.log(o);
+            },
+            error: (e) => {console.error(e)},
+            complete: () => {
+                console.log("out_ complete");
             }
+        });
 
-            ws.onmessage = (msg) => {
-                const j = JSON.parse(msg.data);
-                listener.next(j)
+        const in_ = xs.create({
+            start: listener => {
+                ws.onmessage = (msg) => {
+                    const j = JSON.parse(msg.data);
+                    listener.next(j);
+                };
+            },
+            stop: () => {
+                ws.close();
             }
-
-            ws.onopen = () => {
-                ws.send(JSON.stringify({
-                    req: "queryDevices",
-                    val: {}
-                }))
-            }
-        },
-        stop: () => {
-            this.ws.close();
-        }
-    });
+        });
+        return adapt(in_);
+    };
+    return wsDriver;
 };
