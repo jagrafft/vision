@@ -4,7 +4,7 @@ import commonjs from "rollup-plugin-commonjs";
 import dotenv from "dotenv";
 import nodeResolve from "rollup-plugin-node-resolve";
 import path from "path";
-import { uglify } from "rollup-plugin-uglify";
+// import { uglify } from "rollup-plugin-uglify";
 
 dotenv.config();
 
@@ -12,6 +12,7 @@ export default {
     input: path.join(__dirname, "src/monocle.js"),
     output: {
         format: "iife",
+        name: "monocole",
         file: path.join(__dirname, "dist/bundle.min.js"),
         sourcemap: process.env.NODE_ENV === "development"
     },
@@ -27,6 +28,6 @@ export default {
             }
         }),
         buble()
-        // uglify()
+        // ,uglify()
     ]
 };

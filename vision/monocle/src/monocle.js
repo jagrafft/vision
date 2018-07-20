@@ -1,32 +1,41 @@
 /*jslint es6*/
-// import xs from "xstream";
+"use strict";
+import {adapt} from '@cycle/run/lib/adapt';
 import {div, span, makeDOMDriver} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
+import xs from "xstream";
 
-import {makeWSdriver} from "./wsdriver";
+// Cycle.js WebScoket Driver
+const wsDriver = (a) => {
+    const ws = new WebSocket(a);
+    const driver = () => {
+        const in_ = xs.create({
+            start: listener => {
+                ws.onmessage = (msg) => {
+                    const j = JSON.parse(msg.data);
+                    listener.next(j);
+                };
+            },
+            stop: () => {ws.close()}
+        });
+        return adapt(in_);
+    };
+    return driver;
+};
 
 const main = (sources) => {
-    // const devices = ws_.filter(x => x.req === "queryDevices").map(x => `devices: ${x.res}`);
+    // const devices = ws_.filter(x => x.req === "queryDevices");
     const status = sources.ws.filter(x => x.req === "status");
-
-    const vdom_ = status.map((x) => {
-        div(".w00t-item", [
-            span(".src", {
-                attrs: {id: x.id}
-            }, `${x.label}`)
-        ]);
-    });
-    
+    const vdom_ = status.map((x) => div(".w00t-list", [span(".w00t", `status: ${x.res}`)]));
     return {
-        DOM: vdom_,
-        ws: status
+        DOM: vdom_
     }
 };
   
 run(main, {
-    ws: makeWSdriver(),
-    DOM: makeDOMDriver("#app")
+    DOM: makeDOMDriver("#app"),
+    ws: wsDriver("ws://localhost:12131")
 });
 
 // const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;

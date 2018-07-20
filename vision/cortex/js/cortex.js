@@ -2,12 +2,12 @@
 "use strict";
 
 const Datastore = require("nedb");
-const filters = require("./filters");
 const moment = require("moment");
 const path = require("path");
-// const record = require("./record");
 const WebSocket = require("ws");
 
+const filters = require("./filters");
+// const record = require("./record");
 const settings = require("./resources/settings.json");
 
 const wss = new WebSocket.Server({port: 12131});
@@ -19,8 +19,8 @@ wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
         const vet = (c) => {
             switch (c) {
-                case "connect":
-                    return "OK";
+                // case "connect":
+                    // return "OK";
                 case "create":
                     return "NOT ALLOWED";
                 case "delete":
@@ -28,7 +28,6 @@ wss.on("connection", (ws) => {
                 case "queryDevices":
                     db.find(json.val, (err, res) => {
                         if (err) console.error(err);
-
                         ws.send(JSON.stringify({
                             id: json.id,
                             req: json.req,
@@ -40,8 +39,8 @@ wss.on("connection", (ws) => {
                     return "NOT YET IMPLEMENTED";
                 case "record":
                     return "NOT YET IMPLEMENTED";
-                case "status":
-                    return null;
+                // case "status":
+                    // return null;
                 case "stop":
                     return "NOT YET IMPLEMENTED";
                 case "update":

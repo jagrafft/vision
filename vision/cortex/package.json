@@ -2,7 +2,7 @@
   "name": "cortex",
   "version": "0.0.1",
   "description": "Data broker for vision",
-  "main": "js/app.js",
+  "main": "js/cortex.js",
   "scripts": {
     "app": "node js/cortex.js",
     "test": "echo \"Error: no test specified\" && exit 1"
