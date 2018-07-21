@@ -2,8 +2,9 @@
   "version": "0.0.1",
   "description": "UI for Cortex",
   "scripts": {
-    "start": "npm run watch & npm run server",
+    "app": "npm run build & npm run server",
     "build": "rollup -c",
+    "dev": "npm run watch & npm run server",
     "watch": "chokidar 'src/**' -c 'npm run build'",
     "server": "browser-sync start --files 'dist/*, index.html' --server --port 13100"
   },

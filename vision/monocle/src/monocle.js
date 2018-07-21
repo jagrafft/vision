@@ -1,7 +1,7 @@
 /*jslint es6*/
 "use strict";
 import {adapt} from '@cycle/run/lib/adapt';
-import {div, span, makeDOMDriver} from "@cycle/dom";
+import {div, h2, makeDOMDriver, span} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -12,12 +12,17 @@ const wsDriver = (a) => {
     const driver = () => {
         const in_ = xs.create({
             start: listener => {
+                ws.onopen = () => {
+                    ws.send(JSON.stringify({req: "queryDevices", val: {}}));
+                };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
                     listener.next(j);
                 };
             },
-            stop: () => {ws.close()}
+            stop: () => {
+                ws.close();
+            }
         });
         return adapt(in_);
     };
@@ -25,9 +30,53 @@ const wsDriver = (a) => {
 };
 
 const main = (sources) => {
-    // const devices = ws_.filter(x => x.req === "queryDevices");
-    const status = sources.ws.filter(x => x.req === "status");
-    const vdom_ = status.map((x) => div(".w00t-list", [span(".w00t", `status: ${x.res}`)]));
+    const dom = sources.DOM;
+    const ws_ = sources.ws;
+
+    // Masthead elements (not yet working)
+    // const connection_ = dom
+    //     .select(".connection")
+    //     .events("click")
+    //     .mapTo("connection status");
+
+    const status_ = dom
+        .select(".status")
+        .events("click")
+        .map((x) => x.target.textContent);
+
+    status_.addListener({
+        next: (ev) => {
+            console.log(`status_ listener.next: (ev) => ${ev}`);
+        },
+        error: (e) => {
+            console.error(e);
+        },
+        complete: () => {
+            console.log("connection_ listener complete");
+        }
+    });
+
+    // Overwritten by updates to status_
+    // Use multiple DOM drivers?
+    const devices = ws_
+        .filter((x) => x.req === "queryDevices")
+        .map((x) =>
+            div(".device-list", [
+                h2("devices"),
+                span(".device", JSON.stringify(x.res))
+            ])
+        );
+
+    const status = ws_
+        .filter((x) => x.req === "status")
+        .map((x) =>
+            div(".status-list", [
+                h2("process status"),
+                span(".status", x.res)
+            ])
+        );
+
+    const vdom_ = xs.merge(devices, status);
     return {
         DOM: vdom_
     }
