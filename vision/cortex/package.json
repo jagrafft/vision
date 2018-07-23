@@ -5,7 +5,7 @@
   "main": "js/cortex.js",
   "scripts": {
     "app": "node --experimental-modules js/cortex.mjs",
-    "init-db": "node --experimental-modules js/sources/load_sources.mjs",
+    "init-db": "node --experimental-modules js/bootstrap/bootstrap_devices.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "GPL-3.0-or-later",

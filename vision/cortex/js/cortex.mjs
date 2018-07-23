@@ -12,7 +12,7 @@ const wss = new WS.Server({
     port: 12131
 });
 
-const devices = new Datastore({filename: `./${settings.defaults.db}/cortex-ne.db`, autoload: true});
+const devices = new Datastore({filename: `./${settings.defaults.db}/devices.db`, autoload: true});
 
 const groupBy = (arr, k) => {
     return arr.reduce((g, ob) => {
@@ -29,9 +29,8 @@ const query = (db, req, ws) => Task.task(
             if (err) console.error(err);
             resolver.resolve(
                 ws.send(JSON.stringify({
-                    id: res.id,
-                    req: res.req,
-                    res: strip(res)
+                    req: req.req,
+                    res: groupBy(strip(res), "dataType")
                 })
             )
         )});
@@ -60,8 +59,7 @@ const strip = (o) => {
         }
         return r;
     });
-    return groupBy(m, "dataType");
-    // return m;
+    return m;
 }
 
 wss.on("connection", (ws) => {

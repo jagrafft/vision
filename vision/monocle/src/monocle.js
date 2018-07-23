@@ -59,7 +59,7 @@ const Devices = (sources) => {
                                 res[k].map((d) => {
                                     return p(".device", {
                                         attrs: {id: d.id, dataType: k}
-                                    }, `${d.label} - ${d.location}`)
+                                    }, `${d.label}${d.location ? " (" + d.location + ")" : ""}`)
                                 })
                             )
                         ])
