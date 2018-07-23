@@ -1,19 +1,19 @@
 /*jslint es6*/
-"use strict";
 
-const Datastore = require("nedb");
-const moment = require("moment");
-const path = require("path");
-const WebSocket = require("ws");
+import Datastore from "nedb";
+import moment from "moment";
+import WS from "ws";
 
-const filters = require("./filters");
-// const record = require("./record");
-const settings = require("./resources/settings.json");
+import filters from "./filters";
+// import record from "./record":
+import settings from "./resources/settings.json";
 
-const wss = new WebSocket.Server({port: 12131});
+const wss = new WS.Server({
+    maxPayload: 20480,  // 20kb
+    port: 12131
+});
 
-const p = path.join(__dirname, "..", settings.defaults.db);
-const db = new Datastore({filename: `${p}/cortex-ne.db`, autoload: true});
+const db = new Datastore({filename: `./${settings.defaults.db}/cortex-ne.db`, autoload: true});
 
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
@@ -25,7 +25,7 @@ wss.on("connection", (ws) => {
                     return "NOT ALLOWED";
                 case "delete":
                     return "NOT ALLOWED";
-                case "queryDevices":
+                case "devices":
                     db.find(json.val, (err, res) => {
                         if (err) console.error(err);
                         ws.send(JSON.stringify({
@@ -35,12 +35,14 @@ wss.on("connection", (ws) => {
                         }));
                     });
                     return null;
-                case "queryRecords":
-                    return "NOT YET IMPLEMENTED";
+                case "status":
+                    return `status~~~! ${Date.now()}`;
                 case "record":
                     return "NOT YET IMPLEMENTED";
-                // case "status":
-                    // return null;
+                case "recordings":
+                    return "NOT YET IMPLEMENTED";
+                case "status":
+                    return "NOT YET IMPLEMENTED";
                 case "stop":
                     return "NOT YET IMPLEMENTED";
                 case "update":
@@ -65,7 +67,7 @@ wss.on("connection", (ws) => {
 
 // Feeds back PM2 status
 setInterval(() => {
-    wss.clients.forEach((client) => {
-        client.send(JSON.stringify({ req: "status", res: moment().format("X") }));
+    wss.clients.forEach((c) => {
+        c.send(JSON.stringify({req: "status", res: moment().format("X")}));
     });
 }, 5000);

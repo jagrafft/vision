@@ -1,7 +1,7 @@
 /*jslint es6*/
 "use strict";
 import {adapt} from '@cycle/run/lib/adapt';
-import {div, h2, makeDOMDriver, span} from "@cycle/dom";
+import {div, h2, h4, makeDOMDriver, p} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -13,7 +13,7 @@ const wsDriver = (a) => {
         const in_ = xs.create({
             start: listener => {
                 ws.onopen = () => {
-                    ws.send(JSON.stringify({req: "queryDevices", val: {}}));
+                    ws.send(JSON.stringify({req: "devices", val: {}}));
                 };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
@@ -29,60 +29,87 @@ const wsDriver = (a) => {
     return driver;
 };
 
-const main = (sources) => {
-    const dom = sources.DOM;
-    const ws_ = sources.ws;
+const Devices = (sources) => {
+    const d_ = sources.ws
+        .filter((x) => x.req === "devices");
 
-    // Masthead elements (not yet working)
-    // const connection_ = dom
-    //     .select(".connection")
-    //     .events("click")
-    //     .mapTo("connection status");
-
-    const status_ = dom
-        .select(".status")
+    const clicks_ = sources.DOM
+        .select(".device")
         .events("click")
-        .map((x) => x.target.textContent);
+        .map((x) => ({id: x.target.id}));
 
-    status_.addListener({
+    clicks_.addListener({
         next: (ev) => {
-            console.log(`status_ listener.next: (ev) => ${ev}`);
+            console.log(ev);
         },
-        error: (e) => {
-            console.error(e);
-        },
-        complete: () => {
-            console.log("connection_ listener complete");
-        }
+        error: (e) => console.error(e),
+        complete: () => {}
     });
 
-    // Overwritten by updates to status_
-    // Use multiple DOM drivers?
-    const devices = ws_
-        .filter((x) => x.req === "queryDevices")
-        .map((x) =>
-            div(".device-list", [
+    const vdom_ = d_
+        .map((x) => {
+            const res = x.res;
+            return div(".devices", [
                 h2("devices"),
-                span(".device", JSON.stringify(x.res))
+                div(".devices-lists",
+                    Object.keys(res).map((k) => {
+                        return div([
+                            h4(k),
+                            div(`.devices-${k}`,
+                                res[k].map((d) => {
+                                    return p(".device", {
+                                        attrs: {id: d.id, dataType: k}
+                                    }, `${d.label} - ${d.location}`)
+                                })
+                            )
+                        ])
+                    })
+                )
             ])
-        );
-
-    const status = ws_
-        .filter((x) => x.req === "status")
-        .map((x) =>
-            div(".status-list", [
-                h2("process status"),
-                span(".status", x.res)
-            ])
-        );
-
-    const vdom_ = xs.merge(devices, status);
+        });
     return {
         DOM: vdom_
     }
-};
-  
-run(main, {
+}
+
+// const Status = (sources) => {
+//     const dom = sources.DOM;
+//     const ws_ = sources.ws;
+
+//     const vdom_ = ws_
+//         .filter((x) => x.req === "status")
+//         .map((x) =>
+//             div(".status-list", [
+//                 h2("process status"),
+//                 span(".status", x.res)
+//             ])
+//     );
+
+//     const clicks_ = dom
+//         .select(".status")
+//         .events("click")
+//         .map((x) => x.target.textContent);
+
+//     clicks_.addListener({
+//         next: (ev) => {
+//             console.log(`Status clicks_ listener.next: (ev) => ${ev}`);
+//         },
+//         error: (e) => {
+//             console.error(e);
+//         },
+//         complete: () => {
+//             console.log("Status clicks_ listener complete");
+//         }
+//     });
+
+//     return {
+//         DOM: vdom_
+//     }
+// }
+
+// const main = xs.combine(Devices, Status);
+
+run(Devices, {
     DOM: makeDOMDriver("#app"),
     ws: wsDriver("ws://localhost:12131")
 });
@@ -93,71 +120,3 @@ run(main, {
 //     const key = `src${obj.id}`;
 //     localStorage.getItem(key) === null ? localStorage.setItem(key, obj.id) : localStorage.removeItem(key);
 // }
-
-// const List = (sources) => {
-//     // const props = devices;
-//     const props = Object.freeze([
-//         {label: "w00t", id: 1},
-//         {label: "s00t", id: 2},
-//         {label: "r00t", id: 3},
-//         {label: "b00t", id: 4},
-//         {label: "p00t", id: 5}
-//     ]);
-
-//     const isolateList = (props) => {
-//         return props.reduce(function (prev, prop) {
-//             return prev.concat(isolate(ListItem)({Props: xs.of(prop), DOM: sources.DOM}).DOM);
-//         }, []);
-//     };
-//     // console.log(isolateList);
-
-//     const vdom_ = xs.combine.apply(null, isolateList(props))
-//         .map((x) => div(".list", x));
-
-//         // console.log(vdom_);
-//     return {
-//         DOM: vdom_
-//     };
-// }
-
-// const ListItem = (sources) => {
-//     const domSource = sources.DOM;
-//     const props_ = sources.Props;
-
-//     const srcIds_ = domSource
-//         .select(".src")
-//         .events("click")
-//         .map((ev) => ({id: ev.target.id}));
-
-//     srcIds_.addListener({
-//         next: function handleNextEvent(event) {
-//             localStoreTransact(event);
-//         },
-//         error: function handleError(error) {
-//             console.error(`error: ${error}`);
-//         },
-//         complete: function handleCompleted() {
-//             console.log(`completed`);
-//         }
-//     });
-
-//     const state_ = props_
-//         .map((props) => srcIds_
-//             .map(() => ({id: props.id, label: props.label}))
-//             .startWith(props)
-//         )
-//         .flatten();
-
-//     const vdom_ = state_
-//         .map((state) => div(".list-item", [
-//             span(".src", {
-//                 attrs: {id: state.id}
-//             }, `${state.label}${localStoreLookup(`src${state.id}`) ? "*" : ""}`)
-//         ]));
-
-//     return {
-//         DOM: vdom_
-//     };
-// }
-
-// run(List, {DOM: makeDOMDriver("#app")});

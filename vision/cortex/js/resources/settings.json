@@ -11,7 +11,7 @@
         },
         "hls": {
             "duration": 1,
-            "maxFiles": 9999
+            "maxFiles": 12600
         },
         "video": {
             "bitrate": 96000,

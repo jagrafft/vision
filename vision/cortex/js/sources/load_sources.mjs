@@ -1,13 +1,12 @@
 /*jslint es6*/
 "use strict";
-const Datastore = require("nedb");
-const path = require("path");
+import Datastore from "nedb";
+import path from "path";
 
-const settings = require("../resources/settings.json");
-const sources = require("./simportal-sources.json");
+import settings from "../resources/settings.json";
+import sources from "./simportal-sources.json";
 
-const p = path.join(__dirname, "..", "..", settings.defaults.db);
-const db = new Datastore({filename: `${p}/cortex-ne.db`, autoload: true});
+const db = new Datastore({filename: `${settings.defaults.db}/cortex-ne.db`, autoload: true});
 
 sources.forEach(e => {
     db.findOne({address: e.address, dataType: e.dataType, label: e.label}, (err, res) => {
