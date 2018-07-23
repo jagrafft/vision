@@ -1,10 +1,9 @@
 /*jslint es6*/
-
-import Task from "folktale/concurrency/task";
 import Datastore from "nedb";
 import moment from "moment";
+import Task from "folktale/concurrency/task";
 import WS from "ws";
-// import record from "./record":
+
 import settings from "./resources/settings.json";
 
 const wss = new WS.Server({
@@ -34,10 +33,6 @@ const query = (db, req, ws) => Task.task(
                 })
             )
         )});
-
-        resolver.cleanup(() => {
-            console.log("query cleanup");
-        });
     }
 );
 
