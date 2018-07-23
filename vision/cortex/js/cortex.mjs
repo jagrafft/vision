@@ -59,12 +59,12 @@ const strip = (o) => {
 
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
-        const vet = (c) => {
-            switch (c) {
-                // case "connect":
-                    // return "OK";
+        const vet = (req) => {
+            switch (req) {
                 case "create":
                     return "NOT ALLOWED";
+                case "data":
+                    return "NOT YET IMPLEMENTED";
                 case "delete":
                     return "NOT ALLOWED";
                 case "devices":
@@ -73,10 +73,6 @@ wss.on("connection", (ws) => {
                 case "status":
                     return `status~~~! ${Date.now()}`;
                 case "record":
-                    return "NOT YET IMPLEMENTED";
-                case "recordings":
-                    return "NOT YET IMPLEMENTED";
-                case "status":
                     return "NOT YET IMPLEMENTED";
                 case "stop":
                     return "NOT YET IMPLEMENTED";
@@ -89,12 +85,11 @@ wss.on("connection", (ws) => {
 
         const json = JSON.parse(msg);
         console.log(json);
-        const res = vet(json.req);
 
         if (res !== null) {
             ws.send(JSON.stringify({
                 req: json.req,
-                res: res
+                res: vet(json.req)
             }));
         }
     });
