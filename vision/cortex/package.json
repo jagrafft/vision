@@ -4,7 +4,7 @@
   "description": "Data broker for vision",
   "main": "js/cortex.js",
   "scripts": {
-    "start": "node --experimental-modules js/cortex.mjs",
+    "app": "node --experimental-modules js/cortex.mjs",
     "init-db": "node --experimental-modules js/sources/load_sources.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

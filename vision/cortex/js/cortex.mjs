@@ -1,10 +1,9 @@
 /*jslint es6*/
 
+import Task from "folktale/concurrency/task";
 import Datastore from "nedb";
 import moment from "moment";
 import WS from "ws";
-
-import filters from "./filters";
 // import record from "./record":
 import settings from "./resources/settings.json";
 
@@ -13,7 +12,57 @@ const wss = new WS.Server({
     port: 12131
 });
 
-const db = new Datastore({filename: `./${settings.defaults.db}/cortex-ne.db`, autoload: true});
+const devices = new Datastore({filename: `./${settings.defaults.db}/cortex-ne.db`, autoload: true});
+
+const groupBy = (arr, k) => {
+    return arr.reduce((g, ob) => {
+        const v = ob[k];
+        if (typeof g[v] === "undefined") g[v] = [];
+        g[v].push(ob);
+        return g;
+    }, {});
+};
+
+const query = (db, req, ws) => Task.task(
+    (resolver) => {
+        db.find(req.val, (err, res) => {
+            if (err) console.error(err);
+            resolver.resolve(
+                ws.send(JSON.stringify({
+                    id: res.id,
+                    req: res.req,
+                    res: strip(res)
+                })
+            )
+        )});
+
+        resolver.cleanup(() => {
+            console.log("query cleanup");
+        });
+    }
+);
+
+const strip = (o) => {
+    const m = o.map((x) => {
+        let r = {
+            id: x._id,
+            dataType: x.dataType,
+            label: x.label,
+            location: x.location
+        };
+
+        if (typeof x.stream !== "undefined") {
+            r.stream = {
+                address: x.address,
+                path: x.stream.path,
+                protocol: x.stream.protocol
+            };
+        }
+        return r;
+    });
+    return groupBy(m, "dataType");
+    // return m;
+}
 
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
@@ -26,14 +75,7 @@ wss.on("connection", (ws) => {
                 case "delete":
                     return "NOT ALLOWED";
                 case "devices":
-                    db.find(json.val, (err, res) => {
-                        if (err) console.error(err);
-                        ws.send(JSON.stringify({
-                            id: json.id,
-                            req: json.req,
-                            res: filters.devices(res)
-                        }));
-                    });
+                    query(devices, json, ws).run();
                     return null;
                 case "status":
                     return `status~~~! ${Date.now()}`;

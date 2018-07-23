@@ -1,12 +1,12 @@
 {
   "version": "0.0.1",
-  "description": "UI for Cortex",
+  "description": "UI for monocle",
   "scripts": {
-    "app": "npm run build & npm run cortex",
+    "app": "npm run build & npm run monocle",
     "build": "rollup -c",
-    "dev": "npm run watch & npm run cortex",
+    "dev": "npm run watch & npm run monocle",
     "watch": "chokidar 'src/**' -c 'npm run build'",
-    "cortex": "browser-sync start --files 'dist/*, index.html' --server --port 13100"
+    "monocle": "browser-sync start --files 'dist/*, index.html' --server --port 13100"
   },
   "devDependencies": {
     "browser-sync": "^2.24.6",
