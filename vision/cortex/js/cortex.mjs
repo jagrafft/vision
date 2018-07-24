@@ -13,7 +13,7 @@ const wss = new WS.Server({
 
 const devices = new Datastore({filename: `./${settings.defaults.db}/devices.db`, autoload: true});
 
-const groupBy = (arr, k) => {
+function groupBy(arr, k) {
     return arr.reduce((g, ob) => {
         const v = ob[k];
         if (typeof g[v] === "undefined") g[v] = [];
@@ -22,21 +22,23 @@ const groupBy = (arr, k) => {
     }, {});
 };
 
-const query = (db, req, ws) => Task.task(
-    (resolver) => {
-        db.find(req.val, (err, res) => {
-            if (err) console.error(err);
-            resolver.resolve(
-                ws.send(JSON.stringify({
-                    req: req.req,
-                    res: groupBy(strip(res), "dataType")
-                })
-            )
-        )});
-    }
-);
+function query(db, req, ws) {
+    Task.task(
+        (resolver) => {
+            db.find(req.val, (err, res) => {
+                if (err) console.error(err);
+                resolver.resolve(
+                    ws.send(JSON.stringify({
+                        req: req.req,
+                        res: groupBy(prune(res), "dataType")
+                    })
+                )
+            )});
+        }
+    );
+}
 
-const strip = (o) => {
+function prune(o) {
     const m = o.map((x) => {
         let r = {
             id: x._id,
@@ -59,7 +61,7 @@ const strip = (o) => {
 
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
-        const vet = (req) => {
+        function vet(req) {
             switch (req) {
                 case "create":
                     return "NOT ALLOWED";
@@ -85,11 +87,12 @@ wss.on("connection", (ws) => {
 
         const json = JSON.parse(msg);
         console.log(json);
+        const res = vet(json.req);
 
         if (res !== null) {
             ws.send(JSON.stringify({
                 req: json.req,
-                res: vet(json.req)
+                res: res
             }));
         }
     });

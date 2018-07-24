@@ -1,13 +1,12 @@
 /*jslint es6*/
-"use strict";
 import Datastore from "nedb";
 
 import settings from "../resources/settings.json";
-import devices from "./simportal-devices.json";
+import devices from "../resources/simportal-devices.json";
 
 const db = new Datastore({filename: `${settings.defaults.db}/devices.db`, autoload: true});
 
-devices.forEach(e => {
+devices.forEach((e) => {
     db.findOne({address: e.address, dataType: e.dataType, label: e.label}, (err, res) => {
         if (err) console.error(err);
         if (res != null) {
