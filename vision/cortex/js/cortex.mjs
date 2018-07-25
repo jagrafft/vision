@@ -23,7 +23,7 @@ function groupBy(arr, k) {
 };
 
 function query(db, req, ws) {
-    Task.task(
+    return Task.task(
         (resolver) => {
             db.find(req.val, (err, res) => {
                 if (err) console.error(err);
@@ -39,7 +39,7 @@ function query(db, req, ws) {
 }
 
 function prune(o) {
-    const m = o.map((x) => {
+    return o.map((x) => {
         let r = {
             id: x._id,
             dataType: x.dataType,
@@ -56,7 +56,6 @@ function prune(o) {
         }
         return r;
     });
-    return m;
 }
 
 wss.on("connection", (ws) => {

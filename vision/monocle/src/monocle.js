@@ -1,7 +1,7 @@
 /*jslint es6*/
 "use strict";
 import {adapt} from '@cycle/run/lib/adapt';
-import {div, h2, h4, makeDOMDriver, p, span} from "@cycle/dom";
+import {b, div, h2, makeDOMDriver, p, span} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -35,103 +35,70 @@ const StreamPrinter = {
     complete: () => console.log("StreamPrinter complete")
 };
 
-const Masthead = (sources) => {
-    const clicks_ = sources.DOM
-        .select(".masthead-element")
-        .events("click")
-        .map((x) => ({id: x.target.id}));
+const main = (sources) => {
+    const devices_ = sources.ws
+        .filter((x) => x.req === "devices")
+        .map((x) => x.res);
+    const status_ = sources.ws.filter((x) => x.req === "status");
 
-    clicks_.addListener(StreamPrinter);
-    // TODO Listen to sources.ws for "status", set STATUS accordingly?
-
-    const vdom_ = xs.of(
-        div(".masthead", {
-            attrs: {
-                style: "background-color: black; color: white; height: 2.5em; text-align: center;"
-            }
+    const masthead  = div(".masthead", {
+            attrs: {style: "background-color: black; color: white; height: 2.5em; text-align: center;"}
         },
         [
-            span(".masthead-element", {attrs: {id: "status", style: "float: left; width: 75px;"}},"[STATUS]"),
-            span(".masthead-element", {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}},"[MONOCLE_LOGO]"),
-            span(".masthead-element", {attrs: {id: "settings", style: "float: right; width: 75px;"}},"[SET]")
-        ])
-    );
+            span(".masthead-element", {attrs: {id: "status", style: "float: left; width: 75px;"}}, "[STATUS]"),
+            span(".logo", {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}}, "[MONOCLE_LOGO]"),
+            span(".masthead-element", {attrs: {id: "settings", style: "float: right; width: 75px;"}}, "[SET]")
+        ]);
 
-    return {
-        DOM: vdom_
-    }
-};
-
-const Devices = (sources) => {
-    const d_ = sources.ws
-        .filter((x) => x.req === "devices");
-
-    const clicks_ = sources.DOM
+    const deviceClicks_ = sources.DOM
         .select(".device")
         .events("click")
-        .map((x) => ({id: x.target.id}));
+        .map((x) => ({id: x.target.id, origin: "device"}));
 
-    clicks_.addListener(StreamPrinter);
-
-    const vdom_ = d_
-        .map((x) => {
-            const res = x.res;
-            return div(".devices", [
-                h2("devices"),
-                div(".devices-lists",
-                    Object.keys(res).map((k) => {
-                        return div([
-                            h4(k),
-                            div(`.devices-${k}`,
-                                res[k].map((d) => {
-                                    return p(".device", {
-                                        attrs: {id: d.id, dataType: k}
-                                    }, `${d.label}${d.location ? " (" + d.location + ")" : ""}`)
-                                })
-                            )
-                        ])
-                    })
-                )
-            ])
-        });
-
-    return {
-        DOM: vdom_
-    }
-}
-
-const Status = (sources) => {
-    const dom = sources.DOM;
-    const ws_ = sources.ws;
-
-    const vdom_ = ws_
-        .filter((x) => x.req === "status")
-        .map((x) =>
-            div(".process-status", [
-                h2("process status"),
-                span(".status", x.res)
-            ])
-    );
-
-    const clicks_ = dom
-        .select(".status")
+    const mastheadClicks_ = sources.DOM
+        .select(".masthead-element")
         .events("click")
-        .map((x) => x.target.textContent);
+        .map((x) => ({id: x.target.id, origin: "masthead"}));
 
-    clicks_.addListener(StreamPrinter);
+    // const statusClicks_ = sources.DOM
+    //     .select(".status")
+    //     .events("click")
+    //     .map((x) => ({id: x.target.id, origin: "status"}));
+
+    deviceClicks_.addListener(StreamPrinter);
+    mastheadClicks_.addListener(StreamPrinter);
+    // statusClicks_.addListener(StreamPrinter);
+
+    const vdom_ = xs.combine(devices_, status_)
+        .map(([dev, stat]) =>
+            div([
+                masthead,
+                h2("devices"),
+                div(".devices-list",
+                    Object.keys(dev).map((k) => {
+                        return div(`.devices-${k}`,
+                            dev[k].map((d) => {
+                                return p(".device", {
+                                    attrs: {id: d.id, dataType: k}
+                                }, [
+                                    b(`(${k[0]}) `),
+                                    `${d.label}${d.location ? " (" + d.location + ")" : ""}`
+                                ])
+                            })
+                        )
+                    })
+                ),
+                h2("status"),
+                div(".status-list", [
+                    JSON.stringify(stat)
+                ])
+            ])
+        );
 
     return {
         DOM: vdom_
-    }
-}
-
-const main = Masthead;
-// const vdom_ = Devices;
-// const vdom_ = Status;
-// const vdom_ = xs.combine(Masthead, Devices);
-// const vdom_ = xs.combine(Devices, Status);
-// const vdom_ = xs.combine(Masthead, Status);
-// const vdom_ = xs.combine(Masthead, Devices, Status);
+    };
+};
 
 run(main, {
     DOM: makeDOMDriver("#app"),
