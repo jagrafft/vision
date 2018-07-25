@@ -8,7 +8,7 @@
         const ws = new WebSocket("ws://localhost:12131");
         ws.addEventListener('open', (event) => {
             ws.send(JSON.stringify({
-                req: "queryDevices",
+                req: "devices",
                 val: {}
             }));
         });

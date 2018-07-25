@@ -1,10 +1,11 @@
 .DS_Store
+bundle.min.js
 bundle.min.js.map
 *.mp3
 *.mp4
 *.opus
 *.webm
-simportal-sources.json
+simportal-devices.json
 
 ~*
 .dbs
