@@ -4,9 +4,8 @@
   "scripts": {
     "app": "npm run build & npm run monocle",
     "build": "rollup -c",
-    "dev": "npm run watch & npm run monocle",
-    "watch": "chokidar 'src/**' -c 'npm run build'",
-    "monocle": "browser-sync start --files 'dist/*' --server 'dist/' --port 13100"
+    "dev": "chokidar 'src/**' -c 'npm run build' & npm run server",
+    "server": "browser-sync start --files 'dist/*' --server 'dist/' --port 13100"
   },
   "devDependencies": {
     "browser-sync": "^2.24.6",

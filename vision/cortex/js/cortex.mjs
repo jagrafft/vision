@@ -11,30 +11,27 @@ const wss = new WS.Server({
     port: 12131
 });
 
-// const records = new Datastore({filename: `./${settings.defaults.db}/records.db`, autoload: true});
-const devices = new Datastore({filename: `./${settings.defaults.db}/devices.db`, autoload: true});
+const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autoload: true});
 
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
         function vet(req) {
             switch (req) {
-            case "devices":
-                find(devices, json, ws).run();
+            case "find":
+                find(db, json, ws).run();
                 return null;
             case "insert":
-                return "NOT ALLOWED";
+                return "NOT YET IMPLEMENTED";
             case "status":
                 return `status~~~! ${Date.now()}`;
             case "remove":
-                return "NOT ALLOWED";
-            case "records":
                 return "NOT YET IMPLEMENTED";
             case "start":
                 return "NOT YET IMPLEMENTED";
             case "stop":
                 return "NOT YET IMPLEMENTED";
             case "update":
-                return "NOT ALLOWED";
+                return "NOT YET IMPLEMENTED";
             default:
                 return `${json.req} not recognized`;
             }

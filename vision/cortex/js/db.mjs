@@ -8,45 +8,9 @@ Array.prototype.groupBy = function(k) {
         g[v].push(ob);
         return g;
     }, {});
-};
-
-const jstr = (req, res) => JSON.stringify({req: req, res: res});
-
-// find
-export function find(db, req, ws) {
-    return Task.task(
-        (resolver) => {
-            db.find(req.val, (err, res) => {
-                const _res = jstr(req.req, (err) ? err : prune(res).groupBy("dataType"));
-                resolver.resolve(ws.send(_res));
-            });
-        }
-    );
 }
 
-// insert
-// export function create(db, req, ws) {
-//     return Task.task(
-//         (resolver) => {
-//             db.insert(req.val, (err, res) => {
-//                const _res = jstr(req.req, (err) ? err : res._id);
-//                resolver.resolve(ws.send(_res));
-//             });
-//         }
-//     );
-// }
-
-// remove
-// export function remove(db, req, ws) {
-//     return Task.task(
-//         (resolver) => {
-//             db.remove(req.val, (err, n) => {
-//                 const _res = (err) ? {error: err} : `removed ${n}`;
-//                 resolver.resolve(ws.send(_res));
-//             })
-//         }
-//     );
-// }
+const jstr = (req, res) => JSON.stringify({req: req, res: prune(res).groupBy("dataType")});
 
 function prune(o) {
     return o.map((x) => {
@@ -67,3 +31,44 @@ function prune(o) {
         return r;
     });
 }
+
+export function find(db, req, ws) {
+    return Task.task(
+        (resolver) => {
+            db.find(req.val).sort({dataType: 1}).exec((err, res) => {
+                const _res = jstr(req.val.group, (err) ? err : res);
+                resolver.resolve(ws.send(_res));
+            });
+        }
+    );
+}
+
+// export function insert(db, req, ws) {
+//     return Task.task(
+//         (resolver) => {
+//             db.insert(req.val, (err, res) => {
+//                const _res = jstr(req.req, (err) ? err : res);
+//                resolver.resolve(ws.send(_res));
+//             });
+//         }
+//     );
+// }
+
+// export function remove(db, req, ws) {
+//     return Task.task(
+//         (resolver) => {
+//             db.remove(req.val, (err, n) => {
+//                 const _res = (err) ? err : `removed ${n}`;
+//                 resolver.resolve(ws.send(_res));
+//             })
+//         }
+//     );
+// }
+
+// export function update(db, req, ws) {
+//     return Task.task(
+//         (resolver) => {
+//             db.update();
+//         }
+//     );
+// }

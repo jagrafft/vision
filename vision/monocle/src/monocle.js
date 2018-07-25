@@ -13,7 +13,7 @@ const wsDriver = (a) => {
         const in_ = xs.create({
             start: (listener) => {
                 ws.onopen = () => {
-                    ws.send(JSON.stringify({req: "devices", val: {}}));
+                    ws.send(JSON.stringify({req: "find", val: {group: "devices"}}));
                 };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
