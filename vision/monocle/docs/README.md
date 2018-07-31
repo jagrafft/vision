@@ -5,6 +5,6 @@ Monocle is a *[vision][vision]* user interface which interacts with a single [Co
 # Table of Contents
 - [API][api]
 
-[api]: https://github.com/jagrafft/vision/tree/master/vision/monocole/docs/api/index.html
+[api]: https://github.com/jagrafft/vision/blob/master/vision/monocle/docs/api/index.html
 [cortex]: https://github.com/jagrafft/vision/tree/master/vision/cortex
 [vision]: https://github.com/jagrafft/vision
