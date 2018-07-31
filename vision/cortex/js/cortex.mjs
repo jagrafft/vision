@@ -3,14 +3,22 @@ import Datastore from "nedb";
 import moment from "moment";
 import WS from "ws";
 
-import {find} from "./db";
+import {nefind} from "./db";
 import settings from "./resources/settings.json";
 
+/**
+ * @type {}
+ * @const
+ */
 const wss = new WS.Server({
     maxPayload: 20480,  // 20kb
     port: 12131
 });
 
+/**
+ * @type {}
+ * @const
+ */
 const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autoload: true});
 
 wss.on("connection", (ws) => {
@@ -18,7 +26,7 @@ wss.on("connection", (ws) => {
         function vet(req) {
             switch (req) {
             case "find":
-                find(db, json, ws).run();
+                nefind(db, json, ws).run();
                 return null;
             case "insert":
                 return "NOT YET IMPLEMENTED";

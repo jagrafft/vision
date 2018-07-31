@@ -10,6 +10,7 @@ simportal-devices.json
 ~*
 .dbs
 .vscode/
+vision/cortex/docs/
 docs/whitepaper/src/citations/
 docs/whitepaper/src/notes.md
 docs/ffmpeg
