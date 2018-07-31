@@ -10,12 +10,13 @@ simportal-devices.json
 ~*
 .dbs
 .vscode/
-vision/cortex/docs/
 docs/whitepaper/src/citations/
 docs/whitepaper/src/notes.md
 docs/ffmpeg
 plugin.video.example/
 plugin.video.youtube/
+vision/cortex/docs/
+vision/monocle/docs/api
 
 target/
 lib_managed/
