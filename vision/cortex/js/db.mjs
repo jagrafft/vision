@@ -2,7 +2,7 @@
 import Task from "folktale/concurrency/task";
 
 /**
- * Group object by key
+ * Group object by key.
  * @param {string} k Key to group by.
  * @returns {Object<Object>}
  */
@@ -16,11 +16,12 @@ Array.prototype.groupBy = function(k) {
 }
 
 /**
- * Returns JSON packet stripped of key-value pairs used only by Cortex.
+ * Returns JSON packet which conforms to *vision* specifications.
  * @param {string} req Client request.
- * @param {Array<Object>} res Result of operation performed at client's request. *Should be a JSON object.*
+ * @param {*} res Result of operation performed at client's request. *Should be JSON serializable.*
+ * @returns {string} Stringified JSON packet.
  */
-const visionReply = (req, res) => JSON.stringify({req: req, res: pruneNeRes(res).groupBy("dataType")});
+const visionReply = (req, res) => JSON.stringify({req: req, res: res});
 
 /**
  * Strip array of objects returned by NeDB operation of key-value pairs used only by Cortex.
@@ -46,12 +47,18 @@ function pruneNeRes(arr) {
     });
 }
 
-export function nefind(db, req, ws) {
+/**
+ * Perform NeDB `find` operation inside a `Folktale<Task>` monad.
+ * @param {NeDB<Datastore>} db Datastore to query.
+ * @param {JSON} json JSON packet which conforms to *vision* specifications.
+ * @param {WebSocket<Client>} client WebSocket client to send result to.
+ */
+export function nefind(db, json, client) {
     return Task.task(
         (resolver) => {
-            db.find(req.val).sort({dataType: 1}).exec((err, res) => {
-                const _res = visionReply(req.val.group, (err) ? err : res);
-                resolver.resolve(ws.send(_res));
+            db.find(json.val).sort({dataType: 1}).exec((err, res) => {
+                const _res = visionReply(json.val.group, (err) ? err : pruneNeRes(res).groupBy("dataType"));
+                resolver.resolve(client.send(_res));
             });
         }
     );

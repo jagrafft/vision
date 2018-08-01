@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "description": "UI for monocle",
   "scripts": {
-    "app": "npm run build & npm run monocle",
+    "app": "npm run build & npm run b-sync",
     "build": "rollup -c",
-    "dev": "chokidar 'src/**' -c 'npm run build' & npm run server",
-    "server": "browser-sync start --files 'dist/*' --server 'dist/' --port 13100"
+    "dev": "chokidar 'src/**' -c 'npm run build' & npm run b-sync",
+    "docs": "jsdoc -c jsdoc.conf.json",
+    "b-sync": "browser-sync start --files 'dist/*' --server 'dist/' --port 13100"
   },
   "devDependencies": {
     "browser-sync": "^2.24.6",
@@ -22,6 +23,7 @@
     "@cycle/dom": "^20.4.0",
     "@cycle/isolate": "^3.4.0",
     "@cycle/run": "^4.4.0",
+    "folktale": "^2.1.0",
     "xstream": "^11.7.0"
   },
   "license": "GPL-3.0-or-later",

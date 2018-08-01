@@ -5,6 +5,7 @@
   "main": "js/cortex.js",
   "scripts": {
     "app": "node --experimental-modules js/cortex.mjs",
+    "docs": "jsdoc -c jsdoc.conf.json",
     "init-db": "node --experimental-modules js/bootstrap/bootstrap_devices.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

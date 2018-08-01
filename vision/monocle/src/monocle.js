@@ -67,6 +67,7 @@ const main = (sources) => {
      */
     const status_ = sources.ws
         .filter((x) => x.req === "status")
+        // .map((x) => x.res)
         .startWith({req: "status", res: "initializing..."});
 
     /**
@@ -130,7 +131,7 @@ const main = (sources) => {
                                 return p(".device", {
                                     attrs: {id: d.id, dataType: k}
                                 }, [
-                                    b(`(${k[0]}) `),
+                                    `(${k[0]}) `,   // Bold when "active"?
                                     `${d.label}${d.location ? " (" + d.location + ")" : ""}`
                                 ])
                             })
@@ -151,8 +152,8 @@ const main = (sources) => {
 
 /**
  * Run `main` and connect it to `driver`
- * @param {Function} main A function that takes `sources` as inputs and outputs `sinks`
- * @param {Object} drivers An object where keys are driver names and values are driver functions
+ * @param {Function} A function that takes `sources` as inputs and outputs `sinks`
+ * @param {Object} An object where keys are driver names and values are driver functions
  */
 run(main, {
     DOM: makeDOMDriver("#app"),
