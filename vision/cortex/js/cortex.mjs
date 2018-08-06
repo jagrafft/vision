@@ -36,12 +36,12 @@ function vetmsg(json, client) {
         return null;
     case "insert":
         return "NOT YET IMPLEMENTED";
-    case "status":
-        return `status~~~! ${Date.now()}`;
     case "remove":
         return "NOT YET IMPLEMENTED";
     case "start":
         return "NOT YET IMPLEMENTED";
+    case "status":
+        return `status~~~! ${Date.now()}`;
     case "stop":
         return "NOT YET IMPLEMENTED";
     case "update":
