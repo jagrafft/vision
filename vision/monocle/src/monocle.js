@@ -20,10 +20,14 @@ const wsDriver = (adr) => {
         const in_ = xs.create({
             start: (listener) => {
                 ws.onopen = () => {
+                    ws.send(JSON.stringify({req: "status", val: ""}));
+                    ws.send(JSON.stringify({req: "stasdfop", val: ""}));
+                    ws.send(JSON.stringify({req: "remove", val: ""}));
                     ws.send(JSON.stringify({req: "find", val: {group: "devices"}}));
                 };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
+                    console.log(j);
                     listener.next(j);
                 };
             },

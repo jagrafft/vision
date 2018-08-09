@@ -2,10 +2,12 @@
 import Datastore from "nedb";
 import moment from "moment";
 import Result from "folktale/result";
+import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import {nefind} from "./db";
 import settings from "./resources/settings.json";
+import {reply} from "../../ray/packet";
 
 /**
  * `WebSocket.Server` object
@@ -25,29 +27,27 @@ const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autol
 /**
  * Vets client request packets, invoking methods for those recognized and returning some type of result. **Very likely to be refactored.**
  * @param {JSON} json Client request packet
- * @param {WebSocket<Client>} client WebSocket object representing the client
- * @returns {Folktale<Result>} `Error || Ok` *NOT YET IMPLEMENTED*
+ * @param {WebSocket<Client>} ws WebSocket object representing the client
+ * @returns {Folktale<Result>} `Error || Ok`
  */
-function vetmsg(json, client) {
-    const ws = client;
+function vetmsg(json, ws) {
     switch (json.req) {
     case "find":
-        nefind(db, json, ws).run();
-        return null;
+        return new Result.Ok(nefind(db, json, ws));
     case "insert":
-        return "NOT YET IMPLEMENTED";
+        return new Result.Error("NOT YET IMPLEMENTED");
     case "remove":
-        return "NOT YET IMPLEMENTED";
+        return new Result.Error("NOT YET IMPLEMENTED");
     case "start":
-        return "NOT YET IMPLEMENTED";
+        return new Result.Error("NOT YET IMPLEMENTED");
     case "status":
-        return `status~~~! ${Date.now()}`;
+        return new Result.Ok(Task.task((resolver) => resolver.resolve(ws.send(reply(json.req, moment().format("X"), "OK")))));
     case "stop":
-        return "NOT YET IMPLEMENTED";
+        return new Result.Error("NOT YET IMPLEMENTED");
     case "update":
-        return "NOT YET IMPLEMENTED";
+        return new Result.Error("NOT YET IMPLEMENTED");
     default:
-        return `${json.req} not recognized`;
+        return new Result.Error(`request "${json.req}" not recognized`);
     }
 }
 
@@ -59,13 +59,12 @@ wss.on("connection", (ws) => {
         const json = JSON.parse(msg);
         console.log(json);
         const res = vetmsg(json, ws);
+        // const rep = R.partial(reply, [json.req]);
 
-        if (res !== null) {
-            ws.send(JSON.stringify({
-                req: json.req,
-                res: res
-            }));
-        }
+        res.matchWith({
+            Ok:     ({ value }) => value.run(), //ws.send(reply(..., ..., "OK"))
+            Error:  ({ value }) => ws.send(reply(json.req, value, "ERROR"))
+        });
     });
 });
 
@@ -73,10 +72,5 @@ wss.on("connection", (ws) => {
  * `setInterval` method to push status updates to clients. **Very likely to be refactored.**
  */
 setInterval(() => {
-    wss.clients.forEach((c) => {
-        c.send(JSON.stringify({
-            req: "status",
-            res: moment().format("X")
-        }));
-    });
+    wss.clients.forEach((c) => c.send(reply("status", moment().format("X"), "OK")));
 }, 5000);
