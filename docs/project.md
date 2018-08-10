@@ -7,8 +7,7 @@ files: ./journal
 - [ ] Define standard error code library in Ray
 
 ## Cortex
-- [c] Identify standard error code library (not needed) *2018-08-09*
-- [ ] Create SIMPLE error code library if overblown or unsuitable
+- [x] Identify standard error code library (not needed) *2018-08-09*
 - [ ] Create PM2 test process (counter)
 - [ ] Define process for PM2 status reports
     - I still think Cortex should push these; my assumption, for the moment, is that there won't be many ways to avoid slamming PM2 with connection requests.
