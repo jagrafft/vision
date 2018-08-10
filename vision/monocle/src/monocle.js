@@ -4,7 +4,7 @@
  */
 "use strict";
 import {adapt} from '@cycle/run/lib/adapt';
-import {b, div, img, h2, makeDOMDriver, p, span} from "@cycle/dom";
+import {div, img, h2, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -107,6 +107,16 @@ const main = (sources) => {
         .events("click")
         .map((x) => ({id: x.target.id, origin: "masthead"}));
 
+
+    /**
+     * Collects change events in the selector for Video.js ???
+     * @const {xs<Stream>}
+     */
+    // const videojsSelector_ = sources.DOM
+        // .select(".videojs-selector")
+        // .events("click")
+        // .map((x) => ({id: x.target.id, origin: "masthead"}));
+
     /**
      * Collects click events occuring over status element
      * @const {xs<Stream>}
@@ -141,6 +151,16 @@ const main = (sources) => {
                             })
                         )
                     })
+                ),
+                h2("<<video.js>>"),
+                div(".videojs-panel",
+                    select(".videojs-selector", (dev.video) ? dev.video.map((v) => {
+                        return option(
+                            ".videojs-option",
+                            {attrs: {id: v.id, dataType: v.dataType}},
+                            v.label
+                        )
+                    }) : "unavailable")
                 ),
                 h2("status"),
                 div(".status-list", [

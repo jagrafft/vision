@@ -11,45 +11,41 @@ import {prune, reply} from "../../ray/packet";
  * @param {JSON} json JSON packet which conforms to *vision* specifications.
  * @param {WebSocket<Client>} client WebSocket client to send result to.
  */
-export function nefind(db, json, client) {
+// export function find(db, req) {
+export function find(db, json, client) {
     return Task.task(
         (resolver) => {
+            // db.find(req).sort({dataType: 1}).exec((err, res) => {
             db.find(json.val).sort({dataType: 1}).exec((err, res) => {
                 const _rep = R.partial(reply, [json.val.group]);
                 const _res = (err) ? _rep(err, "ERROR") : _rep(prune(res).groupByKey("dataType"), "OK");
 
+                // resolver.resolve((err) ? err : prune(res).groupByKey("dataType");
                 resolver.resolve(client.send(_res));
             });
         }
     );
 }
 
-// export function neinsert(db, req, ws) {
+// export function remove(db, req) {
 //     return Task.task(
 //         (resolver) => {
-//             db.insert(req.val, (err, res) => {
-//                const _res = visionReply(req.req, (err) ? err : res);
-//                resolver.resolve(ws.send(_res));
-//             });
-//         }
-//     );
-// }
-
-// export function neremove(db, req, ws) {
-//     return Task.task(
-//         (resolver) => {
-//             db.remove(req.val, (err, n) => {
-//                 const _res = (err) ? err : `removed ${n}`;
-//                 resolver.resolve(ws.send(_res));
+//             // `query` provided by req
+//             db.remove(query, {multi: true}, (err, n) => {
+//                 resolver.resolve();
 //             })
 //         }
 //     );
 // }
 
-// export function neupdate(db, req, ws) {
+// // Insert && Update(upsert: true)
+// export function upsert(db, req) {
 //     return Task.task(
 //         (resolver) => {
-//             db.update();
+//             // `query` and `update` provided by `req`
+//             db.update(query, update, {multi: true, upsert: true, returnUpdatedDocs: true}, (err, n, doc, up) => {
+//                 resolver.resolve()
+//             });
 //         }
 //     );
 // }
