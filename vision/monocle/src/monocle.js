@@ -23,7 +23,7 @@ const wsDriver = (adr) => {
                     ws.send(JSON.stringify({req: "status", val: ""}));
                     ws.send(JSON.stringify({req: "stasdfop", val: ""}));
                     ws.send(JSON.stringify({req: "remove", val: ""}));
-                    ws.send(JSON.stringify({req: "find", val: {group: "devices"}}));
+                    ws.send(JSON.stringify({key: "devices", req: "find", val: {group: "devices"}}));
                 };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
@@ -61,6 +61,7 @@ const main = (sources) => {
      * @const {xs<Stream>}
      */
     const devices_ = sources.ws
+        // .filter((x) => x.key === "devices")
         .filter((x) => x.req === "devices")
         .map((x) => x.res)
         .startWith({devices: [{id: null, dataType: null}]});
@@ -70,6 +71,7 @@ const main = (sources) => {
      * @const {xs<Stream>}
      */
     const status_ = sources.ws
+        // .filter((x) => x.key === "status")
         .filter((x) => x.req === "status")
         // .map((x) => x.res)
         .startWith({req: "status", res: "initializing..."});
@@ -109,7 +111,7 @@ const main = (sources) => {
 
 
     /**
-     * Collects change events in the selector for Video.js ???
+     * Collects change?? events in the selector for Video.js
      * @const {xs<Stream>}
      */
     // const videojsSelector_ = sources.DOM

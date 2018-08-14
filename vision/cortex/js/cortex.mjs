@@ -10,13 +10,13 @@ import {find} from "./db";
 import settings from "./resources/settings.json";
 
 /**
- * Persistent NeDB datastore with automatic loading
+ * Persistent NeDB datastore with automatic loading.
  * @const {NeDB<Datastore>}
  */
 export const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autoload: true});
 
 /**
- * `WebSocket.Server` object
+ * WebSocket Server for Cortex.
  * @const {WebSocket<Server>}
  */
 const wss = new WS.Server({
@@ -25,14 +25,7 @@ const wss = new WS.Server({
 });
 
 /**
- * @const Folktale<Task>
- */
-// const wsIO = (ws) => Task.task((resolver) => {
-    
-// });
-
-/**
- * WebSocket connection handler.
+ * WebSocket connection handler. Passes incoming messages to `vetmsg`.
  */
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
@@ -41,6 +34,8 @@ wss.on("connection", (ws) => {
         const res = vetmsg(json, ws);
 
         res.matchWith({
+            // Ok:     ({ value }) => ws.send(reply(json.key, value, "OK")),
+            // Error:  ({ value }) => ws.send(reply(json.key, value, "ERROR"))
             Ok:     ({ value }) => value.run(),
             Error:  ({ value }) => ws.send(reply(json.req, value, "ERROR"))
         });
@@ -48,24 +43,25 @@ wss.on("connection", (ws) => {
 });
 
 /**
- * `setInterval` method to push status updates to clients. **Very likely to be refactored.**
+ * Pushes PM2 status updates to clients. **REFACTOR LIKELY**
+ * @function setInterval
  */
 setInterval(() => {
     wss.clients.forEach((c) => c.send(reply("status", moment().format("X"), "OK")));
 }, 5000);
 
 /**
- * Vets client request packets, invoking methods for those recognized and returning some type of result. **Very likely to be refactored.**
- * @param {JSON} json Client request packet
- * @param {WebSocket<Client>} ws WebSocket object representing the client
- * @returns {Folktale<Result.Error<..?>> || Folktale<Result.Ok<Folktale<Task>>>} `Error<..?> || Ok<Task>`
+ * Vets client request packets by switching on `json.req`, invoking methods for those recognized and returning some type of result.
+ * @param {JSON} json Client request packet conforming to *vision* specification.
+ * @param {WebSocket<Client>} ws WebSocket object representing the client **DEPRECATION LIKELY**
+ * @returns {(Folktale<Result.Error<string>> | Folktale<Result.Ok<string>>)}
  */
 // function vetmsg(json) {
 function vetmsg(json, ws) {
     switch (json.req) {
     case "find":
-        // return new Result.Ok(find(db, json.val));
-        return new Result.Ok(find(db, json, ws));
+        // return find(db, json.val);
+        return new Result.Ok(find(db, json.val, ws));
     case "insert":
         return new Result.Error("Request not yet implemented");
     case "remove":

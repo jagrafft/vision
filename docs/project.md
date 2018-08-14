@@ -28,7 +28,7 @@ files: ./journal
 - [ ] Pushes operational information to log
 - [ ] Request-based subscription service for process status pushes
 - [ ] NGINX service configured for streaming content
-- [x] Abstract "vision specification" tagged items into global library
+- [x] Abstract "vision specification" items into global library *2018-08-09*
 - [ ] Use UUID function to generate default names
 
 ## Data Exchange Specifications
