@@ -20,9 +20,9 @@ const wsDriver = (adr) => {
         const in_ = xs.create({
             start: (listener) => {
                 ws.onopen = () => {
-                    ws.send(JSON.stringify({req: "status", val: ""}));
-                    ws.send(JSON.stringify({req: "stasdfop", val: ""}));
-                    ws.send(JSON.stringify({req: "remove", val: ""}));
+                    ws.send(JSON.stringify({key: "status", req: "status", val: ""}));
+                    ws.send(JSON.stringify({key: "records", req: "stasdfop", val: ""}));
+                    ws.send(JSON.stringify({key: "records", req: "remove", val: ""}));
                     ws.send(JSON.stringify({key: "devices", req: "find", val: {group: "devices"}}));
                 };
                 ws.onmessage = (msg) => {
@@ -57,22 +57,20 @@ const StreamPrinter = {
  */
 const main = (sources) => {
     /**
-     * Filters stream for `obj.req === "devices"`
+     * Filters stream for "devices" key
      * @const {xs<Stream>}
      */
     const devices_ = sources.ws
-        // .filter((x) => x.key === "devices")
-        .filter((x) => x.req === "devices")
+        .filter((x) => x.key === "devices")
         .map((x) => x.res)
         .startWith({devices: [{id: null, dataType: null}]});
 
     /**
-     * Filters stream for `obj.req === "status"`
+     * Filters stream for "status" key
      * @const {xs<Stream>}
      */
     const status_ = sources.ws
-        // .filter((x) => x.key === "status")
-        .filter((x) => x.req === "status")
+        .filter((x) => x.key === "status")
         // .map((x) => x.res)
         .startWith({req: "status", res: "initializing..."});
 

@@ -4,10 +4,12 @@ description:
 files: ./journal
 ---
 ## ToDo
-- [x] Define `switch :: String -> Folktale<Result>` *2018-08-09*
-- [x] Resolve bug caused by using `Task.run()` at end of `switch` statement *2018-08-09*
 - [ ] Define way for PM2 status updates to push into an `XStream`
-- [ ] Abstract `ws.send(...)` to match statemenet following `vetmsg` call (~line 64 of `cortex.mjs`)
+- [ ] Implement `Folktale<Task>` for issuing PM2 commands
+- [ ] Implement logger using `Folktale<?>`
+    - Should be a monad
+- [ ] Wrap WebSocket Server in monad?
+- [ ] Implement failover using `retry` monad
 - [ ] Add UUID function
 - [ ] Define `val` object for `"find"` request
 - [ ] Define chain of functions which produce `Error || Result` for `"find"`
@@ -23,3 +25,6 @@ files: ./journal
 - [ ] `"stop"` works for a single process
 - [ ] `"stop"` works for a multiple processes
 - [ ] `record` NeDB object defined
+- [x] Define `switch :: String -> Folktale<Result>` *2018-08-09*
+- [x] Resolve bug caused by using `Task.run()` at end of `switch` statement *2018-08-09*
+- [x] Abstract `ws.send(...)` to match statemenet following `vetPacket` call (~line 64 of `cortex.mjs`) *2018-08-14*

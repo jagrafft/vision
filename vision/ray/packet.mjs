@@ -28,8 +28,7 @@ export const prune = (arr) => {
  * @param {string} key Keyword for packet. Used by Monocle and "Window" for updates when packet is returned.
  * @param {string} req Client request. **TO BE DEPRECATED**
  * @param {*} res Result of operation performed at client's request. *Should be JSON serializable.*
- * @param {string} st Status string that conforms to *vision* specifications.
+ * @param {string} stat Status string that conforms to *vision* specifications.
  * @returns {string} Stringified JSON packet conforming to *vision* specifications.
  */
-// export const reply = (key, res, st) => JSON.stringify({key: key, res: res, status: st});
-export const reply = (req, res, st) => JSON.stringify({req: req, res: res, status: st});
+export const reply = (key, res, stat) => JSON.stringify({key: key, res: res, status: stat});

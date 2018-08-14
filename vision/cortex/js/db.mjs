@@ -1,10 +1,10 @@
 /*jslint es6*/
-import R from "ramda";
+// import R from "ramda";
 // import Result from "folktale/result";
 import Task from "folktale/concurrency/task";
 
 import "../../ray/group";
-import {prune, reply} from "../../ray/packet";
+import {prune} from "../../ray/packet";
 
 /**
  * Perform NeDB `find` operation inside a `Folktale<Task>` monad.
@@ -14,16 +14,11 @@ import {prune, reply} from "../../ray/packet";
  * @param {WebSocket<Client>} client WebSocket client to send result to. **DEPRECATION LIKELY**
  * @returns {Folktale<Task>}
  */
-// export function find(db, qry) {
-export function find(db, json, client) {
+export function find(db, qry) {
     return Task.task(
         (resolver) => {
-            // db.find(req).sort({dataType: 1}).exec((err, res) => {
-            db.find(json.val).sort({dataType: 1}).exec((err, res) => {
-                // (err) ? Task.rejected(err) : resolver.resolve(prune(res).groupByKey("dataType"));
-                const _rep = R.partial(reply, [json.val.group]);
-                const _res = (err) ? _rep(err, "ERROR") : _rep(prune(res).groupByKey("dataType"), "OK");
-                resolver.resolve(client.send(_res));
+            db.find(qry).sort({dataType: 1}).exec((err, res) => {
+                (err) ? Task.rejected(err) : resolver.resolve(prune(res).groupByKey("dataType"));
             });
         }
     );
