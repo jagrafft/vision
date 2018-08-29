@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.co.grafft.vision" version="0.0.1" name="relay | vision Kodi Client" provider-name="jason a. grafft">
+<requires>
+  <import addon="xbmc.python" version="2.25.0"/>
+</requires>
+<extension point="xbmc.python.pluginsource" library="main.py">
+  <provides>video</provides>
+</extension>
+<extension point="xbmc.addon.metadata">
+  <summary lang="en">relay | vision Kodi Client</summary>
+  <description lang="en_GB">LibreELEC interface for vision audiovisual feeds.</description>
+  <disclaimer lang="en_GB">GPL v.3</disclaimer>
+  <assets>
+    <icon>icon.png</icon>
+    <fanart>fanart.jpg</fanart>
+  </assets>
+  <news>v0.0.1</news>
+</extension>
+</addon>
