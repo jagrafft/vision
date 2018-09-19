@@ -9,20 +9,39 @@ import {div, img, h2, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 import {run} from "@cycle/run";
 import xs from "xstream";
 
+// const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
+
+// const localStoreTransact = (key, obj) => {
+//     localStorage.getItem(key) === null ? localStorage.setItem(key, obj) : localStorage.removeItem(key);
+// }
+
 /**
- * Creates xstream driver for *incoming* WebSocket connections
+ * Bidirectional Cycle.js driver for WebSocket connections
  * @param {string} adr IP address of WebSocket
  * @returns {xs<Stream>}
  */
 const wsDriver = (adr) => {
     const ws = new WebSocket(adr);
-    const driver = () => {
+    /**
+     * Producer for `wsDriver`
+     * @param {xs<Stream>} out_ XStream to listen on
+     * @returns {xs<Stream>}
+     */
+    const driver = (out_) => {
+        out_.addListener({
+            next: (out) => {
+                ws.send(JSON.stringify(out));
+            },
+            error: (err) => console.error(err),
+            complete: () => console.log("wsDriver out_ complete.")
+        });
+
+        /**
+         * Listener for `wsDriver`
+         */
         const in_ = xs.create({
             start: (listener) => {
                 ws.onopen = () => {
-                    ws.send(JSON.stringify({key: "status", req: "status", val: ""}));
-                    ws.send(JSON.stringify({key: "records", req: "stasdfop", val: ""}));
-                    ws.send(JSON.stringify({key: "records", req: "remove", val: ""}));
                     ws.send(JSON.stringify({key: "devices", req: "find", val: {group: "devices"}}));
                 };
                 ws.onmessage = (msg) => {
@@ -41,14 +60,8 @@ const wsDriver = (adr) => {
 };
 
 /**
- * xstream listener that prints input to console
- * @const {xs<Listener>}
+ * Bidirectional XStream driver for device selection.
  */
-const StreamPrinter = {
-    next: (v) => console.log(v),
-    error: (e) => console.error(e),
-    complete: () => console.log("StreamPrinter complete")
-};
 
 /**
  * Encapsulates DOM events and display logic for rendering by Cycle.js
@@ -72,31 +85,16 @@ const main = (sources) => {
     const status_ = sources.ws
         .filter((x) => x.key === "status")
         // .map((x) => x.res)
-        .startWith({req: "status", res: "initializing..."});
-
-    /**
-     * HTML elements for monocle masthead
-     * @const {xs<Stream>}
-     */
-    const masthead  = div(".masthead", {
-            attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
-        },
-        [
-            span(".masthead-element", {attrs: {id: "status", style: "float: left; width: 75px;"}}, "[STATUS]"),
-            span(".logo", {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}}, img({attrs: {src: "img/monocle.png", alt: "monocle logo"}})),
-            span(".masthead-element", {attrs: {id: "settings", style: "float: right; width: 75px;"}}, "[SET]")
-        ]);
+        .startWith({req: "status", status: "initializing..."});
 
     /**
      * Collects click events for `.device` elements
      * @const {xs<Stream>}
      */
-    const deviceClicks_ = sources.DOM
-        .select(".device")
-        .events("click")
-        .map((x) => ({id: x.target.id, origin: "devices"}));
-
-    // const preview_= deviceClicks_.;
+    // const deviceClicks_ = sources.DOM
+    //     .select(".device")
+    //     .events("click")
+    //     .map((x) => ({id: x.target.id, req: "devices"}));
 
     /**
      * Collects click events occurring over masthead
@@ -105,8 +103,7 @@ const main = (sources) => {
     const mastheadClicks_ = sources.DOM
         .select(".masthead-element")
         .events("click")
-        .map((x) => ({id: x.target.id, origin: "masthead"}));
-
+        .map((x) => ({id: x.target.id, req: "masthead"}));
 
     /**
      * Collects change?? events in the selector for Video.js
@@ -121,14 +118,12 @@ const main = (sources) => {
      * Collects click events occuring over status element
      * @const {xs<Stream>}
      */
-    // const statusClicks_ = sources.DOM
-    //     .select(".status")
-    //     .events("click")
-    //     .map((x) => ({id: x.target.id, origin: "status"}));
+    const statusClicks_ = sources.DOM
+        .select(".status")
+        .events("click")
+        .map((x) => ({id: x.target.id, req: "status"}));
 
-    deviceClicks_.addListener(StreamPrinter);
-    mastheadClicks_.addListener(StreamPrinter);
-    // statusClicks_.addListener(StreamPrinter);
+    const outgoing_ = xs.merge(mastheadClicks_, statusClicks_);
 
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
@@ -136,7 +131,14 @@ const main = (sources) => {
     const vdom_ = xs.combine(devices_, status_)
         .map(([dev, stat]) =>
             div([
-                masthead,
+                div(".masthead", {
+                    attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
+                },
+                [
+                    span(".masthead-element", {attrs: {id: "status", style: `color: ${stat.status == "OK" ? "green" : "red"}; float: left; padding: 15px 0px 0px 15px; text-align: left;`}}, stat.status == "OK" ? "LIVE" : "ERR"),
+                    span(".logo", {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}}, img({attrs: {src: "img/monocle.png", alt: "monocle logo"}})),
+                    span(".masthead-element", {attrs: {id: "settings", style: "float: right; padding: 15px 15px 0px 0px;"}}, "[SET]")
+                ]),
                 h2("devices"),
                 div(".devices-list",
                     Object.keys(dev).map((k) => {
@@ -145,7 +147,7 @@ const main = (sources) => {
                                 return p(".device", {
                                     attrs: {id: d.id, dataType: k}
                                 }, [
-                                    `(${k[0]}) `,   // Bold when "active"?
+                                    `(${k[0]}) `,   // localStoreLookup(k[0])
                                     `${d.label}${d.location ? " (" + d.location + ")" : ""}`
                                 ])
                             })
@@ -162,15 +164,16 @@ const main = (sources) => {
                         )
                     }) : "unavailable")
                 ),
-                h2("status"),
-                div(".status-list", [
-                    JSON.stringify(stat)
-                ])
+                // h2("status"),
+                // div(".status-list", [
+                //     JSON.stringify(stat)
+                // ])
             ])
         );
 
     return {
-        DOM: vdom_
+        DOM: vdom_,
+        ws: outgoing_
     };
 };
 
@@ -183,9 +186,3 @@ run(main, {
     DOM: makeDOMDriver("#app"),
     ws: wsDriver("ws://localhost:12131")
 });
-
-// const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
-
-// const localStoreTransact = (key, obj) => {
-//     localStorage.getItem(key) === null ? localStorage.setItem(key, obj) : localStorage.removeItem(key);
-// }

@@ -48,7 +48,7 @@ const vetPacket = (json) => {
     case "update":
         return new Result.Error("Request not yet implemented");
     default:
-        return new Result.Error(`request "${json.req}" not recognized`);
+        return new Result.Error(`Not recognized: ${json.req}`);
     }
 }
 
