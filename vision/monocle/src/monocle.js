@@ -9,7 +9,7 @@ import {div, img, h2, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 import {run} from "@cycle/run";
 import xs from "xstream";
 
-// const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
+// const localStoreLookup = (key) => localStorage.getItem(key) === null ? false : true;
 
 // const localStoreTransact = (key, obj) => {
 //     localStorage.getItem(key) === null ? localStorage.setItem(key, obj) : localStorage.removeItem(key);
