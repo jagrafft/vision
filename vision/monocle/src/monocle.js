@@ -11,9 +11,9 @@ import xs from "xstream";
 
 // const localStoreLookup = (id) => localStorage.getItem(id) === null ? false : true;
 
-// const localStoreTransact = (key, obj) => {
-//     localStorage.getItem(key) === null ? localStorage.setItem(key, obj) : localStorage.removeItem(key);
-// }
+const localStoreTransact = (key) => {
+    localStorage.getItem(key) === null ? localStorage.setItem(key, true) : localStorage.removeItem(key);
+};
 
 /**
  * Bidirectional Cycle.js driver for WebSocket connections
@@ -91,10 +91,10 @@ const main = (sources) => {
      * Collects click events for `.device` elements
      * @const {xs<Stream>}
      */
-    // const deviceClicks_ = sources.DOM
-    //     .select(".device")
-    //     .events("click")
-    //     .map((x) => ({id: x.target.id, req: "devices"}));
+    const deviceClicks_ = sources.DOM
+        .select(".device")
+        .events("click")
+        .map((x) => x.target.id);
 
     /**
      * Collects click events occurring over masthead
