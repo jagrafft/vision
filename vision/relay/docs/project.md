@@ -6,6 +6,7 @@ files: ./journal
 ## ToDo
 - [x] "Minimum functional" Kodi addon
 - [x] "Minimum functional" HLS playlist broadcaster
-- [ ] Make sure docs reflect code is python 2
+- [ ] Checks both *vision* services for content
+- [ ] Make sure docs reflect code is Python 2
 - [ ] Uses WebSockets
 - [ ] Work out more flexible way to set `host` address
