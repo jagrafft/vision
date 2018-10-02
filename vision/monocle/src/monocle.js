@@ -4,15 +4,33 @@
  */
 "use strict";
 import {adapt} from '@cycle/run/lib/adapt';
-import {div, img, h2, makeDOMDriver, option, p, select, span} from "@cycle/dom";
+import {div, img, h2, makeDOMDriver, option, p, select, span, video} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
 
-// const localStoreLookup = (key) => localStorage.getItem(key) === null ? false : true;
+/**
+ * Check if `key` exists in `window.localStorage`
+ * @param {*} key Value to look up
+ * @returns {Boolean}
+ */
+const localStoreKey = (key) => localStorage.getItem(key) === null ? false : true;
 
-const localStoreTransact = (key) => {
-    localStorage.getItem(key) === null ? localStorage.setItem(key, true) : localStorage.removeItem(key);
+/**
+ * Add and remove a `key` with optional `val` from `window.localStorage`
+ * @param {*} key Value to add/remove
+ */
+const localStoreTransact = (key, val=true) => {
+    localStorage.getItem(key) === null ? localStorage.setItem(key, val) : localStorage.removeItem(key);
+};
+
+/**
+ * XStream listener that adds and removes a `key` from `window.localStorage`
+ */
+const localStoreListener = {
+    next: (key) => localStoreTransact(key),
+    error: (err) => console.error(err),
+    complete: () => console.log("localStoreListener complete"),
 };
 
 /**
@@ -60,10 +78,6 @@ const wsDriver = (adr) => {
 };
 
 /**
- * Bidirectional XStream driver for device selection.
- */
-
-/**
  * Encapsulates DOM events and display logic for rendering by Cycle.js
  * @param {Object} sources Object containing key-value pairs used by components
  * @returns {Object.<{DOM: DOMSource}>}
@@ -96,6 +110,8 @@ const main = (sources) => {
         .events("click")
         .map((x) => x.target.id);
 
+    deviceClicks_.addListener(localStoreListener);
+
     /**
      * Collects click events occurring over masthead
      * @const {xs<Stream>}
@@ -109,10 +125,19 @@ const main = (sources) => {
      * Collects change?? events in the selector for Video.js
      * @const {xs<Stream>}
      */
-    // const videojsSelector_ = sources.DOM
-        // .select(".videojs-selector")
-        // .events("click")
-        // .map((x) => ({id: x.target.id, origin: "masthead"}));
+    const videojsSelector_ = sources.DOM
+        .select(".videojs-selector")
+        .events("input")
+        .map((x) => {
+            const sel = x.target.options[x.target.selectedIndex];
+            return {id: sel.id, addr: sel.value};
+        });
+    
+    videojsSelector_.addListener({
+        next: i => console.log(i),
+        error: err => console.error(err),
+        complete: () => console.log('completed'),
+      });
 
     /**
      * Collects click events occuring over status element
@@ -144,10 +169,11 @@ const main = (sources) => {
                     Object.keys(dev).map((k) => {
                         return div(`.devices-${k}`,
                             dev[k].map((d) => {
+                                const sel = localStoreKey(d.id);
                                 return p(".device", {
-                                    attrs: {id: d.id, dataType: k}
+                                    attrs: {id: d.id, dataType: k, style: `background: ${sel ? "black" : "white"}; color: ${sel ? "white" : "black"}; font-weight: ${sel ? "bold": "normal"};`}
                                 }, [
-                                    `(${k[0]}) `,   // localStoreLookup(k[0])
+                                    `(${k[0]}) `,
                                     `${d.label}${d.location ? " (" + d.location + ")" : ""}`
                                 ])
                             })
@@ -159,14 +185,14 @@ const main = (sources) => {
                     select(".videojs-selector", (dev.video) ? dev.video.map((v) => {
                         return option(
                             ".videojs-option",
-                            {attrs: {id: v.id, dataType: v.dataType}},
+                            {attrs: {id: v.id, dataType: v.dataType, value: `${v.stream.protocol}://${v.stream.address}${v.stream.path}`}},
                             v.label
                         )
                     }) : "unavailable")
                 ),
                 // h2("status"),
                 // div(".status-list", [
-                //     JSON.stringify(stat)
+                    // JSON.stringify(stat)
                 // ])
             ])
         );
