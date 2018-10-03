@@ -5,7 +5,7 @@
 "use strict";
 import {adapt} from "@cycle/run/lib/adapt";
 import Dexie from "dexie";
-import {div, img, h2, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
+import {div, img, input, h2, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -16,7 +16,7 @@ import xs from "xstream";
  */
 const db = new Dexie("vision:monocle");
 db.version(2).stores({
-    recordFrom: "id"
+    deviceQueue: "id"
     // , videojs: "id"
 });
 
@@ -26,12 +26,13 @@ db.version(2).stores({
  */
  const dexieListener = {
     next: (o) => {
+        console.log(o);
         db[o.group].add({id: o.id})
             .then(() => {
                 console.log(`${o.id} added to ${o.group}.`);
             })
             .catch("ConstraintError", () => {
-                db.recordFrom.where("id").equals(o.id).delete();
+                db.deviceQueue.where("id").equals(o.id).delete();
                 console.log(`${o.id} removed from ${o.group}.`);
             })
             .catch((e) => {
@@ -116,8 +117,8 @@ const main = (sources) => {
      */
     const deviceClicks_ = sources.DOM
         .select(".device")
-        .events("click")
-        .map((x) => ({id: x.target.id, group: "recordFrom"}));
+        .events("change")
+        .map((x) => ({id: x.target.id, checked: x.target.checked, group: "deviceQueue"}));
 
     deviceClicks_.addListener(dexieListener);
 
@@ -159,13 +160,12 @@ const main = (sources) => {
 
     const outgoing_ = xs.merge(mastheadClicks_, statusClicks_);
 
-    const dexieDevices_ = xs.fromPromise(db.recordFrom.toArray()).startWith([]);
-
+    const checked_ = xs.fromPromise(db.deviceQueue.toArray());
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
      */
-    const vdom_ = xs.combine(devices_, status_, dexieDevices_)
-        .map(([dev, stat, dexDev]) =>
+    const vdom_ = xs.combine(devices_, status_, checked_)
+        .map(([dev, stat, check]) =>
             div([
                 div(".masthead", {
                     attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
@@ -179,14 +179,12 @@ const main = (sources) => {
                         attrs: {style: "background-color: lightgreen; float: left; margin: 0 0.5% 0 0.5%; width: 17%;"}
                     },
                     Object.keys(dev).map((k) => {
+                        const checked = check.map((x) => x.id);
                         return div(`.devices-${k}`,
                             dev[k].map((d) => {
-                                const sel = dexDev.map((x) => x.id).includes(d.id);
-                                return p(".device", {
-                                    attrs: {id: d.id, dataType: k, style: `background-color: ${sel ? "black" : "white"}; color: ${sel ? "white" : "black"}; font-weight: ${sel ? "bold": "normal"};`}
-                                }, [
-                                    `(${k[0]}) `,
-                                    `${d.label}${d.location ? " (" + d.location + ")" : ""}`
+                                return div([
+                                    input(".device", {attrs: {id: d.id, dataType: k, type: "checkbox", checked: checked.includes(d.id)}}),
+                                    span(`(${k[0]}) ${d.label}${d.location ? " (" + d.location + ")" : ""}`)
                                 ])
                             })
                         )
