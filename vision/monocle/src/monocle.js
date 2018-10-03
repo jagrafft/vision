@@ -10,7 +10,10 @@ import {div, img, h2, hr, makeDOMDriver, option, p, select, span} from "@cycle/d
 import {run} from "@cycle/run";
 import xs from "xstream";
 
-// TODO Refactor to contain globals (XStream driver)
+/**
+ * Global... Dexie instance. Will be refactored
+ * @const {Dexie}
+ */
 const db = new Dexie("vision:monocle");
 db.version(2).stores({
     recordFrom: "id"
@@ -18,28 +21,11 @@ db.version(2).stores({
 });
 
 /**
- * Check if `key` exists in `window.localStorage`
- * @param {*} key Value to look up
- * @returns {Boolean}
- */
-const localStoreKey = (key) => localStorage.getItem(key) === null ? false : true;
-
-/**
- * Add and remove a `key` with optional `val` from `window.localStorage`
- * @param {*} key Value to add/remove
- */
-const localStoreTransact = (key, val=true) => {
-    localStorage.getItem(key) === null ? localStorage.setItem(key, val) : localStorage.removeItem(key);
-};
-
-/**
- * XStream listener for Dexie...
- * needs refactor
+ * XStream listener for Dexie instance `db`
+ * @const {xs<Listener>}
  */
  const dexieListener = {
     next: (o) => {
-        db[o.group].toArray((x) => console.log(x));
-        localStoreTransact(o.id);
         db[o.group].add({id: o.id})
             .then(() => {
                 console.log(`${o.id} added to ${o.group}.`);
@@ -51,7 +37,6 @@ const localStoreTransact = (key, val=true) => {
             .catch((e) => {
                 console.error(e)
             });
-        setTimeout(() => console.log(`${o.group} cotents: ${db[o.group].toArray((x) => console.log(x))}`), 800);
     },
     error: (err) => console.error(err),
     complete: () => console.log("dexieListener complete"),
@@ -174,11 +159,13 @@ const main = (sources) => {
 
     const outgoing_ = xs.merge(mastheadClicks_, statusClicks_);
 
+    const dexieDevices_ = xs.fromPromise(db.recordFrom.toArray()).startWith([]);
+
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
      */
-    const vdom_ = xs.combine(devices_, status_)
-        .map(([dev, stat]) =>
+    const vdom_ = xs.combine(devices_, status_, dexieDevices_)
+        .map(([dev, stat, dexDev]) =>
             div([
                 div(".masthead", {
                     attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
@@ -194,8 +181,7 @@ const main = (sources) => {
                     Object.keys(dev).map((k) => {
                         return div(`.devices-${k}`,
                             dev[k].map((d) => {
-                                const sel = localStoreKey(d.id);
-                                // const sel = selectedDevices.includes(d.id);
+                                const sel = dexDev.map((x) => x.id).includes(d.id);
                                 return p(".device", {
                                     attrs: {id: d.id, dataType: k, style: `background-color: ${sel ? "black" : "white"}; color: ${sel ? "white" : "black"}; font-weight: ${sel ? "bold": "normal"};`}
                                 }, [
