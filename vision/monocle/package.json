@@ -23,6 +23,7 @@
     "@cycle/dom": "^20.4.0",
     "@cycle/isolate": "^3.4.0",
     "@cycle/run": "^4.4.0",
+    "dexie": "^2.0.4",
     "folktale": "^2.1.0",
     "xstream": "^11.7.0"
   },

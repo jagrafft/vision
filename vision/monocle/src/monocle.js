@@ -3,11 +3,19 @@
  * @author jason a. grafft <jason@grafft.co>
  */
 "use strict";
-import {adapt} from '@cycle/run/lib/adapt';
-import {div, img, h2, makeDOMDriver, option, p, select, span, video} from "@cycle/dom";
+import {adapt} from "@cycle/run/lib/adapt";
+import Dexie from "dexie";
+import {div, img, h2, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
+
+// TODO Refactor to contain globals (XStream driver)
+const db = new Dexie("vision:monocle");
+db.version(2).stores({
+    recordFrom: "id"
+    // , videojs: "id"
+});
 
 /**
  * Check if `key` exists in `window.localStorage`
@@ -25,12 +33,28 @@ const localStoreTransact = (key, val=true) => {
 };
 
 /**
- * XStream listener that adds and removes a `key` from `window.localStorage`
+ * XStream listener for Dexie...
+ * needs refactor
  */
-const localStoreListener = {
-    next: (key) => localStoreTransact(key),
+ const dexieListener = {
+    next: (o) => {
+        db[o.group].toArray((x) => console.log(x));
+        localStoreTransact(o.id);
+        db[o.group].add({id: o.id})
+            .then(() => {
+                console.log(`${o.id} added to ${o.group}.`);
+            })
+            .catch("ConstraintError", () => {
+                db.recordFrom.where("id").equals(o.id).delete();
+                console.log(`${o.id} removed from ${o.group}.`);
+            })
+            .catch((e) => {
+                console.error(e)
+            });
+        setTimeout(() => console.log(`${o.group} cotents: ${db[o.group].toArray((x) => console.log(x))}`), 800);
+    },
     error: (err) => console.error(err),
-    complete: () => console.log("localStoreListener complete"),
+    complete: () => console.log("dexieListener complete"),
 };
 
 /**
@@ -108,9 +132,9 @@ const main = (sources) => {
     const deviceClicks_ = sources.DOM
         .select(".device")
         .events("click")
-        .map((x) => x.target.id);
+        .map((x) => ({id: x.target.id, group: "recordFrom"}));
 
-    deviceClicks_.addListener(localStoreListener);
+    deviceClicks_.addListener(dexieListener);
 
     /**
      * Collects click events occurring over masthead
@@ -164,14 +188,16 @@ const main = (sources) => {
                     span(".logo", {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}}, img({attrs: {src: "img/monocle.png", alt: "monocle logo"}})),
                     span(".masthead-element", {attrs: {id: "settings", style: "float: right; padding: 15px 15px 0px 0px;"}}, "[SET]")
                 ]),
-                h2("devices"),
-                div(".devices-list",
+                div(".devices-list", {
+                        attrs: {style: "background-color: lightgreen; float: left; margin: 0 0.5% 0 0.5%; width: 17%;"}
+                    },
                     Object.keys(dev).map((k) => {
                         return div(`.devices-${k}`,
                             dev[k].map((d) => {
                                 const sel = localStoreKey(d.id);
+                                // const sel = selectedDevices.includes(d.id);
                                 return p(".device", {
-                                    attrs: {id: d.id, dataType: k, style: `background: ${sel ? "black" : "white"}; color: ${sel ? "white" : "black"}; font-weight: ${sel ? "bold": "normal"};`}
+                                    attrs: {id: d.id, dataType: k, style: `background-color: ${sel ? "black" : "white"}; color: ${sel ? "white" : "black"}; font-weight: ${sel ? "bold": "normal"};`}
                                 }, [
                                     `(${k[0]}) `,
                                     `${d.label}${d.location ? " (" + d.location + ")" : ""}`
@@ -180,20 +206,26 @@ const main = (sources) => {
                         )
                     })
                 ),
-                h2("<<video.js>>"),
-                div(".videojs-panel",
-                    select(".videojs-selector", (dev.video) ? dev.video.map((v) => {
-                        return option(
-                            ".videojs-option",
-                            {attrs: {id: v.id, dataType: v.dataType, value: `${v.stream.protocol}://${v.stream.address}${v.stream.path}`}},
-                            v.label
-                        )
-                    }) : "unavailable")
+                div(".videojs-panel", {
+                        attrs: {style: "background-color: lightblue; float: left; width: 60%;"}
+                    }, [
+                        select(".videojs-selector", (dev.video) ? dev.video.map((v) => {
+                            return option(
+                                ".videojs-option",
+                                {attrs: {id: v.id, dataType: v.dataType, value: `${v.stream.protocol}://${v.stream.address}${v.stream.path}`}},
+                                v.label
+                            )
+                        }) : "unavailable"),
+                        h2("<<video.js>>")
+                    ]
                 ),
-                // h2("status"),
-                // div(".status-list", [
-                    // JSON.stringify(stat)
-                // ])
+                div(".status-list", {
+                        attrs: {style: "background-color: red; float: left; margin: 0 0.5% 0 0.5%; width: 21%;"}
+                    }, [
+                    span(">>LABEL INPUT<< [RECORD]"),
+                    hr(),
+                    p(JSON.stringify(stat))
+                ])
             ])
         );
 
