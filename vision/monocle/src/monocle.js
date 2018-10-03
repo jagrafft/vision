@@ -5,7 +5,7 @@
 "use strict";
 import {adapt} from "@cycle/run/lib/adapt";
 import Dexie from "dexie";
-import {div, img, input, h2, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
+import {div, img, input, h2, hr, makeDOMDriver, option, p, select, span, video} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -16,8 +16,7 @@ import xs from "xstream";
  */
 const db = new Dexie("vision:monocle");
 db.version(2).stores({
-    deviceQueue: "id"
-    // , videojs: "id"
+    recordQueue: "id"
 });
 
 /**
@@ -26,13 +25,12 @@ db.version(2).stores({
  */
  const dexieListener = {
     next: (o) => {
-        console.log(o);
         db[o.group].add({id: o.id})
             .then(() => {
                 console.log(`${o.id} added to ${o.group}.`);
             })
             .catch("ConstraintError", () => {
-                db.deviceQueue.where("id").equals(o.id).delete();
+                db.recordQueue.where("id").equals(o.id).delete();
                 console.log(`${o.id} removed from ${o.group}.`);
             })
             .catch((e) => {
@@ -118,7 +116,7 @@ const main = (sources) => {
     const deviceClicks_ = sources.DOM
         .select(".device")
         .events("change")
-        .map((x) => ({id: x.target.id, checked: x.target.checked, group: "deviceQueue"}));
+        .map((x) => ({id: x.target.id, checked: x.target.checked, group: "recordQueue"}));
 
     deviceClicks_.addListener(dexieListener);
 
@@ -135,15 +133,16 @@ const main = (sources) => {
      * Collects change?? events in the selector for Video.js
      * @const {xs<Stream>}
      */
-    const videojsSelector_ = sources.DOM
-        .select(".videojs-selector")
+    const videoSelector_ = sources.DOM
+        .select(".video-selector")
         .events("input")
         .map((x) => {
             const sel = x.target.options[x.target.selectedIndex];
             return {id: sel.id, addr: sel.value};
-        });
+        })
+        .startWith({id: "", addr: ""});
     
-    videojsSelector_.addListener({
+    videoSelector_.addListener({
         next: i => console.log(i),
         error: err => console.error(err),
         complete: () => console.log('completed'),
@@ -160,13 +159,14 @@ const main = (sources) => {
 
     const outgoing_ = xs.merge(mastheadClicks_, statusClicks_);
 
-    const checked_ = xs.fromPromise(db.deviceQueue.toArray());
+    const checked_ = xs.fromPromise(db.recordQueue.toArray());
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
      */
-    const vdom_ = xs.combine(devices_, status_, checked_)
-        .map(([dev, stat, check]) =>
-            div([
+    const vdom_ = xs.combine(devices_, status_, checked_, videoSelector_)
+        .map(([dev, stat, check, vid]) => {
+            const checked = check.map((x) => x.id);
+            return div([
                 div(".masthead", {
                     attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
                 },
@@ -176,10 +176,9 @@ const main = (sources) => {
                     span(".masthead-element", {attrs: {id: "settings", style: "float: right; padding: 15px 15px 0px 0px;"}}, "[SET]")
                 ]),
                 div(".devices-list", {
-                        attrs: {style: "background-color: lightgreen; float: left; margin: 0 0.5% 0 0.5%; width: 17%;"}
+                        attrs: {style: "background-color: lightgreen; float: left; margin: 4px 0.5% 0 0.5%; width: 17%;"}
                     },
                     Object.keys(dev).map((k) => {
-                        const checked = check.map((x) => x.id);
                         return div(`.devices-${k}`,
                             dev[k].map((d) => {
                                 return div([
@@ -190,28 +189,29 @@ const main = (sources) => {
                         )
                     })
                 ),
-                div(".videojs-panel", {
-                        attrs: {style: "background-color: lightblue; float: left; width: 60%;"}
+                div(".video-panel", {
+                        attrs: {style: "background-color: lightblue; float: left; margin: 4px 0 0 0; width: 60%;"}
                     }, [
-                        select(".videojs-selector", (dev.video) ? dev.video.map((v) => {
+                        select(".video-selector", {attrs: {style: "margin: 4px 0 4px 10%;"}}, (dev.video) ? dev.video.map((v) => {
                             return option(
-                                ".videojs-option",
+                                ".video-option",
                                 {attrs: {id: v.id, dataType: v.dataType, value: `${v.stream.protocol}://${v.stream.address}${v.stream.path}`}},
                                 v.label
                             )
                         }) : "unavailable"),
-                        h2("<<video.js>>")
+                        div({attrs: {style: "margin: auto; width: 640px;"}}, video(".video-player", {attrs: {src: (vid.addr == "" ? `${dev.video[0].stream.protocol}://${dev.video[0].stream.address}${dev.video[0].stream.path}` : vid.addr), style: "width: 640px;", controls: true}}))
                     ]
                 ),
                 div(".status-list", {
-                        attrs: {style: "background-color: red; float: left; margin: 0 0.5% 0 0.5%; width: 21%;"}
+                        attrs: {style: "background-color: red; float: left; margin: 4px 0.5% 0 0.5%; width: 21%;"}
                     }, [
-                    span(">>LABEL INPUT<< [RECORD]"),
+                    input(".sessionLabel", {attrs: {style: "margin: 0 0 0 4px; width: 65%;", type: "text"}}),
+                    input(".recordSession", {attrs: {style: "width: 25%;", type: "button", value: "record"}}),
                     hr(),
                     p(JSON.stringify(stat))
                 ])
             ])
-        );
+        });
 
     return {
         DOM: vdom_,
