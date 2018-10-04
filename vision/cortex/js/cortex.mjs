@@ -5,10 +5,10 @@ import Result from "folktale/result";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
-import {reply} from "../../ray/packet";
 import {find} from "./db";
+import {pm2list} from "./pm2";
+import {reply} from "../../ray/packet";
 import settings from "./resources/settings.json";
-import {wsSend} from "./tasks";
 
 /**
  * Persistent NeDB datastore with automatic loading.
@@ -26,9 +26,30 @@ const wss = new WS.Server({
 });
 
 /**
+ * Send message to WebSocket client.
+ * @param {WebSocket<Client>} ws WebSocket object representing client.
+ * @param {string} msg Stringified JSON conforming to *vision* specification.
+ */
+export const wsSend = (ws, msg) => {
+    return Task.task(
+        (resolver) => {
+            resolver.cleanup(() => {
+                // log
+                console.log("LOG: wsSend() cleanup");
+            });
+            resolver.onCancelled(() => {
+                // log
+                console.log("LOG: wsSend() cancelled");
+            });
+            // log
+            resolver.resolve(ws.send(msg));
+        }
+    );
+};
+
+/**
  * Vets client request packets by switching on `json.req`, invoking methods for those recognized and returning some type of result.
  * @param {JSON} json Client request packet conforming to *vision* specification.
- * @param {WebSocket<Client>} ws WebSocket object representing the client **DEPRECATION LIKELY**
  * @returns {(Folktale<Result.Error<string>> | Folktale<Result.Ok<string>>)}
  */
 const vetPacket = (json) => {
@@ -37,9 +58,9 @@ const vetPacket = (json) => {
         return Result.Ok(find(db, json.val));
     case "insert":
         return new Result.Error("Request not yet implemented");
-    case "remove":
+    case "record":
         return new Result.Error("Request not yet implemented");
-    case "start":
+    case "remove":
         return new Result.Error("Request not yet implemented");
     case "status":
         return new Result.Ok(Task.of(moment().format("X")));
@@ -50,7 +71,7 @@ const vetPacket = (json) => {
     default:
         return new Result.Error(`Not recognized: ${json.req}`);
     }
-}
+};
 
 /**
  * WebSocket connection handler. Passes incoming messages to `vetPacket`.
@@ -69,9 +90,11 @@ wss.on("connection", (ws) => {
 });
 
 /**
- * Pushes PM2 status updates to clients. **REFACTOR LIKELY**
+ * Pushes PM2 status updates to clients.
  * @function setInterval
  */
 setInterval(() => {
-    wss.clients.forEach((c) => c.send(reply("status", moment().format("X"), "OK")));
+    pm2list().run().promise().then((l) => {
+        wss.clients.forEach((c) => wsSend(c, reply("status", JSON.stringify(l), "OK")).run());
+    });
 }, 5000);

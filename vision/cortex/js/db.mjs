@@ -1,5 +1,4 @@
 /*jslint es6*/
-// import R from "ramda";
 // import Result from "folktale/result";
 import Task from "folktale/concurrency/task";
 
@@ -9,9 +8,7 @@ import {prune} from "../../ray/packet";
 /**
  * Perform NeDB `find` operation inside a `Folktale<Task>` monad.
  * @param {NeDB<Datastore>} db Datastore to query.
- * @param {JSON} json JSON packet which conforms to *vision* specification for `find`. **DEPRECATION LIKELY**
- * @param {JSON} qry Query that conforms to *vision* specification for `find`. **NOT YET IMPLEMENTED**
- * @param {WebSocket<Client>} client WebSocket client to send result to. **DEPRECATION LIKELY**
+ * @param {JSON} qry Query that conforms to *vision* specification for `find`.
  * @returns {Folktale<Task>}
  */
 export function find(db, qry) {
@@ -35,7 +32,7 @@ export function find(db, qry) {
 //     );
 // }
 
-// // Insert && Update(upsert: true)
+// Insert && Update => upsert: true
 // export function upsert(db, req) {
 //     return Task.task(
 //         (resolver) => {

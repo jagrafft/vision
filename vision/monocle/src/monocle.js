@@ -5,7 +5,7 @@
 "use strict";
 import {adapt} from "@cycle/run/lib/adapt";
 import Dexie from "dexie";
-import {div, img, input, hr, makeDOMDriver, option, p, select, span, video} from "@cycle/dom";
+import {div, img, input, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
@@ -218,10 +218,10 @@ const main = (sources) => {
                             }) : "unavailable"
                         ),
                         div(
-                            {attrs: {style: "margin: auto; width: 640px;"}},
-                            video(
-                                ".video-player",
-                                {attrs: {src: (vid.addr == "" ? `${dev.video[0].stream.protocol}://${dev.video[0].stream.address}${dev.video[0].stream.path}` : vid.addr), style: "width: 640px;", controls: true}}
+                            {attrs: {style: "margin: auto; height: 450px; width: 800px;"}},
+                            img(
+                                ".video-stream",
+                                {attrs: {src: (vid.addr == "" ? `${dev.video[0].stream.protocol}://${dev.video[0].stream.address}${dev.video[0].stream.path}` : vid.addr), style: "height: 450px; width: 800px;"}}
                             )
                         )
                     ]
