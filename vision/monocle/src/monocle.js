@@ -5,13 +5,13 @@
 "use strict";
 import {adapt} from "@cycle/run/lib/adapt";
 import Dexie from "dexie";
-import {div, img, input, h2, hr, makeDOMDriver, option, p, select, span, video} from "@cycle/dom";
+import {div, img, input, hr, makeDOMDriver, option, p, select, span, video} from "@cycle/dom";
 // import isolate from "@cycle/isolate";
 import {run} from "@cycle/run";
 import xs from "xstream";
 
 /**
- * Global... Dexie instance. Will be refactored
+ * Global... Dexie instance. To be refactored
  * @const {Dexie}
  */
 const db = new Dexie("vision:monocle");
@@ -29,7 +29,7 @@ db.version(2).stores({
             .then(() => {
                 console.log(`${o.id} added to ${o.group}.`);
             })
-            .catch("ConstraintError", () => {
+            .catch("ConstraintError", () => {   // ADD failed due to preexising key
                 db.recordQueue.where("id").equals(o.id).delete();
                 console.log(`${o.id} removed from ${o.group}.`);
             })
@@ -130,7 +130,7 @@ const main = (sources) => {
         .map((x) => ({id: x.target.id, req: "masthead"}));
 
     /**
-     * Collects change?? events in the selector for Video.js
+     * Collects input events in `.video-selector`
      * @const {xs<Stream>}
      */
     const videoSelector_ = sources.DOM
@@ -141,12 +141,6 @@ const main = (sources) => {
             return {id: sel.id, addr: sel.value};
         })
         .startWith({id: "", addr: ""});
-    
-    videoSelector_.addListener({
-        next: i => console.log(i),
-        error: err => console.error(err),
-        complete: () => console.log('completed'),
-      });
 
     /**
      * Collects click events occuring over status element
@@ -160,6 +154,7 @@ const main = (sources) => {
     const outgoing_ = xs.merge(mastheadClicks_, statusClicks_);
 
     const checked_ = xs.fromPromise(db.recordQueue.toArray());
+
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
      */
@@ -171,20 +166,39 @@ const main = (sources) => {
                     attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
                 },
                 [
-                    span(".masthead-element", {attrs: {id: "status", style: `color: ${stat.status == "OK" ? "green" : "red"}; float: left; padding: 15px 0px 0px 15px; text-align: left;`}}, stat.status == "OK" ? "LIVE" : "ERR"),
-                    span(".logo", {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}}, img({attrs: {src: "img/monocle.png", alt: "monocle logo"}})),
-                    span(".masthead-element", {attrs: {id: "settings", style: "float: right; padding: 15px 15px 0px 0px;"}}, "[SET]")
+                    span(
+                        ".masthead-element",
+                        {attrs: {id: "status", style: `color: ${stat.status == "OK" ? "green" : "red"}; float: left; padding: 15px 0px 0px 15px; text-align: left;`}},
+                        stat.status == "OK" ? "LIVE" : "ERR"
+                    ),
+                    span(
+                        ".logo",
+                        {attrs: {id: "logo", style: "display: inline-block; margin: 0 auto;"}},
+                        img({attrs: {src: "img/monocle.png", alt: "monocle logo"}})
+                    ),
+                    span(
+                        ".masthead-element",
+                        {attrs: {id: "settings", style: "float: right; padding: 15px 15px 0px 0px;"}},
+                        "[SET]"
+                    )
                 ]),
-                div(".devices-list", {
+                div(
+                    ".devices-list", {
                         attrs: {style: "background-color: lightgreen; float: left; margin: 4px 0.5% 0 0.5%; width: 17%;"}
                     },
                     Object.keys(dev).map((k) => {
                         return div(`.devices-${k}`,
                             dev[k].map((d) => {
-                                return div([
-                                    input(".device", {attrs: {id: d.id, dataType: k, type: "checkbox", checked: checked.includes(d.id)}}),
-                                    span(`(${k[0]}) ${d.label}${d.location ? " (" + d.location + ")" : ""}`)
-                                ])
+                                return div(
+                                    [
+                                        input(
+                                            ".device",
+                                            {attrs: {id: d.id, dataType: k, type: "checkbox",
+                                            checked: checked.includes(d.id)}}
+                                        ),
+                                        span(`(${k[0]}) ${d.label}${d.location ? " (" + d.location + ")" : ""}`)
+                                    ]
+                                )
                             })
                         )
                     })
@@ -192,24 +206,42 @@ const main = (sources) => {
                 div(".video-panel", {
                         attrs: {style: "background-color: lightblue; float: left; margin: 4px 0 0 0; width: 60%;"}
                     }, [
-                        select(".video-selector", {attrs: {style: "margin: 4px 0 4px 10%;"}}, (dev.video) ? dev.video.map((v) => {
-                            return option(
-                                ".video-option",
-                                {attrs: {id: v.id, dataType: v.dataType, value: `${v.stream.protocol}://${v.stream.address}${v.stream.path}`}},
-                                v.label
+                        select(
+                            ".video-selector",
+                            {attrs: {style: "margin: 4px 0 4px 10%;"}},
+                            (dev.video) ? dev.video.map((v) => {
+                                return option(
+                                    ".video-option",
+                                    {attrs: {id: v.id, dataType: v.dataType, value: `${v.stream.protocol}://${v.stream.address}${v.stream.path}`}},
+                                    v.label
+                                )
+                            }) : "unavailable"
+                        ),
+                        div(
+                            {attrs: {style: "margin: auto; width: 640px;"}},
+                            video(
+                                ".video-player",
+                                {attrs: {src: (vid.addr == "" ? `${dev.video[0].stream.protocol}://${dev.video[0].stream.address}${dev.video[0].stream.path}` : vid.addr), style: "width: 640px;", controls: true}}
                             )
-                        }) : "unavailable"),
-                        div({attrs: {style: "margin: auto; width: 640px;"}}, video(".video-player", {attrs: {src: (vid.addr == "" ? `${dev.video[0].stream.protocol}://${dev.video[0].stream.address}${dev.video[0].stream.path}` : vid.addr), style: "width: 640px;", controls: true}}))
+                        )
                     ]
                 ),
                 div(".status-list", {
                         attrs: {style: "background-color: red; float: left; margin: 4px 0.5% 0 0.5%; width: 21%;"}
-                    }, [
-                    input(".sessionLabel", {attrs: {style: "margin: 0 0 0 4px; width: 65%;", type: "text"}}),
-                    input(".recordSession", {attrs: {style: "width: 25%;", type: "button", value: "record"}}),
-                    hr(),
-                    p(JSON.stringify(stat))
-                ])
+                    },
+                    [
+                        input(
+                            ".sessionLabel",
+                            {attrs: {style: "margin: 0 0 0 4px; width: 65%;", type: "text"}}
+                        ),
+                        input(
+                            ".recordSession",
+                            {attrs: {style: "width: 25%;", type: "button", value: "record"}}
+                        ),
+                        hr(),
+                        p(JSON.stringify(stat))
+                    ]
+                )
             ])
         });
 
