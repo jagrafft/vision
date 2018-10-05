@@ -6,18 +6,19 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import {find} from "./db";
+import {logEvent} from "./logger";
 import {pm2list} from "./pm2";
 import {reply} from "../../ray/packet";
 import settings from "./resources/settings.json";
 
 /**
- * Persistent NeDB datastore with automatic loading.
+ * Global datastore for *vision*
  * @const {NeDB<Datastore>}
  */
 export const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autoload: true});
 
 /**
- * WebSocket Server for Cortex.
+ * WebSocket Server for Cortex
  * @const {WebSocket<Server>}
  */
 const wss = new WS.Server({
@@ -26,9 +27,9 @@ const wss = new WS.Server({
 });
 
 /**
- * Send message to WebSocket client.
- * @param {WebSocket<Client>} ws WebSocket object representing client.
- * @param {string} msg Stringified JSON conforming to *vision* specification.
+ * Send message to WebSocket client
+ * @param {WebSocket<Client>} ws WebSocket object representing client
+ * @param {string} msg Stringified JSON conforming to *vision* specification
  */
 export const wsSend = (ws, msg) => {
     return Task.task(
@@ -48,8 +49,8 @@ export const wsSend = (ws, msg) => {
 };
 
 /**
- * Vets client request packets by switching on `json.req`, invoking methods for those recognized and returning some type of result.
- * @param {JSON} json Client request packet conforming to *vision* specification.
+ * Vets request packets by switching on `json.req`, invoking methods for those recognized and returning some type of result
+ * @param {JSON} json Request packet conforming to *vision* specification
  * @returns {(Folktale<Result.Error<string>> | Folktale<Result.Ok<string>>)}
  */
 const vetPacket = (json) => {
@@ -74,23 +75,28 @@ const vetPacket = (json) => {
 };
 
 /**
- * WebSocket connection handler. Passes incoming messages to `vetPacket`.
+ * WebSocket Server connection handler
+ * @function wss.on
  */
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
         const json = JSON.parse(msg);
-        console.log(json);
+        logEvent(json, "request").run();
         const res = vetPacket(json);
 
         res.matchWith({
-            Ok: ({ value }) => value.chain((v) => wsSend(ws, reply(json.key, v, "OK"))).run(),
-            Error: ({ value }) => ws.send(reply(json.key, value, "ERROR"))
+            Ok: ({ value }) => value.chain((v) => {
+                const r = reply(json.key, v, "OK");
+                logEvent(r, "reply").run();
+                return wsSend(ws, r);
+            }).run(),
+            Error: ({ value }) => wsSend(ws, reply(json.key, value, "ERROR")).run()
         });
     });
 });
 
 /**
- * Pushes PM2 status updates to clients.
+ * Pushes PM2 status updates to clients
  * @function setInterval
  */
 setInterval(() => {

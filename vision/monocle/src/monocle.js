@@ -38,7 +38,7 @@ db.version(2).stores({
             });
     },
     error: (err) => console.error(err),
-    complete: () => console.log("dexieListener complete"),
+    complete: () => console.log("dexieListener complete")
 };
 
 /**
