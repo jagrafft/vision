@@ -1,7 +1,6 @@
 /*jslint es6*/
 import Datastore from "nedb";
 import moment from "moment";
-import Result from "folktale/result";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
@@ -51,26 +50,26 @@ export const wsSend = (ws, msg) => {
 /**
  * Vets request packets by switching on `json.req`, invoking methods for those recognized and returning some type of result
  * @param {JSON} json Request packet conforming to *vision* specification
- * @returns {(Folktale<Result.Error<string>> | Folktale<Result.Ok<string>>)}
+ * @returns {Folktale<Task>}
  */
 const vetPacket = (json) => {
     switch (json.req) {
     case "find":
-        return Result.Ok(find(db, json.val));
+        return find(db, json.val);
     case "insert":
-        return new Result.Error("Request not yet implemented");
+        return Task.rejected("Request not yet implemented");
     case "record":
-        return new Result.Error("Request not yet implemented");
+        return Task.rejected("Request not yet implemented");
     case "remove":
-        return new Result.Error("Request not yet implemented");
+        return Task.rejected("Request not yet implemented");
     case "status":
-        return new Result.Ok(Task.of(moment().format("X")));
+        return Task.of(moment().format("X"));
     case "stop":
-        return new Result.Error("Request not yet implemented");
+        return Task.rejected("Request not yet implemented");
     case "update":
-        return new Result.Error("Request not yet implemented");
+        return Task.rejected("Request not yet implemented");
     default:
-        return new Result.Error(`Not recognized: ${json.req}`);
+        return Task.rejected("Key not recognized");
     }
 };
 
@@ -81,16 +80,28 @@ const vetPacket = (json) => {
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
         const json = JSON.parse(msg);
-        logEvent(json, "request").run();
-        const res = vetPacket(json);
+        logEvent(json, "request", "parsed").run();
+        const res = vetPacket(json).run();
 
-        res.matchWith({
-            Ok: ({ value }) => value.chain((v) => {
-                const r = reply(json.key, v, "OK");
-                logEvent(r, "reply").run();
-                return wsSend(ws, r);
-            }).run(),
-            Error: ({ value }) => wsSend(ws, reply(json.key, value, "ERROR")).run()
+        res.listen({
+            onCancelled: () => {
+                console.log("Canceled, yo")
+                const rep = reply(json.key, {}, "CANCELED");
+                logEvent(rep, "reply", "canceled").run();
+                wsSend(ws, rep).run();
+            },
+            onRejected: (v) => {
+                console.log(`Rejected, yo: ${v}`);
+                const rep = reply(json.key, v, "ERROR");
+                logEvent(rep, "reply", "rejected").run();
+                wsSend(ws, rep).run();
+            },
+            onResolved: (v) => {
+                console.log(`Value, yo: ${v}`);
+                const rep = reply(json.key, v, "OK");
+                logEvent(rep, "reply", "success").run();
+                wsSend(ws, rep).run();
+            }
         });
     });
 });
