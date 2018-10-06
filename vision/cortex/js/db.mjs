@@ -1,5 +1,4 @@
 /*jslint es6*/
-// import Result from "folktale/result";
 import Task from "folktale/concurrency/task";
 
 import "../../ray/group";

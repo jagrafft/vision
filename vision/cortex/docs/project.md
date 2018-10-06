@@ -6,19 +6,18 @@ files: ./journal
 ## ToDo
 - [ ] Implement `Folktale<Task>` for issuing PM2 `start`
 - [ ] Implement `Folktale<Task>` for issuing PM2 `stop`
-- [ ] Implement logger using `Folktale<?>`
-    - Should be a monad
+- [x] Implement logger using `Folktale<Task>`
 - [ ] Implement failover using `retry` monad
 - [ ] Add UUID function
 - [ ] Define `val` object for `"find"` request
-- [ ] Define chain of functions which produce `Error || Result` for `"find"`
-- [ ] Define `val` object for `"start"` request
-- [ ] Define chain of functions which produce `Error || Result` for `"record"`
+- [x] Define chain of functions which produce `Error || Result` for `"find"`
+- [x] Define `val` object for `"start"` request
+- [x] Define chain of functions which produce `Error || Result` for `"record"`
 - [x] Define `val` object for `"status"` request
 - [x] Define chain of functions which produce `Error || Result` for `"status"`
 - [ ] Define `val` object for `"stop"` request
-- [ ] Define chain of functions which produce `Error || Result` for `"stop"`
-- [ ] Define chain of functions which produce `Error || Result` for `"_"`
+- [x] Define chain of functions which produce `Error || Result` for `"stop"`
+- [x] Define chain of functions which produce `Error || Result` for `"_"`
 - [ ] `"record"` works for a single process
 - [ ] `"record"` works for a multiple processes
 - [ ] `"stop"` works for a single process

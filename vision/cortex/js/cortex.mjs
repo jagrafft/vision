@@ -83,6 +83,7 @@ wss.on("connection", (ws) => {
         logEvent(json, "request", "parsed").run();
         const res = vetPacket(json).run();
 
+        // TODO Refactor and abstract
         res.listen({
             onCancelled: () => {
                 console.log("Canceled, yo")
