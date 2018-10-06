@@ -1,14 +1,14 @@
 /*jslint es6*/
-import Datastore from "nedb";
+import Logger from "nedb-logger";
 import moment from "moment";
 import settings from "./resources/settings.json";
 import Task from "folktale/concurrency/task";
 
 /**
- * Log datastore for *vision*
- * @const {NeDB<Datastore>}
+ * Logger for *vision*
+ * @const {NeDB<Logger>}
  */
-const logstore = new Datastore({filename: `./${settings.defaults.db}/logs.db`, autoload: true});
+const logstore = new Logger({filename: `./${settings.defaults.db}/logs.db`, autoload: true});
 
 /**
  * Write log event to NeDB datastore
@@ -24,8 +24,8 @@ export const logEvent = (ev, evType) => {
             resolver.onCancelled(() => {
                 console.log("LOG: wsSend() cancelled");
             });
-            logstore.insert({t: moment().format("x"), type: evType, event: ev}, (err, doc) => {
-                (err) ? resolver.reject(err) : resolver.resolve({upsert: false, n: 1, docs: doc});
+            logstore.insert({t: moment().format("x"), type: evType, event: ev}, (err) => {
+                (err) ? resolver.reject(err) : resolver.resolve({result: "Success"});
             });
         }
     );

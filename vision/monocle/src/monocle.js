@@ -127,7 +127,7 @@ const main = (sources) => {
     const mastheadClicks_ = sources.DOM
         .select(".masthead-element")
         .events("click")
-        .map((x) => ({id: x.target.id, req: "masthead"}));
+        .map((x) => ({key: x.target.id, req: x.target.id, val: {}}));
 
     /**
      * Collects input events in `.video-selector`
