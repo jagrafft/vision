@@ -29,6 +29,7 @@ const wss = new WS.Server({
  * Send message to WebSocket client
  * @param {WebSocket<Client>} ws WebSocket object representing client
  * @param {string} msg Stringified JSON conforming to *vision* specification
+ * @returns {Folktale<Task>}
  */
 export const wsSend = (ws, msg) => {
     return Task.task(
@@ -112,7 +113,20 @@ wss.on("connection", (ws) => {
  * @function setInterval
  */
 setInterval(() => {
-    pm2list().run().promise().then((l) => {
-        wss.clients.forEach((c) => wsSend(c, reply("status", JSON.stringify(l), "OK")).run());
+    const status = pm2list().run();
+    // TODO onCancelled and onRejected should do something
+    status.listen({
+        onCancelled: () => {
+            console.log("auto-tick update cancelled");
+        },
+        onRejected: (v) => {
+            console.log(`auto-tick update rejected: ${v}`);
+        },
+        onResolved: (v) => {
+            console.log(`auto-tick update resolved: ${v}`);
+            const rep = reply("status", JSON.stringify(v), "OK");
+            logEvent(rep, "auto-status", "success");
+            wss.clients.forEach((c) => wsSend(c, rep).run());
+        }
     });
 }, 5000);
