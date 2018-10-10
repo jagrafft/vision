@@ -5,13 +5,13 @@
 "use strict";
 import {adapt} from "@cycle/run/lib/adapt";
 import Dexie from "dexie";
-import {div, img, input, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
-// import isolate from "@cycle/isolate";
+import {div, img, input, hr, makeDOMDriver, option, p, select, span, button} from "@cycle/dom";
 import {run} from "@cycle/run";
+import sampleCombine from "xstream/extra/sampleCombine";
 import xs from "xstream";
 
 /**
- * Global... Dexie instance. To be refactored
+ * Global Dexie instance. To be refactored
  * @const {Dexie}
  */
 const db = new Dexie("vision:monocle");
@@ -29,13 +29,19 @@ db.version(2).stores({
             .then(() => {
                 console.log(`${o.id} added to ${o.group}.`);
             })
-            .catch("ConstraintError", () => {   // ADD failed due to preexising key
+            .catch("ConstraintError", () => {   // failed due to preexising key
                 db.recordQueue.where("id").equals(o.id).delete();
                 console.log(`${o.id} removed from ${o.group}.`);
             })
-            .catch((e) => {
-                console.error(e)
-            });
+            .catch((e) => console.error(e));
+    },
+    error: (err) => console.error(err),
+    complete: () => console.log("dexieListener complete")
+};
+
+const recordListener = {
+    next: (o) => {
+        console.log(o);
     },
     error: (err) => console.error(err),
     complete: () => console.log("dexieListener complete")
@@ -51,12 +57,17 @@ const wsDriver = (adr) => {
     /**
      * Producer for `wsDriver`
      * @param {xs<Stream>} out_ XStream to listen on
-     * @returns {xs<Stream>}
      */
     const driver = (out_) => {
         out_.addListener({
             next: (out) => {
-                ws.send(JSON.stringify(out));
+                if (out.req == "record") {
+                    out.ids.then((dev) => {
+                        ws.send(JSON.stringify({key: out.key, req: out.req, val: {label: out.label, ids: dev.map((x) => x.id)}}));
+                    });
+                } else {
+                    ws.send(JSON.stringify(out));
+                }
             },
             error: (err) => console.error(err),
             complete: () => console.log("wsDriver out_ complete.")
@@ -64,6 +75,7 @@ const wsDriver = (adr) => {
 
         /**
          * Listener for `wsDriver`
+         * @const {xs<Stream>}
          */
         const in_ = xs.create({
             start: (listener) => {
@@ -92,24 +104,6 @@ const wsDriver = (adr) => {
  */
 const main = (sources) => {
     /**
-     * Filters stream for "devices" key
-     * @const {xs<Stream>}
-     */
-    const devices_ = sources.ws
-        .filter((x) => x.key === "devices")
-        .map((x) => x.res)
-        .startWith({devices: [{id: null, dataType: null}]});
-
-    /**
-     * Filters stream for "status" key
-     * @const {xs<Stream>}
-     */
-    const status_ = sources.ws
-        .filter((x) => x.key === "status")
-        // .map((x) => x.res)
-        .startWith({req: "status", status: "initializing..."});
-
-    /**
      * Collects click events for `.device` elements
      * @const {xs<Stream>}
      */
@@ -118,6 +112,9 @@ const main = (sources) => {
         .events("change")
         .map((x) => ({id: x.target.id, checked: x.target.checked, group: "recordQueue"}));
 
+    /**
+     * Forwards `deviceClick_` values to `dexieListener`
+     */
     deviceClicks_.addListener(dexieListener);
 
     /**
@@ -128,6 +125,33 @@ const main = (sources) => {
         .select(".masthead-element")
         .events("click")
         .map((x) => ({key: x.target.id, req: x.target.id, val: {}}));
+
+    /**
+     * Collects click events from "record" and "stop" buttons
+     */
+    const recordStopButtons_ = sources.DOM
+        .select(".recordToggle")
+        .events("click")
+        .map((x) => x.target.value);
+
+    /**
+     * Filters invalid characters from session label
+     * @const {xs<Stream>}
+     */
+    const sessionLabel_ = sources.DOM
+        .select(".sessionLabel")
+        .events("input")
+        .map((x) => (x.target.value.replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, "")))
+        .startWith("");
+
+    /**
+     * Collects click events occurring over status element
+     * @const {xs<Stream>}
+     */
+    const statusClicks_ = sources.DOM
+        .select(".status")
+        .events("click")
+        .map((x) => ({id: x.target.id, req: "status"}));
 
     /**
      * Collects input events in `.video-selector`
@@ -143,24 +167,49 @@ const main = (sources) => {
         .startWith({id: "", addr: ""});
 
     /**
-     * Collects click events occuring over status element
+     * Filters stream for "devices" key
      * @const {xs<Stream>}
      */
-    const statusClicks_ = sources.DOM
-        .select(".status")
-        .events("click")
-        .map((x) => ({id: x.target.id, req: "status"}));
+    const devices_ = sources.ws
+        .filter((x) => x.key === "devices")
+        .map((x) => x.res)
+        .startWith({devices: [{id: null, dataType: null}]});
 
-    const outgoing_ = xs.merge(mastheadClicks_, statusClicks_);
+    /**
+     * Filters stream for "status" key
+     * @const {xs<Stream>}
+     */
+    const status_ = sources.ws
+        .filter((x) => x.key === "status")
+        .startWith({req: "status", status: "initializing..."});
 
-    const checked_ = xs.fromPromise(db.recordQueue.toArray());
+    /**
+     * Compose `recordStopButtons_` events with `sessionLabel_` events for record start/stop
+     * @const {xs<Stream>}
+     */
+    const recordStopRequests_ = recordStopButtons_.compose(sampleCombine(sessionLabel_))
+        .map((x) => {
+            return {
+                key: x[0],
+                req: "record",
+                label: x[1],
+                ids: x[0] == "record" ? Promise.resolve(db.recordQueue.toArray()) : Promise.resolve([])
+            };
+        });
+
+    /**
+     * Connect streams to outgoing WebSocket
+     * @const {xs<Stream>}
+     */
+    const outgoing_ = xs.merge(mastheadClicks_, recordStopRequests_, statusClicks_);
 
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
+     * @returns {DOMSource}
      */
-    const vdom_ = xs.combine(devices_, status_, checked_, videoSelector_)
-        .map(([dev, stat, check, vid]) => {
-            const checked = check.map((x) => x.id);
+    const vdom_ = xs.combine(devices_, status_, xs.fromPromise(db.recordQueue.toArray()), videoSelector_, sessionLabel_)
+        .map(([dev, stat, que, vid, lab]) => {
+            const deviceQueue = que.map((x) => x.id);
             return div([
                 div(".masthead", {
                     attrs: {style: "background-color: black; color: white; height: 60px; text-align: center;"}
@@ -194,7 +243,7 @@ const main = (sources) => {
                                         input(
                                             ".device",
                                             {attrs: {id: d.id, dataType: k, type: "checkbox",
-                                            checked: checked.includes(d.id)}}
+                                            checked: deviceQueue.includes(d.id)}}
                                         ),
                                         span(`(${k[0]}) ${d.label}${d.location ? " (" + d.location + ")" : ""}`)
                                     ]
@@ -232,14 +281,18 @@ const main = (sources) => {
                     [
                         input(
                             ".sessionLabel",
-                            {attrs: {style: "margin: 0 0 0 4px; width: 65%;", type: "text"}}
+                            {attrs: {style: "margin: 0 0 0 4px; width: 65%;", type: "text", value: lab}}
                         ),
                         input(
-                            ".recordSession",
-                            {attrs: {style: "width: 25%;", type: "button", value: "record"}}
+                            ".recordToggle",
+                            {attrs: {style: "width: 25%;", type: "button", value: "record", disabled: lab == ""}}
                         ),
                         hr(),
-                        p(JSON.stringify(stat))
+                        p(JSON.stringify(stat)),
+                        input(
+                            ".recordToggle",
+                            {attrs: {style: "width: 25%;", type: "button", value: "stop"}}
+                        )
                     ]
                 )
             ])
@@ -253,8 +306,8 @@ const main = (sources) => {
 
 /**
  * Run `main` and connect it to `driver`
- * @param {Function} A function that takes `sources` as inputs and outputs `sinks`
- * @param {Object} An object where keys are driver names and values are driver functions
+ * @param {Function} DOM
+ * @param {xs<Stream>} ws
  */
 run(main, {
     DOM: makeDOMDriver("#app"),

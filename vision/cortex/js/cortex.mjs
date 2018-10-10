@@ -65,8 +65,6 @@ const vetPacket = (json) => {
         return Task.rejected("Request not yet implemented");
     case "status":
         return Task.of(moment().format("X"));
-    case "stop":
-        return Task.rejected("Request not yet implemented");
     case "update":
         return Task.rejected("Request not yet implemented");
     default:
