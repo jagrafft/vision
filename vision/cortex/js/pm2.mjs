@@ -15,30 +15,28 @@ export const pm2delete = (ids) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
                 resolver.cleanup(() => {
-                    // log?
-                    console.log("LOG: pm2delete() cleanup");
+                    logEvent(err, "delete", "CLEANUP");
                     pm2.disconnect();
                 });
                 resolver.onCancelled(() => {
-                    // log?
-                    console.log("LOG: pm2delete() cancelled");
+                    logEvent(err, "delete", "CANCELLED");
                     pm2.disconnect();
                 });
                 ids.forEach((id) => {
                     let errs = [];
                     pm2.delete(id, (err) => {
-                        // What to do with errors?
                         if (err) {
                             errs.push(err);
                             logEvent(err, "delete", "ERROR");
                         }
                         logEvent(id, "delete", "OK");
-                        // update NeDB entry
+                        // create NeDB entry? (seems like the wrong place)
                         return pm2.disconnect();
                     });
                 });
-                // if errs !empty ...?
-                resolver.resolve(errs);
+                // How to handle partial sets?
+                // resolve(errs) || reject(errs)?
+                errs.length > 0 ? resolver.resolve(errs) : resolver.resolve("OK");
             });
         }
     )
@@ -54,17 +52,16 @@ export const pm2list = () => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
                 resolver.cleanup(() => {
-                    // log?
-                    console.log("LOG: pm2List() cleanup");
+                    logEvent(err, "list", "CLEANUP");
                     pm2.disconnect();
                 });
                 resolver.onCancelled(() => {
-                    // log?
-                    console.log("LOG: pm2List() cancelled");
+                    logEvent(err, "list", "CANCELLED");
                     pm2.disconnect();
                 });
                 pm2.list((err, pdl) => {
                     if (err) {
+                        logEvent(err, "list", "ERROR");
                         resolver.reject(err);
                     } else {
                         const l = pdl.map((p) => {
@@ -88,42 +85,39 @@ export const pm2list = () => {
 
 /**
  * Start *vision* process via PM2.
- * @param {Array<string>} ids Device ids to start PM2 processes for.
+ * @param {Array<string>} cmds Commands to start PM2 processes for.
  * @returns {Folktale<Task>}
  */
-export const pm2start = (ids) => {
+export const pm2start = (cmds) => {
     return Task.task(
         (resolver) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
                 resolver.cleanup(() => {
-                    // log?
-                    console.log("LOG: pm2start() cleanup");
+                    logEvent(err, "start", "CLEANUP");
                     pm2.disconnect();
                 });
                 resolver.onCancelled(() => {
-                    // log?
-                    console.log("LOG: pm2start() cancelled");
+                    logEvent(err, "start", "CANCELLED");
                     pm2.disconnect();
                 });
-                ids.forEach((id) => {
-                    let started = [];
+                cmds.forEach((cmd) => {
+                    let errs = [];
                     pm2.start({
                         // options...
                     },
                     (err) => {
                         if (err) {
                             logEvent(err, "start", "ERROR");
-                            resolver.reject(err);
+                            errs.push(err);
                         }
-                        logEvent(id, "start", "OK");
-                        started.push(id);
-                        // update NeDB entry
+                        logEvent(cmd, "start", "OK");
                         return pm2.disconnect();
                     });
                 });
-                // if errs !empty ...?
-                resolver.resolve(started);
+                // How to handle partial sets?
+                // resolve(errs) || reject(errs)?
+                errs.length > 0 ? resolver.resolve(errs) : resolver.resolve("OK");
             });
         }
     )
