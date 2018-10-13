@@ -1,8 +1,8 @@
 /*jslint es6*/
 import Task from "folktale/concurrency/task";
 
-import "../../ray/group";
-import {prune} from "../../ray/packet";
+import "../../neurons/group";
+import {prune} from "../../neurons/packet";
 
 /**
  * Perform NeDB `find` operation inside a `Folktale<Task>` monad

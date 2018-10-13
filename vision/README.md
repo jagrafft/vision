@@ -1,13 +1,14 @@
-# vision
-Root directory for *vision* microservices.
+# *vision* microservices
 
-- [Cortex](cortex) - Data node
-- [Mirror](mirror) - Kodi Addon
-- [Window](window) - UI for *vision*, based on Riot.js
-- [Monocle](monocle) - UI for Cortex, based on Cycle.js
-- [Retina](retina) - Gateway service
+| microservice | description | development status |
+|---|---|:-:|
+| [Cortex](cortex) | Process manager for *vision* nodes | active |
+| [Monocle](monocle) | Client interface for Cortex data node | active |
+| [Neurons](neurons) | Data structures and functions used by *vision* microservices | next phase |
+| [Relay](relay) | Kodi Addon for HLS playback | next phase |
+| [Retina](retina) | Expansion of Monocle able to interact with mutliple Cortex nodes | planned |
 
-## Microservices Communication Specifications
+<!-- ## Microservices Communication Specifications
 *vision* microservices communicate via JSON packets whose key-value pairs conform to the [*vision* data exchange format](#).
 
 ```json
@@ -23,10 +24,10 @@ Root directory for *vision* microservices.
     "res": "{Object}",
     "status": "{string}"
 }
-```
+``` -->
 
-[cortex]: https://github.com/jagrafft/vision/tree/master/vision/cortex
-[mirror]: https://github.com/jagrafft/vision/tree/master/vision/mirror/
-[window]: https://github.com/jagrafft/vision/tree/master/vision/window/
+[cortex]: https://github.com/jagrafft/vision/tree/master/vision/cortex/
 [monocle]: https://github.com/jagrafft/vision/tree/master/vision/monocle/
+[neurons]: https://github.com/jagrafft/vision/tree/master/vision/neurons/
+[relay]: https://github.com/jagrafft/vision/tree/master/vision/relay/
 [retina]: https://github.com/jagrafft/vision/tree/master/vision/retina/

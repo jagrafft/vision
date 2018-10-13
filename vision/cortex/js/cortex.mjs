@@ -7,7 +7,7 @@ import WS from "ws";
 import {find} from "./db";
 import {logEvent} from "./logger";
 import {pm2list} from "./pm2";
-import {reply} from "../../ray/packet";
+import {reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
 
 /**
