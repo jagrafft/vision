@@ -4,7 +4,7 @@
 
 | | description | status |
 |:-:|---|---|
-| [docs][docs] | Docs, Whitepaper | **out-of-date** |
+| [docs][docs] | Docs, Whitepaper | out-of-date |
 | [vision][vision] | Core microservices | |
 
 <hr>
