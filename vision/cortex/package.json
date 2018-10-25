@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "folktale": "^2.3.1",
+    "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
     "nedb": "^1.8.0",
     "nedb-logger": "^0.1.0",

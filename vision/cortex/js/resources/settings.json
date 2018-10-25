@@ -1,13 +1,10 @@
 {
     "defaults": {
         "db": ".dbs",
+        "outputDir": "/Users/jg/Desktop/Cortex",
         "audio": {
             "bitrate": 96000,
             "channels": 2
-        },
-        "handlers": {
-            "audio": ["http-live-stream.js", "m4a.js"],
-            "video": ["http-live-stream.js", "h264.js"]
         },
         "hls": {
             "duration": 1,
@@ -18,5 +15,17 @@
             "height": 720,
             "width": 1280
         }
-    }
+    },
+    "encoders": {
+        "h264.mjs": {
+
+        },
+        "http-live-stream.mjs": {
+
+        },
+        "m4a.mjs": {
+
+        }
+    },
+    "handlers": {}
 }

@@ -21,13 +21,17 @@ export const logEvent = (ev, evType, out) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                console.log("LOG: wsSend() cleanup");
+                logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
+                    if (err) console.error(err);
+                });
             });
             resolver.onCancelled(() => {
-                console.log("LOG: wsSend() cancelled");
+                logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
+                    if (err) console.error(err);
+                });
             });
             logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
-                (err) ? resolver.reject(err) : resolver.resolve({result: "Success"});
+                (err) ? resolver.reject(err) : resolver.resolve({result: "OK"});
             });
         }
     );

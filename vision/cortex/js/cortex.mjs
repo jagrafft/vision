@@ -4,6 +4,7 @@ import moment from "moment";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
+import {createDir} from "./misc";
 import {find} from "./db";
 import {logEvent} from "./logger";
 import {pm2list} from "./pm2";
@@ -35,14 +36,11 @@ export const wsSend = (ws, msg) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                // log
-                console.log("LOG: wsSend() cleanup");
+                logEvent(msg, "wsSend", "CLEANUP");
             });
             resolver.onCancelled(() => {
-                // log
-                console.log("LOG: wsSend() cancelled");
+                logEvent(msg, "wsSend", "CANCELLED");
             });
-            // log
             resolver.resolve(ws.send(msg));
         }
     );
@@ -56,11 +54,25 @@ export const wsSend = (ws, msg) => {
 const vetPacket = (json) => {
     switch (json.req) {
     case "find":
-        return find(db, json.val);
+        const obj = {};
+        obj[json.val] = json.key;
+        return find(db, obj);
     case "insert":
         return Task.rejected("Request not yet implemented");
     case "record":
-        return Task.rejected("Request not yet implemented");
+        switch (json.key) {
+        case "start":
+            const created = moment().format("YYYY-MM-DD_HHmmss");
+            const pth = `${settings.defaults.outputDir}/${json.val.label.replace(/ /g, "_")}-${created}`;
+            // TODO createDir crashes on same directory
+            createDir(`${pth}/logs`).run();
+            return find(db, { _id: { $in: json.val.ids }});
+        case "stop":
+            // json.val.ids holds **PM2** identifiers
+            return Task.rejected("Request not yet implemented");
+        default:
+            return Task.rejected("Key not recognized")
+        }
     case "remove":
         return Task.rejected("Request not yet implemented");
     case "status":
@@ -68,7 +80,7 @@ const vetPacket = (json) => {
     case "update":
         return Task.rejected("Request not yet implemented");
     default:
-        return Task.rejected("Key not recognized");
+        return Task.rejected("Request not recognized");
     }
 };
 
@@ -85,21 +97,18 @@ wss.on("connection", (ws) => {
         // TODO Refactor and abstract
         res.listen({
             onCancelled: () => {
-                console.log("Canceled, yo")
                 const rep = reply(json.key, {}, "CANCELED");
-                logEvent(rep, "reply", "canceled").run();
+                logEvent(rep, "reply", "CANCELED").run();
                 wsSend(ws, rep).run();
             },
             onRejected: (v) => {
-                console.log(`Rejected, yo: ${v}`);
                 const rep = reply(json.key, v, "ERROR");
-                logEvent(rep, "reply", "rejected").run();
+                logEvent(rep, "reply", "REJECTED").run();
                 wsSend(ws, rep).run();
             },
             onResolved: (v) => {
-                console.log(`Value, yo: ${v}`);
                 const rep = reply(json.key, v, "OK");
-                logEvent(rep, "reply", "success").run();
+                logEvent(rep, "reply", "OK").run();
                 wsSend(ws, rep).run();
             }
         });
@@ -114,16 +123,15 @@ setInterval(() => {
     const status = pm2list().run();
     // TODO onCancelled and onRejected should do something
     status.listen({
-        onCancelled: () => {
-            console.log("auto-tick update cancelled");
+        onCancelled: (v) => {
+            logEvent(v, "autoStatus", "CANCELLED");
         },
         onRejected: (v) => {
-            console.log(`auto-tick update rejected: ${v}`);
+            logEvent(v, "autoStatus", "REJECTED");
         },
         onResolved: (v) => {
-            console.log(`auto-tick update resolved: ${v}`);
             const rep = reply("status", JSON.stringify(v), "OK");
-            logEvent(rep, "auto-status", "success");
+            logEvent(rep, "autoStatus", "OK");
             wss.clients.forEach((c) => wsSend(c, rep).run());
         }
     });

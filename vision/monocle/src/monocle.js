@@ -5,7 +5,7 @@
 "use strict";
 import {adapt} from "@cycle/run/lib/adapt";
 import Dexie from "dexie";
-import {div, img, input, hr, makeDOMDriver, option, p, select, span, button} from "@cycle/dom";
+import {div, img, input, hr, makeDOMDriver, option, p, select, span} from "@cycle/dom";
 import {run} from "@cycle/run";
 import sampleCombine from "xstream/extra/sampleCombine";
 import xs from "xstream";
@@ -34,14 +34,6 @@ db.version(2).stores({
                 console.log(`${o.id} removed from ${o.group}.`);
             })
             .catch((e) => console.error(e));
-    },
-    error: (err) => console.error(err),
-    complete: () => console.log("dexieListener complete")
-};
-
-const recordListener = {
-    next: (o) => {
-        console.log(o);
     },
     error: (err) => console.error(err),
     complete: () => console.log("dexieListener complete")
@@ -80,7 +72,7 @@ const wsDriver = (adr) => {
         const in_ = xs.create({
             start: (listener) => {
                 ws.onopen = () => {
-                    ws.send(JSON.stringify({key: "devices", req: "find", val: {group: "devices"}}));
+                    ws.send(JSON.stringify({key: "devices", req: "find", val: "group"}));
                 };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
@@ -193,7 +185,7 @@ const main = (sources) => {
                 key: x[0],
                 req: "record",
                 label: x[1],
-                ids: x[0] == "record" ? Promise.resolve(db.recordQueue.toArray()) : Promise.resolve([])
+                ids: x[0] == "start" ? Promise.resolve(db.recordQueue.toArray()) : Promise.resolve([])
             };
         });
 
@@ -285,7 +277,7 @@ const main = (sources) => {
                         ),
                         input(
                             ".recordToggle",
-                            {attrs: {style: "width: 25%;", type: "button", value: "record", disabled: lab == ""}}
+                            {attrs: {style: "width: 25%;", type: "button", value: "start", disabled: lab === ""}}
                         ),
                         hr(),
                         p(JSON.stringify(stat)),

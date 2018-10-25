@@ -2,6 +2,7 @@
 import Task from "folktale/concurrency/task";
 
 import "../../neurons/group";
+import {logEvent} from "./logger";
 import {prune} from "../../neurons/packet";
 
 /**
@@ -14,15 +15,13 @@ export function find(db, qry) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                // log
-                console.log("LOG: find() cleanup");
+                logEvent(qry, "find", "CLEANUP");
             });
             resolver.onCancelled(() => {
-                // log
-                console.log("LOG: find() cancelled");
+                logEvent(qry, "find", "CANCELLED");
             });
             db.find(qry).sort({dataType: 1}).exec((err, res) => {
-                (err) ? resolver.reject(err) : resolver.resolve(prune(res).groupByKey("dataType"));
+                err ? resolver.reject(err) : resolver.resolve(prune(res).groupByKey("dataType"));
             });
         }
     );
@@ -51,12 +50,10 @@ export function upsert(db, qry, obj) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                // log
-                console.log("LOG: upsert() cleanup");
+                logEvent(qry, "upsert", "CLEANUP");
             });
             resolver.onCancelled(() => {
-                // log
-                console.log("LOG: upsert() cancelled");
+                logEvent(qry, "upsert", "CLEANUP");
             });
             db.update(qry, obj, {multi: true, upsert: true, returnUpdatedDocs: true}, (err, n, doc, up) => {
                 (err) ? resolver.reject(err) : resolver.resolve({upsert: up, n: n, docs: doc});
