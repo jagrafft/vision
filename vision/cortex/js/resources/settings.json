@@ -16,7 +16,7 @@
             "width": 1280
         }
     },
-    "encoders": {
+    "handlers": {
         "h264.mjs": {
 
         },
@@ -26,6 +26,5 @@
         "m4a.mjs": {
 
         }
-    },
-    "handlers": {}
+    }
 }

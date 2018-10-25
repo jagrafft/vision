@@ -11,7 +11,7 @@
 
 | status | as of |
 |:-:|:-:|
-| late α | 2018-10-13 |
+| late α | 2018-10-24 |
 
 [docs]: https://github.com/jagrafft/vision/tree/master/docs
 [vision]: https://github.com/jagrafft/vision/tree/master/vision
