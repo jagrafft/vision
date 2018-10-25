@@ -8,8 +8,9 @@ import {createDir} from "./misc";
 import {find} from "./db";
 import {logEvent} from "./logger";
 import {pm2list} from "./pm2";
-import {reply} from "../../neurons/packet";
+import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
+import {insert} from "./db.mjs";
 
 /**
  * Global datastore for *vision*
@@ -54,24 +55,54 @@ export const wsSend = (ws, msg) => {
 const vetPacket = (json) => {
     switch (json.req) {
     case "find":
-        const obj = {};
-        obj[json.val] = json.key;
-        return find(db, obj);
+        return Task.task((resolver) => {
+            let obj = {};
+            obj[json.val] = json.key;
+            resolver.resolve(obj);
+        }).chain((obj) => {
+            return find(db, obj);
+        }).chain((res) => {
+            return Task.of(prune(res).groupByKey("dataType"));
+        });
     case "insert":
         return Task.rejected("Request not yet implemented");
     case "record":
         switch (json.key) {
         case "start":
-            const created = moment().format("YYYY-MM-DD_HHmmss");
-            const pth = `${settings.defaults.outputDir}/${json.val.label.replace(/ /g, "_")}-${created}`;
-            // TODO createDir crashes on same directory
-            createDir(`${pth}/logs`).run();
-            return find(db, { _id: { $in: json.val.ids }});
+            return Task.task((resolver) => {
+                resolver.resolve(
+                    // Object representing session record
+                    new Object({
+                        dataType: "session",
+                        devices: json.val.ids,
+                        group: "sessions",
+                        initiated: new Date(),
+                        lastUpdate: new Date(),
+                        name: json.val.label,
+                        path: `${settings.defaults.outputDir}/${json.val.label.replace(/ /g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
+                        status: "REQUESTED"
+                    })
+                );
+            }).chain((obj) => {
+                return Task.waitAll([
+                    // Write session record object to NeDB
+                    // returns inserted document
+                    insert(db, obj),
+                    // Create directory for session files
+                    // returns {err, EXISTS, OK}
+                    createDir(`${obj.path}/logs`),
+                    // Find information on requested devices
+                    // returns array of documents matching criteria
+                    find(db, {"_id": {"$in": json.val.ids}})
+                ]);
+            }).chain((arr) => {
+                return Task.of(arr);
+            });
         case "stop":
             // json.val.ids holds **PM2** identifiers
             return Task.rejected("Request not yet implemented");
         default:
-            return Task.rejected("Key not recognized")
+            return Task.rejected("Key not recognized");
         }
     case "remove":
         return Task.rejected("Request not yet implemented");

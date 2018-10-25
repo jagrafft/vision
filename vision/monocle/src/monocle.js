@@ -133,7 +133,7 @@ const main = (sources) => {
     const sessionLabel_ = sources.DOM
         .select(".sessionLabel")
         .events("input")
-        .map((x) => (x.target.value.replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, "")))
+        .map((x) => (x.target.value.replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, " ")))
         .startWith("");
 
     /**

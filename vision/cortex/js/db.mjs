@@ -3,7 +3,6 @@ import Task from "folktale/concurrency/task";
 
 import "../../neurons/group";
 import {logEvent} from "./logger";
-import {prune} from "../../neurons/packet";
 
 /**
  * Perform NeDB `find` operation inside a `Folktale<Task>` monad
@@ -21,32 +20,53 @@ export function find(db, qry) {
                 logEvent(qry, "find", "CANCELLED");
             });
             db.find(qry).sort({dataType: 1}).exec((err, res) => {
-                err ? resolver.reject(err) : resolver.resolve(prune(res).groupByKey("dataType"));
+                err ? resolver.reject(err) : resolver.resolve(res);
             });
         }
     );
 }
 
-// export function remove(db, req) {
-//     return Task.task(
-//         (resolver) => {
-//             // `query` provided by req
-//             db.remove(query, {multi: true}, (err, n) => {
-//                 resolver.resolve();
-//             })
-//         }
-//     );
-// }
+export function insert(db, obj) {
+    return Task.task(
+        (resolver) => {
+            resolver.cleanup(() => {
+                logEvent(obj, "insert", "CLEANUP");
+            });
+            resolver.onCancelled(() => {
+                logEvent(obj, "insert", "CANCELLED");
+            });
+            db.insert(obj, (err, res) => {
+                err ? resolver.reject(err) : resolver.resolve(res);
+            })
+        }
+    );
+}
 
-// Insert && Update => upsert: true
+export function remove(db, qry) {
+    return Task.task(
+        (resolver) => {
+            resolver.cleanup(() => {
+                logEvent(qry, "insert", "CLEANUP");
+            });
+            resolver.onCancelled(() => {
+                logEvent(qry, "insert", "CANCELLED");
+            });
+            // `query` provided by req
+            db.remove(qry, {multi: true}, (err, n) => {
+                err ? resolver.reject(err) : resolver.resolve(n);
+            })
+        }
+    );
+}
+
 /**
- * Insert or update ("upsert") `obj` into `db` based on the results of `qry`
+ * Update `obj` in `db` based on the results of `qry`
  * @param {NeDB<Datastore>} db Datastore to query
  * @param qry Query that conforms to *vision* specification for `find`
  * @param obj Object to insert or update
  * @returns {Folktale<Task>}
  */
-export function upsert(db, qry, obj) {
+export function update(db, qry, obj) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
@@ -55,8 +75,8 @@ export function upsert(db, qry, obj) {
             resolver.onCancelled(() => {
                 logEvent(qry, "upsert", "CLEANUP");
             });
-            db.update(qry, obj, {multi: true, upsert: true, returnUpdatedDocs: true}, (err, n, doc, up) => {
-                (err) ? resolver.reject(err) : resolver.resolve({upsert: up, n: n, docs: doc});
+            db.update(qry, obj, {multi: true, upsert: false, returnUpdatedDocs: true}, (err, n) => {
+                (err) ? resolver.reject(err) : resolver.resolve(n);
             });
         }
     );
