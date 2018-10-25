@@ -40,7 +40,7 @@ export const wsSend = (ws, msg) => {
                 logEvent(msg, "wsSend", "CLEANUP");
             });
             resolver.onCancelled(() => {
-                logEvent(msg, "wsSend", "CANCELLED");
+                logEvent(msg, "wsSend", "CANCELLED").run();
             });
             resolver.resolve(ws.send(msg));
         }
@@ -70,6 +70,7 @@ const vetPacket = (json) => {
         switch (json.key) {
         case "start":
             return Task.task((resolver) => {
+                const name = json.val.label.trim().replace(/\s\s+/g, " ");
                 resolver.resolve(
                     // Object representing session record
                     new Object({
@@ -78,25 +79,26 @@ const vetPacket = (json) => {
                         group: "sessions",
                         initiated: new Date(),
                         lastUpdate: new Date(),
-                        name: json.val.label,
-                        path: `${settings.defaults.outputDir}/${json.val.label.replace(/ /g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
-                        status: "REQUESTED"
+                        name: name,
+                        path: `${settings.defaults.outputDir}/${name.replace(/\s/g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
+                        status: "INITIATED"
                     })
                 );
             }).chain((obj) => {
                 return Task.waitAll([
-                    // Write session record object to NeDB
-                    // returns inserted document
-                    insert(db, obj),
-                    // Create directory for session files
-                    // returns {err, EXISTS, OK}
-                    createDir(`${obj.path}/logs`),
-                    // Find information on requested devices
-                    // returns array of documents matching criteria
-                    find(db, {"_id": {"$in": json.val.ids}})
+                    createDir(`${obj.path}/logs`),              // 0: {err, EXISTS, OK}
+                    find(db, {_id: {$in: json.val.ids}}),       // 1: array of objects
+                    insert(db, obj)                             // 2: inserted object(s)
                 ]);
             }).chain((arr) => {
-                return Task.of(arr);
+                if (arr[0] == "OK") {
+                    // create PM2 start objects
+                    // const a = arr[1].map((x) => {});
+                    // update NeDB entry (`obj._id`)
+                    return Task.of(arr);
+                } else {
+                    return Task.rejected(arr[1]);
+                }
             });
         case "stop":
             // json.val.ids holds **PM2** identifiers
@@ -122,7 +124,7 @@ const vetPacket = (json) => {
 wss.on("connection", (ws) => {
     ws.on("message", (msg) => {
         const json = JSON.parse(msg);
-        logEvent(json, "request", "parsed").run();
+        logEvent(json, "request", "RECEIVED").run();
         const res = vetPacket(json).run();
 
         // TODO Refactor and abstract
@@ -155,14 +157,14 @@ setInterval(() => {
     // TODO onCancelled and onRejected should do something
     status.listen({
         onCancelled: (v) => {
-            logEvent(v, "autoStatus", "CANCELLED");
+            logEvent(v, "autoStatus", "CANCELLED").run();
         },
         onRejected: (v) => {
-            logEvent(v, "autoStatus", "REJECTED");
+            logEvent(v, "autoStatus", "REJECTED").run();
         },
         onResolved: (v) => {
             const rep = reply("status", JSON.stringify(v), "OK");
-            logEvent(rep, "autoStatus", "OK");
+            // logEvent(rep, "autoStatus", "OK").run();
             wss.clients.forEach((c) => wsSend(c, rep).run());
         }
     });

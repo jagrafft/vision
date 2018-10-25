@@ -21,7 +21,22 @@
 
         },
         "http-live-stream.mjs": {
-
+            "audio": {
+                "bitrate": 96000,
+                "encoder": "avenc_aac",
+                "source": "pulsesrc"
+            },
+            "video": {
+                "framerate": 30,
+                "height": 720,
+                "parser": "h264parse",
+                "source": "rtspsrc",
+                "width": 1080
+            },
+            "duration": 1,
+            "max_files": 9000,
+            "muxer": "mpegtsmux",
+            "sink": "hlssink"
         },
         "m4a.mjs": {
 

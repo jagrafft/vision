@@ -6,10 +6,10 @@ export const createDir = (dir) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(dir, "createDir", "CLEANUP");
+                logEvent(dir, "createDir", "CLEANUP").run();
             });
             resolver.onCancelled(() => {
-                logEvent(dir, "createDir", "CANCELLED");
+                logEvent(dir, "createDir", "CANCELLED").run();
             });
             mkdirp(dir, (err, p) => {
                 // TODO Fix error returns

@@ -11,7 +11,7 @@ import sampleCombine from "xstream/extra/sampleCombine";
 import xs from "xstream";
 
 /**
- * Global Dexie instance. To be refactored
+ * Global Dexie instance.
  * @const {Dexie}
  */
 const db = new Dexie("vision:monocle");
@@ -53,13 +53,9 @@ const wsDriver = (adr) => {
     const driver = (out_) => {
         out_.addListener({
             next: (out) => {
-                if (out.req == "record") {
-                    out.ids.then((dev) => {
-                        ws.send(JSON.stringify({key: out.key, req: out.req, val: {label: out.label, ids: dev.map((x) => x.id)}}));
-                    });
-                } else {
-                    ws.send(JSON.stringify(out));
-                }
+                const rep = out.req == "record" ? out.ids.then((dev) => new Object({key: out.key, req: out.req, val: {label: out.label, ids: dev.map((x) => x.id)}})) : new Promise(out);
+
+                rep.then((x) => ws.send(JSON.stringify(x)));
             },
             error: (err) => console.error(err),
             complete: () => console.log("wsDriver out_ complete.")
@@ -163,7 +159,7 @@ const main = (sources) => {
      * @const {xs<Stream>}
      */
     const devices_ = sources.ws
-        .filter((x) => x.key === "devices")
+        .filter((x) => x.key == "devices")
         .map((x) => x.res)
         .startWith({devices: [{id: null, dataType: null}]});
 
@@ -172,7 +168,7 @@ const main = (sources) => {
      * @const {xs<Stream>}
      */
     const status_ = sources.ws
-        .filter((x) => x.key === "status")
+        .filter((x) => x.key == "status")
         .startWith({req: "status", status: "initializing..."});
 
     /**
@@ -181,12 +177,12 @@ const main = (sources) => {
      */
     const recordStopRequests_ = recordStopButtons_.compose(sampleCombine(sessionLabel_))
         .map((x) => {
-            return {
+            return new Object({
                 key: x[0],
                 req: "record",
                 label: x[1],
                 ids: x[0] == "start" ? Promise.resolve(db.recordQueue.toArray()) : Promise.resolve([])
-            };
+            });
         });
 
     /**
@@ -194,6 +190,7 @@ const main = (sources) => {
      * @const {xs<Stream>}
      */
     const outgoing_ = xs.merge(mastheadClicks_, recordStopRequests_, statusClicks_);
+    // const outgoing_ = recordStopRequests_;
 
     /** Virtual DOM rendered by Cycle.js
      * @const {DOMSource}
@@ -277,7 +274,7 @@ const main = (sources) => {
                         ),
                         input(
                             ".recordToggle",
-                            {attrs: {style: "width: 25%;", type: "button", value: "start", disabled: lab === ""}}
+                            {attrs: {style: "width: 25%;", type: "button", value: "start", disabled: lab == ""}}
                         ),
                         hr(),
                         p(JSON.stringify(stat)),

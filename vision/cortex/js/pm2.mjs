@@ -15,11 +15,11 @@ export const pm2delete = (ids) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
                 resolver.cleanup(() => {
-                    logEvent(err, "delete", "CLEANUP");
+                    logEvent(err, "delete", "CLEANUP").run();
                     pm2.disconnect();
                 });
                 resolver.onCancelled(() => {
-                    logEvent(err, "delete", "CANCELLED");
+                    logEvent(err, "delete", "CANCELLED").run();
                     pm2.disconnect();
                 });
                 ids.forEach((id) => {
@@ -27,9 +27,9 @@ export const pm2delete = (ids) => {
                     pm2.delete(id, (err) => {
                         if (err) {
                             errs.push(err);
-                            logEvent(err, "delete", "ERROR");
+                            logEvent(err, "delete", "ERROR").run();
                         }
-                        logEvent(id, "delete", "OK");
+                        logEvent(id, "delete", "OK").run();
                         // create NeDB entry? (seems like the wrong place)
                         return pm2.disconnect();
                     });
@@ -52,16 +52,16 @@ export const pm2list = () => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
                 resolver.cleanup(() => {
-                    logEvent(err, "list", "CLEANUP");
+                    // logEvent(err, "list", "CLEANUP").run();
                     pm2.disconnect();
                 });
                 resolver.onCancelled(() => {
-                    logEvent(err, "list", "CANCELLED");
+                    logEvent(err, "list", "CANCELLED").run();
                     pm2.disconnect();
                 });
                 pm2.list((err, pdl) => {
                     if (err) {
-                        logEvent(err, "list", "ERROR");
+                        logEvent(err, "list", "ERROR").run();
                         resolver.reject(err);
                     } else {
                         const l = pdl.map((p) => {
@@ -94,11 +94,11 @@ export const pm2start = (cmds) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
                 resolver.cleanup(() => {
-                    logEvent(err, "start", "CLEANUP");
+                    logEvent(err, "start", "CLEANUP").run();
                     pm2.disconnect();
                 });
                 resolver.onCancelled(() => {
-                    logEvent(err, "start", "CANCELLED");
+                    logEvent(err, "start", "CANCELLED").run();
                     pm2.disconnect();
                 });
                 cmds.forEach((cmd) => {
@@ -108,10 +108,10 @@ export const pm2start = (cmds) => {
                     },
                     (err) => {
                         if (err) {
-                            logEvent(err, "start", "ERROR");
+                            logEvent(err, "start", "ERROR").run();
                             errs.push(err);
                         }
-                        logEvent(cmd, "start", "OK");
+                        logEvent(cmd, "start", "OK").run();
                         return pm2.disconnect();
                     });
                 });

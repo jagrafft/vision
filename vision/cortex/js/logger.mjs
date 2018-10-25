@@ -21,14 +21,10 @@ export const logEvent = (ev, evType, out) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
-                    if (err) console.error(err);
-                });
+                // console.log("logEvent CLEANUP");
             });
             resolver.onCancelled(() => {
-                logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
-                    if (err) console.error(err);
-                });
+                console.log("logEvent CANCELLED");
             });
             logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
                 (err) ? resolver.reject(err) : resolver.resolve({result: "OK"});

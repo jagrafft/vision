@@ -14,10 +14,10 @@ export function find(db, qry) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(qry, "find", "CLEANUP");
+                logEvent(qry, "find", "CLEANUP").run();
             });
             resolver.onCancelled(() => {
-                logEvent(qry, "find", "CANCELLED");
+                logEvent(qry, "find", "CANCELLED").run();
             });
             db.find(qry).sort({dataType: 1}).exec((err, res) => {
                 err ? resolver.reject(err) : resolver.resolve(res);
@@ -30,10 +30,10 @@ export function insert(db, obj) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(obj, "insert", "CLEANUP");
+                logEvent(obj, "insert", "CLEANUP").run();
             });
             resolver.onCancelled(() => {
-                logEvent(obj, "insert", "CANCELLED");
+                logEvent(obj, "insert", "CANCELLED").run();
             });
             db.insert(obj, (err, res) => {
                 err ? resolver.reject(err) : resolver.resolve(res);
@@ -46,10 +46,10 @@ export function remove(db, qry) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(qry, "insert", "CLEANUP");
+                logEvent(qry, "insert", "CLEANUP").run();
             });
             resolver.onCancelled(() => {
-                logEvent(qry, "insert", "CANCELLED");
+                logEvent(qry, "insert", "CANCELLED").run();
             });
             // `query` provided by req
             db.remove(qry, {multi: true}, (err, n) => {
@@ -70,10 +70,10 @@ export function update(db, qry, obj) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(qry, "upsert", "CLEANUP");
+                logEvent(qry, "update", "CLEANUP").run();
             });
             resolver.onCancelled(() => {
-                logEvent(qry, "upsert", "CLEANUP");
+                logEvent(qry, "update", "CLEANUP").run();
             });
             db.update(qry, obj, {multi: true, upsert: false, returnUpdatedDocs: true}, (err, n) => {
                 (err) ? resolver.reject(err) : resolver.resolve(n);
