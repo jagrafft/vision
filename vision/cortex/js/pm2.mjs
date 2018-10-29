@@ -1,42 +1,40 @@
 /*jslint es6*/
-import {logEvent} from "./logger";
 import moment from "moment";
 import pm2 from "pm2";
 import Task from "folktale/concurrency/task";
 
+import {logEvent} from "./logger";
+import settings from "./resources/settings.json";
+
 /**
  * Delete *vision* processes managed by PM2.
- * @param {Array<string>} ids PM2 ids to delete.
+ * @param {String} id PM2 id to delete.
  * @returns {Folktale<Task>}
  */
-export const pm2delete = (ids) => {
+export const pm2delete = (id) => {
     return Task.task(
         (resolver) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
+
                 resolver.cleanup(() => {
-                    logEvent(err, "delete", "CLEANUP").run();
+                    logEvent(err, "pm2delete", "CLEANUP").run();
                     pm2.disconnect();
                 });
+
                 resolver.onCancelled(() => {
-                    logEvent(err, "delete", "CANCELLED").run();
+                    logEvent(err, "pm2delete", "CANCELLED").run();
                     pm2.disconnect();
                 });
-                ids.forEach((id) => {
-                    let errs = [];
-                    pm2.delete(id, (err) => {
-                        if (err) {
-                            errs.push(err);
-                            logEvent(err, "delete", "ERROR").run();
-                        }
-                        logEvent(id, "delete", "OK").run();
-                        // create NeDB entry? (seems like the wrong place)
-                        return pm2.disconnect();
-                    });
+
+                pm2.delete(id, (err) => {
+                    if (err) {
+                        logEvent(err, "pm2delete", "ERROR").run();
+                        resolver.reject(err);
+                    }
+                    logEvent(id, "pm2delete", "OK").run();
+                    resolver.resolve("OK");
                 });
-                // How to handle partial sets?
-                // resolve(errs) || reject(errs)?
-                errs.length > 0 ? resolver.resolve(errs) : resolver.resolve("OK");
             });
         }
     )
@@ -51,17 +49,20 @@ export const pm2list = () => {
         (resolver) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
+
                 resolver.cleanup(() => {
-                    // logEvent(err, "list", "CLEANUP").run();
+                    if (settings.defaults.verbose) logEvent(err, "pm2list", "CLEANUP").run();
                     pm2.disconnect();
                 });
+
                 resolver.onCancelled(() => {
-                    logEvent(err, "list", "CANCELLED").run();
+                    logEvent(err, "pm2list", "CANCELLED").run();
                     pm2.disconnect();
                 });
+
                 pm2.list((err, pdl) => {
                     if (err) {
-                        logEvent(err, "list", "ERROR").run();
+                        logEvent(err, "pm2list", "ERROR").run();
                         resolver.reject(err);
                     } else {
                         const l = pdl.map((p) => {
@@ -85,39 +86,33 @@ export const pm2list = () => {
 
 /**
  * Start *vision* process via PM2.
- * @param {Array<string>} cmds Commands to start PM2 processes for.
+ * @param {Object} params PM2 parameters for process.
  * @returns {Folktale<Task>}
  */
-export const pm2start = (cmds) => {
+export const pm2start = (opts) => {
     return Task.task(
         (resolver) => {
             pm2.connect((err) => {
                 if (err) resolver.reject(err);
+
                 resolver.cleanup(() => {
-                    logEvent(err, "start", "CLEANUP").run();
+                    logEvent(err, "pm2start", "CLEANUP").run();
                     pm2.disconnect();
                 });
+
                 resolver.onCancelled(() => {
-                    logEvent(err, "start", "CANCELLED").run();
+                    logEvent(err, "pm2start", "CANCELLED").run();
                     pm2.disconnect();
                 });
-                cmds.forEach((cmd) => {
-                    let errs = [];
-                    pm2.start({
-                        // options...
-                    },
-                    (err) => {
-                        if (err) {
-                            logEvent(err, "start", "ERROR").run();
-                            errs.push(err);
-                        }
-                        logEvent(cmd, "start", "OK").run();
-                        return pm2.disconnect();
-                    });
+
+                pm2.start(params, (err) => {
+                    if (err) {
+                        logEvent(err, "pm2start", "ERROR").run();
+                        resolver.reject("ERROR");
+                    }
+                    logEvent(cmd, "pm2start", "OK").run();
+                    resolver.resolve("OK");
                 });
-                // How to handle partial sets?
-                // resolve(errs) || reject(errs)?
-                errs.length > 0 ? resolver.resolve(errs) : resolver.resolve("OK");
             });
         }
     )

@@ -5,12 +5,11 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import {createDir} from "./misc";
-import {find} from "./db";
+import {neFind, neInsert} from "./db";
 import {logEvent} from "./logger";
 import {pm2list} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
-import {insert} from "./db.mjs";
 
 /**
  * Global datastore for *vision*
@@ -60,7 +59,7 @@ const vetPacket = (json) => {
             obj[json.val] = json.key;
             resolver.resolve(obj);
         }).chain((obj) => {
-            return find(db, obj);
+            return neFind(db, obj);
         }).chain((res) => {
             return Task.of(prune(res).groupByKey("dataType"));
         });
@@ -86,15 +85,39 @@ const vetPacket = (json) => {
                 );
             }).chain((obj) => {
                 return Task.waitAll([
-                    createDir(`${obj.path}/logs`),              // 0: {err, EXISTS, OK}
-                    find(db, {_id: {$in: json.val.ids}}),       // 1: array of objects
-                    insert(db, obj)                             // 2: inserted object(s)
+                    // TODO Three (3) possible return values for `createDir` awkward
+                    createDir(`${obj.path}/${settings.defaults.logDir}`),               // 0: {err, EXISTS, OK}
+                    neFind(db, {_id: {$in: json.val.ids}}),                             // 1: array of objects
+                    neInsert(db, obj)                                                   // 2: inserted object(s)
                 ]);
             }).chain((arr) => {
                 if (arr[0] == "OK") {
                     // create PM2 start objects
-                    // const a = arr[1].map((x) => {});
+                    // const audio = [];
+                    // const stream = [];
+                    // const video = [];
+                    // TODO Organize device pairing, **THEN** map
+                    const tasks = arr[1].map((x) => {
+                        const name = x.name.replace(/\s/g, "_");
+                        return Task.of({
+                            name: "",
+                            script: x.handlers[0],
+                            args: [
+                                []      // devices with settings
+                            ],
+                            cwd: arr[2].path,
+                            output: `./${settings.defaults.localLogDir}/${name}-out.log`,
+                            error: `./${settings.defaults.localLogDir}/${name}-error.log`,
+                            minUptime: settings.defaults.pm2.minUptime,
+                            restartDelay: settings.defaults.pm2.restartDelay,
+                            log_type: settings.defaults.pm2.log_type,
+                            log_data_format: settings.defaults.pm2.log_data_format,
+                            autorestart: true
+                        });
+                    });
                     // update NeDB entry (`obj._id`)
+                    // How to handle partial sets (OK, ERR)?
+                    // return Task.waitAll(tasks);
                     return Task.of(arr);
                 } else {
                     return Task.rejected(arr[1]);

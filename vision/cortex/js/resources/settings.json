@@ -1,15 +1,24 @@
 {
     "defaults": {
-        "db": ".dbs",
-        "outputDir": "/Users/jg/Desktop/Cortex",
         "audio": {
             "bitrate": 96000,
             "channels": 2
         },
+        "db": ".dbs",
         "hls": {
             "duration": 1,
             "maxFiles": 12600
         },
+        "localLogDir": "logs",
+        "outputDir": "/Users/jg/Desktop/Cortex",
+        "pm2": {
+            "autorestart": true,
+            "log_date_format": "YYYY-MM-DD HH:mm:ss.SSSS",
+            "log_type": "json",
+            "minUpdate": 500,       // ms
+            "restartDelay": 500     // ms
+        },
+        "verbose": false,
         "video": {
             "bitrate": 96000,
             "height": 720,
@@ -17,9 +26,7 @@
         }
     },
     "handlers": {
-        "h264.mjs": {
-
-        },
+        "h264.mjs": {},
         "http-live-stream.mjs": {
             "audio": {
                 "bitrate": 96000,
@@ -38,8 +45,6 @@
             "muxer": "mpegtsmux",
             "sink": "hlssink"
         },
-        "m4a.mjs": {
-
-        }
+        "m4a.mjs": {}
     }
 }

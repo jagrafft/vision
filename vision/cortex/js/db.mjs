@@ -10,15 +10,17 @@ import {logEvent} from "./logger";
  * @param {JSON} qry Query that conforms to *vision* specification for `find`
  * @returns {Folktale<Task>}
  */
-export function find(db, qry) {
+export function neFind(db, qry) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(qry, "find", "CLEANUP").run();
+                logEvent(qry, "neFind", "CLEANUP").run();
             });
+
             resolver.onCancelled(() => {
-                logEvent(qry, "find", "CANCELLED").run();
+                logEvent(qry, "neFind", "CANCELLED").run();
             });
+
             db.find(qry).sort({dataType: 1}).exec((err, res) => {
                 err ? resolver.reject(err) : resolver.resolve(res);
             });
@@ -26,15 +28,17 @@ export function find(db, qry) {
     );
 }
 
-export function insert(db, obj) {
+export function neInsert(db, obj) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(obj, "insert", "CLEANUP").run();
+                logEvent(obj, "neInsert", "CLEANUP").run();
             });
+
             resolver.onCancelled(() => {
-                logEvent(obj, "insert", "CANCELLED").run();
+                logEvent(obj, "neInsert", "CANCELLED").run();
             });
+
             db.insert(obj, (err, res) => {
                 err ? resolver.reject(err) : resolver.resolve(res);
             })
@@ -42,16 +46,17 @@ export function insert(db, obj) {
     );
 }
 
-export function remove(db, qry) {
+export function neRemove(db, qry) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(qry, "insert", "CLEANUP").run();
+                logEvent(qry, "neRemove", "CLEANUP").run();
             });
+
             resolver.onCancelled(() => {
-                logEvent(qry, "insert", "CANCELLED").run();
+                logEvent(qry, "neRemove", "CANCELLED").run();
             });
-            // `query` provided by req
+
             db.remove(qry, {multi: true}, (err, n) => {
                 err ? resolver.reject(err) : resolver.resolve(n);
             })
@@ -66,15 +71,17 @@ export function remove(db, qry) {
  * @param obj Object to insert or update
  * @returns {Folktale<Task>}
  */
-export function update(db, qry, obj) {
+export function neUpdate(db, qry, obj) {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                logEvent(qry, "update", "CLEANUP").run();
+                logEvent(qry, "neUpdate", "CLEANUP").run();
             });
+
             resolver.onCancelled(() => {
-                logEvent(qry, "update", "CLEANUP").run();
+                logEvent(qry, "neUpdate", "CLEANUP").run();
             });
+
             db.update(qry, obj, {multi: true, upsert: false, returnUpdatedDocs: true}, (err, n) => {
                 (err) ? resolver.reject(err) : resolver.resolve(n);
             });

@@ -1,8 +1,9 @@
 /*jslint es6*/
 import Logger from "nedb-logger";
 import moment from "moment";
-import settings from "./resources/settings.json";
 import Task from "folktale/concurrency/task";
+
+import settings from "./resources/settings.json";
 
 /**
  * Logger for *vision*
@@ -21,11 +22,17 @@ export const logEvent = (ev, evType, out) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                // console.log("logEvent CLEANUP");
+                if (settings.defaults.verbose) {
+                    logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
+                        (err) ? console.error(err) : console.log("logEvent CLEANUP written to log");
+                    });
+                }
             });
+
             resolver.onCancelled(() => {
                 console.log("logEvent CANCELLED");
             });
+
             logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
                 (err) ? resolver.reject(err) : resolver.resolve({result: "OK"});
             });
