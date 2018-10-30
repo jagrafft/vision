@@ -3,14 +3,14 @@ if (!Array.prototype.groupByKey) {
     /**
      * Group array by key.
      * @param {string} k Key to group by.
-     * @returns {Array<Object>}
+     * @returns {Object}
      */
     Array.prototype.groupByKey = function(k) {
-        return this.reduce((g, ob) => {
-            const v = ob[k];
-            if (typeof g[v] === "undefined") g[v] = [];
-            g[v].push(ob);
-            return g;
+        return this.reduce((a, c) => {
+            const v = c[k];
+            if (typeof a[v] === "undefined") a[v] = [];
+            a[v].push(c);
+            return a;
         }, {});
     }
 }

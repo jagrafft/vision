@@ -7,8 +7,8 @@ import {logEvent} from "./logger";
 import settings from "./resources/settings.json";
 
 /**
- * Delete *vision* processes managed by PM2.
- * @param {String} id PM2 id to delete.
+ * Monad for PM2 delete
+ * @param {String} id PM2 id to delete
  * @returns {Folktale<Task>}
  */
 export const pm2delete = (id) => {
@@ -41,7 +41,7 @@ export const pm2delete = (id) => {
 };
 
 /**
- * List *vision* processes managed by PM2.
+ * Monad for PM2 list
  * @returns {Folktale<Task>}
  */
 export const pm2list = () => {
@@ -85,8 +85,8 @@ export const pm2list = () => {
 };
 
 /**
- * Start *vision* process via PM2.
- * @param {Object} params PM2 parameters for process.
+ * Monad for PM2 start
+ * @param {Object} params PM2 parameters for process
  * @returns {Folktale<Task>}
  */
 export const pm2start = (opts) => {

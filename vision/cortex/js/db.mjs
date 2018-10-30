@@ -1,13 +1,12 @@
 /*jslint es6*/
 import Task from "folktale/concurrency/task";
 
-import "../../neurons/group";
 import {logEvent} from "./logger";
 
 /**
- * Perform NeDB `find` operation inside a `Folktale<Task>` monad
+ * Monad for NeDB `find` operation
  * @param {NeDB<Datastore>} db Datastore to query
- * @param {JSON} qry Query that conforms to *vision* specification for `find`
+ * @param {Object} qry NeDB query to execute
  * @returns {Folktale<Task>}
  */
 export function neFind(db, qry) {
@@ -28,6 +27,12 @@ export function neFind(db, qry) {
     );
 }
 
+/**
+ * Monad for NeDB `insert` operation
+ * @param {NeDB<Datastore>} db Datastore for insertion
+ * @param obj Object for insertion
+ * @returns {Folktale<Task>}
+ */
 export function neInsert(db, obj) {
     return Task.task(
         (resolver) => {
@@ -46,6 +51,12 @@ export function neInsert(db, obj) {
     );
 }
 
+/**
+ * Monad for NeDB `remove` operation
+ * @param {NeDB<Datastore>} db Datastore for removal
+ * @param {Object} qry NeDB query to for object to be removed
+ * @returns {Folktale<Task>}
+ */
 export function neRemove(db, qry) {
     return Task.task(
         (resolver) => {
@@ -65,10 +76,10 @@ export function neRemove(db, qry) {
 }
 
 /**
- * Update `obj` in `db` based on the results of `qry`
- * @param {NeDB<Datastore>} db Datastore to query
- * @param qry Query that conforms to *vision* specification for `find`
- * @param obj Object to insert or update
+ * Monad for NeDB `update` operation
+ * @param {NeDB<Datastore>} db Datastore to update
+ * @param qry NeDB query for object to be updated
+ * @param obj Object for update
  * @returns {Folktale<Task>}
  */
 export function neUpdate(db, qry, obj) {

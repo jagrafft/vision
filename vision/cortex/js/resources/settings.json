@@ -1,13 +1,13 @@
 {
     "defaults": {
         "audio": {
+            "avSrcPair": false,
             "bitrate": 96000,
             "channels": 2
         },
         "db": ".dbs",
-        "hls": {
-            "duration": 1,
-            "maxFiles": 12600
+        "json": {
+            "w00t": true
         },
         "localLogDir": "logs",
         "outputDir": "/Users/jg/Desktop/Cortex",
@@ -20,13 +20,16 @@
         },
         "verbose": false,
         "video": {
+            "avSrcPair": false,
             "bitrate": 96000,
             "height": 720,
             "width": 1280
         }
     },
     "handlers": {
-        "h264.mjs": {},
+        "h264.mjs": {
+            "avSrcPair": false
+        },
         "http-live-stream.mjs": {
             "audio": {
                 "bitrate": 96000,
@@ -38,13 +41,16 @@
                 "height": 720,
                 "parser": "h264parse",
                 "source": "rtspsrc",
-                "width": 1080
+                "width": 1280
             },
+            "avSrcPair": true,
             "duration": 1,
             "max_files": 9000,
             "muxer": "mpegtsmux",
             "sink": "hlssink"
         },
-        "m4a.mjs": {}
+        "m4a.mjs": {
+            "avSrcPair": false
+        }
     }
 }

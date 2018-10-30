@@ -4,7 +4,8 @@ import moment from "moment";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
-import {createDir} from "./misc";
+// import "../../neurons/group";
+import {createDir, deviceParams} from "./misc";
 import {neFind, neInsert} from "./db";
 import {logEvent} from "./logger";
 import {pm2list} from "./pm2";
@@ -85,7 +86,7 @@ const vetPacket = (json) => {
                 );
             }).chain((obj) => {
                 return Task.waitAll([
-                    // TODO Three (3) possible return values for `createDir` awkward
+                    // TODO Reduce return values for `createDir` to two (2)
                     createDir(`${obj.path}/${settings.defaults.logDir}`),               // 0: {err, EXISTS, OK}
                     neFind(db, {_id: {$in: json.val.ids}}),                             // 1: array of objects
                     neInsert(db, obj)                                                   // 2: inserted object(s)
@@ -93,34 +94,36 @@ const vetPacket = (json) => {
             }).chain((arr) => {
                 if (arr[0] == "OK") {
                     // create PM2 start objects
-                    // const audio = [];
-                    // const stream = [];
-                    // const video = [];
-                    // TODO Organize device pairing, **THEN** map
-                    const tasks = arr[1].map((x) => {
-                        const name = x.name.replace(/\s/g, "_");
-                        return Task.of({
-                            name: "",
-                            script: x.handlers[0],
-                            args: [
-                                []      // devices with settings
-                            ],
-                            cwd: arr[2].path,
-                            output: `./${settings.defaults.localLogDir}/${name}-out.log`,
-                            error: `./${settings.defaults.localLogDir}/${name}-error.log`,
-                            minUptime: settings.defaults.pm2.minUptime,
-                            restartDelay: settings.defaults.pm2.restartDelay,
-                            log_type: settings.defaults.pm2.log_type,
-                            log_data_format: settings.defaults.pm2.log_data_format,
-                            autorestart: true
-                        });
-                    });
+                    const devParams = deviceParams(arr[1]);
+                    // devParams.groupByKey("avSrcPair")
+                    // const a = sourcesToPair.length > 0 ? pairAvDevices(sourcesToPair) : devParams;
+                    // const obj = arr[2];
+                    // TODO Organize device pairing, **THEN**
+                    // const tasks = devPairs.map((x) => {
+                    // devices.forEach((x) => {
+                    //     const name = x.name.replace(/\s/g, "_");
+                    //     // return Task.of({
+                    //     console.log({
+                    //         name: name,
+                    //         script: x.handlers[0],
+                    //         args: [
+                    //             ""
+                    //         ],
+                    //         cwd: obj.path,
+                    //         output: `./${settings.defaults.localLogDir}/${name}-out.log`,
+                    //         error: `./${settings.defaults.localLogDir}/${name}-error.log`,
+                    //         minUptime: settings.defaults.pm2.minUptime,
+                    //         restartDelay: settings.defaults.pm2.restartDelay,
+                    //         log_type: settings.defaults.pm2.log_type,
+                    //         log_data_format: settings.defaults.pm2.log_data_format,
+                    //         autorestart: true
+                    //     });
+                    // });
                     // update NeDB entry (`obj._id`)
-                    // How to handle partial sets (OK, ERR)?
                     // return Task.waitAll(tasks);
                     return Task.of(arr);
                 } else {
-                    return Task.rejected(arr[1]);
+                    return Task.rejected(arr[0]);
                 }
             });
         case "stop":

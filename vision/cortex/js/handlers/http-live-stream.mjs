@@ -17,6 +17,8 @@ const {exec} = require("child_process");
 
 // const cmd =`gst-launch-1.0 rtspsrc location="${addr}" ! queue ! rtph264depay ! video/x-h264,width=${width},height=${height},framerate=30/1 ! h264parse ! mux. pulsesrc device="${device}" ! audioconvert ! avenc_aac bitrate=${bitrate} ! mux. mpegtsmux name=mux ! hlssink max-files=${max_files} playlist-length=${max_files} target-duration=${duration}`;
 
+// CREATE DIR
+
 exec(cmd, { maxBuffer: 134217728 }, (error, stdout, stderr) => {
     if (error) {
         console.error(error);
