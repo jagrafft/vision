@@ -1,13 +1,12 @@
 /*jslint es6*/
 import Datastore from "nedb";
-import moment from "moment";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
-// import "../../neurons/group";
-import {createDir, deviceParams} from "./misc";
-import {neFind, neInsert} from "./db";
+import "../../neurons/group";
+import {createDir, newSession, pairAvSrc} from "./misc";
 import {logEvent} from "./logger";
+import {neFind, neInsert} from "./db";
 import {pm2list} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
@@ -70,19 +69,12 @@ const vetPacket = (json) => {
         switch (json.key) {
         case "start":
             return Task.task((resolver) => {
-                const name = json.val.label.trim().replace(/\s\s+/g, " ");
                 resolver.resolve(
-                    // Object representing session record
-                    new Object({
-                        dataType: "session",
-                        devices: json.val.ids,
-                        group: "sessions",
-                        initiated: new Date(),
-                        lastUpdate: new Date(),
-                        name: name,
-                        path: `${settings.defaults.outputDir}/${name.replace(/\s/g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
-                        status: "INITIATED"
-                    })
+                    newSession(
+                        json.val.label.trim().replace(/\s\s+/g, " "),
+                        json.val.ids,
+                        "INITIATED"
+                    )
                 );
             }).chain((obj) => {
                 return Task.waitAll([
@@ -93,10 +85,15 @@ const vetPacket = (json) => {
                 ]);
             }).chain((arr) => {
                 if (arr[0] == "OK") {
+                    // TODO Implement handler selection
+                    const handler = settings.handlers["http-live-stream.mjs"];
+                    const res = handler.avSrcPair ? pairAvSrc(arr[1]) : arr[1];
+
+                    return Task.of([arr[0], res, arr[2]]);
+
                     // create PM2 start objects
-                    const devParams = deviceParams(arr[1]);
+                    // const devParams = deviceParams(arr[1]);
                     // devParams.groupByKey("avSrcPair")
-                    // const a = sourcesToPair.length > 0 ? pairAvDevices(sourcesToPair) : devParams;
                     // const obj = arr[2];
                     // TODO Organize device pairing, **THEN**
                     // const tasks = devPairs.map((x) => {
@@ -107,7 +104,8 @@ const vetPacket = (json) => {
                     //         name: name,
                     //         script: x.handlers[0],
                     //         args: [
-                    //             ""
+                    //             "pm2startobject",
+                    //             "params"
                     //         ],
                     //         cwd: obj.path,
                     //         output: `./${settings.defaults.localLogDir}/${name}-out.log`,
@@ -121,7 +119,6 @@ const vetPacket = (json) => {
                     // });
                     // update NeDB entry (`obj._id`)
                     // return Task.waitAll(tasks);
-                    return Task.of(arr);
                 } else {
                     return Task.rejected(arr[0]);
                 }
@@ -135,7 +132,7 @@ const vetPacket = (json) => {
     case "remove":
         return Task.rejected("Request not yet implemented");
     case "status":
-        return Task.of(moment().format("X"));
+        return Task.of("STATUS, YO!");
     case "update":
         return Task.rejected("Request not yet implemented");
     default:

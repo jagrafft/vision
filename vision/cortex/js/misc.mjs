@@ -1,10 +1,11 @@
+/*jslint es6*/
 import mkdirp from "mkdirp";
+import moment from "moment";
 import Task from "folktale/concurrency/task";
 
 import "../../neurons/group";
 import {logEvent} from "./logger";
 import settings from "./resources/settings.json";
-import { S_IFREG } from "constants";
 
 /**
  * Create `path` with mkdir -p method
@@ -32,53 +33,55 @@ export const createDir = (path) => {
 };
 
 /**
- * Combine device information and parameters for record handler
- * @param {Array<Object>} devs Objects representing devices
- * @returns {Array<Object>}
+ * Create *vision* Session object
+ * @param {String} name Session name
+ * @param {Array<String>} ids Device IDs to include
+ * @param {String} status Approximately current status of session
+ * @param {String} grp Group membership, defaults to "sessions"
+ * @returns {Object}
  */
-export const deviceParams = (devs) => {
-    return devs.map((dev) => {
-        const params = dev.handlers[0] in settings.handlers ? settings.handlers[dev.handlers[0]] : settings.defaults[x.dataType];
-        const pair = "avSrcPair" in params ? params.avSrcPair : false;
-
-        return new Object({
-            avSrcPair: pair,
-            dataType: dev.dataType,
-            device: dev,
-            params: params
-        })
-    });
+export const newSession = (name, ids, status, grp = "sessions") => {
+    return new Object({
+        dataType: "session",
+        devices: ids,
+        group: grp,
+        initiated: new Date(),
+        lastUpdate: new Date(),
+        name: name,
+        path: `${settings.defaults.outputDir}/${name.replace(/\s/g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
+        status: status
+    })
 };
 
 /**
  * Pair audio and video devices by shared key
- * @param {Array<Object>} devs Audio and video devices for pairing; `Object`s are `deviceParams` return values
- * @param {String} by 
+ * @param {Object} arr Devices for pairing
+ * @param {String} key Key in device `Object` to use for association
  * @returns {Array<Object>}
  */
-export const pairAvDevices = (devs, by = "location") => {
-    const g = devs.groupByKey("dataType");
-    // if ("audio" in g && "video" in g) {
-        // return g.audio.map((a) => {
-            // const v = g.video.filter((x) => x[by] === a[by]);
-            // if (v.length > 0) {
-            //     a.map((v) => {
-            //         return new Object({
-            //             devices: {
-            //                 audio: a.device,
-            //                 video: v.device
-            //             },
-            //             params: {
-            //                 audio: a.params,
-            //                 video: v.params
-            //             }
-            //         })
-            //     });
-            // } else {
-            //     return
-            // }
-        // });
-    // } else {
-        // return devs;
-    // }
+export const pairAvSrc = (arr, key = "location") => {
+    const g = arr.groupByKey(key);
+    return Object.keys(g)
+        .reduce((a,c) => {
+            const grp = g[c].groupByKey("dataType");
+            const pair = ((x) => x[0] && x[1])(["audio", "video"].map((x) => x in grp));
+
+            if (pair) {
+                const prs = grp["audio"]
+                    .map((a) => {
+                        return grp["video"]
+                            .map((v) => {
+                                return new Object({
+                                    dataType: ["audio", "video"],
+                                    audio: a,
+                                    video: v
+                                })
+                            })
+                        }).flat();
+                    a.push(prs);
+            } else {
+                a.push(Object.entries(grp).map((x) => x[1]));
+            }
+            return a.flat();
+        }, []).flat();
 };

@@ -53,7 +53,8 @@ const wsDriver = (adr) => {
     const driver = (out_) => {
         out_.addListener({
             next: (out) => {
-                const rep = out.req == "record" ? out.ids.then((dev) => new Object({key: out.key, req: out.req, val: {label: out.label, ids: dev.map((x) => x.id)}})) : new Promise(out);
+                // console.log(out);
+                const rep = out.req == "record" ? out.ids.then((dev) => new Object({key: out.key, req: out.req, val: {label: out.label, ids: dev.map((x) => x.id)}})) : new Promise((resolve) => resolve(out));
 
                 rep.then((x) => ws.send(JSON.stringify(x)));
             },
