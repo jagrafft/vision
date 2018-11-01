@@ -10,6 +10,8 @@ import {run} from "@cycle/run";
 import sampleCombine from "xstream/extra/sampleCombine";
 import xs from "xstream";
 
+// TODO Implement handler selection
+
 /**
  * Global Dexie instance.
  * @const {Dexie}

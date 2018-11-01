@@ -37,14 +37,14 @@ export const createDir = (path) => {
  * @param {String} name Session name
  * @param {Array<String>} ids Device IDs to include
  * @param {String} status Approximately current status of session
- * @param {String} dtGroup Group membership, defaults to "sessions"
+ * @param {String} dtGrp Group membership, defaults to "sessions"
  * @returns {Object}
  */
-export const newSession = (name, ids, status, dtGroup = "sessions") => {
+export const newSession = (name, ids, status, dtGrp = "sessions") => {
     return new Object({
         dataType: "session",
         devices: ids,
-        group: dtGroup,
+        group: dtGrp,
         initiated: new Date(),
         lastUpdate: new Date(),
         name: name,
@@ -60,31 +60,18 @@ export const newSession = (name, ids, status, dtGroup = "sessions") => {
  * @param {String} key Key in device `Object` to use for association
  * @returns {Array<Object>}
  */
-export const pairSources = (arr, dts, key = "location") => {
-    const deviceGroups = arr.groupByKey(key);
-
-    return Object.keys(deviceGroups)
-        .reduce((a,c) => {
-            const dtGroup = deviceGroups[c].groupByKey("dataType");
-            const pair = ((x) => x[0] && x[1])(dts.map((x) => x in dtGroup));
-
-            // TODO Refactor `dts[0]`, `dts[1]` to generic
-            if (pair) {
-                const devicePairs = dtGroup[dts[0]]
-                    .map((aud) => {
-                        return dtGroup[dts[1]]
-                            .map((vid) => {
-                                return new Object({
-                                    dataType: dts,
-                                    audio: aud,
-                                    video: vid
-                                })
-                            })
-                        }).flat();
-                    a.push(devicePairs);
-            } else {
-                a.push(Object.entries(dtGroup).map((x) => x[1]));
-            }
-            return a.flat();
-        }, []).flat();
+export const pairSources = (arr) => {
+    console.log(`PAIR`);
+    const devicePairs = dtGrp[dts[0]]
+        .map((aud) => {
+            return dtGrp[dts[1]]
+                .map((vid) => {
+                    return new Object({
+                        dataType: dts,
+                        audio: aud,
+                        video: vid
+                    })
+                })
+            }).flat();
+        a.push(devicePairs);
 };

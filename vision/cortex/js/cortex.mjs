@@ -79,21 +79,36 @@ const vetPacket = (json) => {
             }).chain((obj) => {
                 return Task.waitAll([
                     // TODO Reduce return values for `createDir` to two (2)
+                    // TODO Move createDir? (to accommodate subdirectories)
                     createDir(`${obj.path}/${settings.defaults.logDir}`),               // 0: {err, EXISTS, OK}
                     neFind(db, {_id: {$in: json.val.ids}}),                             // 1: array of objects
                     neInsert(db, obj)                                                   // 2: inserted object(s)
                 ]);
             }).chain((arr) => {
                 if (arr[0] == "OK") {
-                    // TODO Implement handler selection
+                    // TODO Implement handler assignment (passed by monocle)
                     const handler = "http-live-stream.mjs";
                     const dType = settings.handlers[handler].dataType;
-                    const res = dType.length > 1 ? pairSources(arr[1], dType) : arr[1];
+                    
+                    const locGroup = arr[1].groupByKey("location");
+                    // TODO Refactor to n -> m pairing
+                    const [single, paired] = Object.keys(locGroup)
+                        .reduce((a,c) => {
+                            const grp = locGroup[c].groupByKey("dataType");
+                            ((x) => x[0] && x[1])(dType.map((x) => x in grp)) ? a[1].push(locGroup[c]) : a[0].push(locGroup[c]);
+                            return a;
+                        }, [[], []])
+                        .map((x) => x.flat());
+
+                    // TODO Check to see if default handler dataTypes are appropriate for given device (PM2 param creation?)
+                    // TODO Make change if not (PM2 param creation?)
+                    // const res = single.concat(pairSources(paired, dType));
+
                     // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-                    const opts = res.map((x) => pm2opts(x, "path/to/nowhere", handler));
+                    // const opts = res.map((x) => pm2opts(x, "path/to/nowhere", handler));
                     // console.log(opts);
 
-                    return Task.of([arr[0], res, arr[2]]);
+                    return Task.of([arr[0], {single: single, paired: paired}, arr[2]]);
                     // return Task.waitAll(tasks);
                 } else {
                     return Task.rejected(arr[0]);
