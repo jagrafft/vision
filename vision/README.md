@@ -6,7 +6,7 @@
 | [Monocle](monocle) | Client interface for Cortex data node | active |
 | [Neurons](neurons) | Data structures and functions used by *vision* microservices | next phase |
 | [Relay](relay) | Kodi Addon for HLS playback | next phase |
-| [Retina](retina) | Expansion of Monocle able to interact with mutliple Cortex nodes | planned |
+| [Retina](retina) | Expansion of Monocle able to interact with mutliple Cortex nodes | under review |
 
 <!-- ## Microservices Communication Specifications
 *vision* microservices communicate via JSON packets whose key-value pairs conform to the [*vision* data exchange format](#).

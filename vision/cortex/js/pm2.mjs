@@ -85,6 +85,41 @@ export const pm2list = () => {
 };
 
 /**
+ * Create PM2 options `Object` from `obj`
+ * @param {Object} dev Device information
+ * @param {String} path File out path
+ * @param {String} hand Handler for `dev`
+ * @returns {Object}
+ */
+export const pm2opts = (dev, path, hand) => {
+    // Add unique identifier to `name`? ---> `ses._id`
+    const name = (dev.label || dev[dev.dataType[1]].label)
+        .replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, " ")
+        .trim()
+        .replace(/\s\s+/g, " ")
+        .replace(/\s/g, "_");
+
+    // console.log(name);
+    const def = settings.defaults.pm2;
+    return new Object({
+        name: name,
+        script: hand,
+        args: [
+            dev,
+        ],
+        cwd: path,
+        output: `./${path}-out.log`,
+        error: `./${path}-error.log`,
+        minUptime: def.minUptime,
+        restartDelay: def.restartDelay,
+        log_type: def.log_type,
+        log_data_format: def.log_date_format,
+        autorestart: def.autorestart
+    });
+    // return {};
+};
+
+/**
  * Monad for PM2 start
  * @param {Object} params PM2 parameters for process
  * @returns {Folktale<Task>}
@@ -105,12 +140,12 @@ export const pm2start = (opts) => {
                     pm2.disconnect();
                 });
 
-                pm2.start(params, (err) => {
+                pm2.start(opts, (err) => {
                     if (err) {
                         logEvent(err, "pm2start", "ERROR").run();
                         resolver.reject("ERROR");
                     }
-                    logEvent(cmd, "pm2start", "OK").run();
+                    logEvent(opts, "pm2start", "OK").run();
                     resolver.resolve("OK");
                 });
             });

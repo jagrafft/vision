@@ -9,7 +9,7 @@ import settings from "./resources/settings.json";
 
 /**
  * Create `path` with mkdir -p method
- * @param {String} path 
+ * @param {String} path String representing nested path
  * @returns {Folktale<Task>}
  */
 export const createDir = (path) => {
@@ -37,14 +37,14 @@ export const createDir = (path) => {
  * @param {String} name Session name
  * @param {Array<String>} ids Device IDs to include
  * @param {String} status Approximately current status of session
- * @param {String} grp Group membership, defaults to "sessions"
+ * @param {String} dtGroup Group membership, defaults to "sessions"
  * @returns {Object}
  */
-export const newSession = (name, ids, status, grp = "sessions") => {
+export const newSession = (name, ids, status, dtGroup = "sessions") => {
     return new Object({
         dataType: "session",
         devices: ids,
-        group: grp,
+        group: dtGroup,
         initiated: new Date(),
         lastUpdate: new Date(),
         name: name,
@@ -55,32 +55,35 @@ export const newSession = (name, ids, status, grp = "sessions") => {
 
 /**
  * Pair audio and video devices by shared key
- * @param {Object} arr Devices for pairing
+ * @param {Array<Object>} arr Devices for pairing
+ * @param {Array<String>} dts Data types to pair
  * @param {String} key Key in device `Object` to use for association
  * @returns {Array<Object>}
  */
-export const pairAvSrc = (arr, key = "location") => {
-    const g = arr.groupByKey(key);
-    return Object.keys(g)
-        .reduce((a,c) => {
-            const grp = g[c].groupByKey("dataType");
-            const pair = ((x) => x[0] && x[1])(["audio", "video"].map((x) => x in grp));
+export const pairSources = (arr, dts, key = "location") => {
+    const deviceGroups = arr.groupByKey(key);
 
+    return Object.keys(deviceGroups)
+        .reduce((a,c) => {
+            const dtGroup = deviceGroups[c].groupByKey("dataType");
+            const pair = ((x) => x[0] && x[1])(dts.map((x) => x in dtGroup));
+
+            // TODO Refactor `dts[0]`, `dts[1]` to generic
             if (pair) {
-                const prs = grp["audio"]
-                    .map((a) => {
-                        return grp["video"]
-                            .map((v) => {
+                const devicePairs = dtGroup[dts[0]]
+                    .map((aud) => {
+                        return dtGroup[dts[1]]
+                            .map((vid) => {
                                 return new Object({
-                                    dataType: ["audio", "video"],
-                                    audio: a,
-                                    video: v
+                                    dataType: dts,
+                                    audio: aud,
+                                    video: vid
                                 })
                             })
                         }).flat();
-                    a.push(prs);
+                    a.push(devicePairs);
             } else {
-                a.push(Object.entries(grp).map((x) => x[1]));
+                a.push(Object.entries(dtGroup).map((x) => x[1]));
             }
             return a.flat();
         }, []).flat();

@@ -4,10 +4,10 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import "../../neurons/group";
-import {createDir, newSession, pairAvSrc} from "./misc";
+import {createDir, newSession, pairSources} from "./misc";
 import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
-import {pm2list} from "./pm2";
+import {pm2list, pm2opts, pm2start} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
 
@@ -86,38 +86,14 @@ const vetPacket = (json) => {
             }).chain((arr) => {
                 if (arr[0] == "OK") {
                     // TODO Implement handler selection
-                    const handler = settings.handlers["http-live-stream.mjs"];
-                    const res = handler.avSrcPair ? pairAvSrc(arr[1]) : arr[1];
+                    const handler = "http-live-stream.mjs";
+                    const dType = settings.handlers[handler].dataType;
+                    const res = dType.length > 1 ? pairSources(arr[1], dType) : arr[1];
+                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
+                    const opts = res.map((x) => pm2opts(x, "path/to/nowhere", handler));
+                    // console.log(opts);
 
                     return Task.of([arr[0], res, arr[2]]);
-
-                    // create PM2 start objects
-                    // const devParams = deviceParams(arr[1]);
-                    // devParams.groupByKey("avSrcPair")
-                    // const obj = arr[2];
-                    // TODO Organize device pairing, **THEN**
-                    // const tasks = devPairs.map((x) => {
-                    // devices.forEach((x) => {
-                    //     const name = x.name.replace(/\s/g, "_");
-                    //     // return Task.of({
-                    //     console.log({
-                    //         name: name,
-                    //         script: x.handlers[0],
-                    //         args: [
-                    //             "pm2startobject",
-                    //             "params"
-                    //         ],
-                    //         cwd: obj.path,
-                    //         output: `./${settings.defaults.localLogDir}/${name}-out.log`,
-                    //         error: `./${settings.defaults.localLogDir}/${name}-error.log`,
-                    //         minUptime: settings.defaults.pm2.minUptime,
-                    //         restartDelay: settings.defaults.pm2.restartDelay,
-                    //         log_type: settings.defaults.pm2.log_type,
-                    //         log_data_format: settings.defaults.pm2.log_data_format,
-                    //         autorestart: true
-                    //     });
-                    // });
-                    // update NeDB entry (`obj._id`)
                     // return Task.waitAll(tasks);
                 } else {
                     return Task.rejected(arr[0]);

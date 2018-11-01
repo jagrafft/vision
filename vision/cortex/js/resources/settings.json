@@ -11,7 +11,7 @@
             "autorestart": true,
             "log_date_format": "YYYY-MM-DD HH:mm:ss.SSSS",
             "log_type": "json",
-            "minUpdate": 500,
+            "minUptime": 500,
             "restartDelay": 500
         },
         "verbose": false,
@@ -23,7 +23,8 @@
     },
     "handlers": {
         "h264.mjs": {
-            "dataType": ["video"]
+            "dataType": ["video"],
+            "multiFile": false
         },
         "http-live-stream.mjs": {
             "audio": {
@@ -38,15 +39,16 @@
                 "source": "rtspsrc",
                 "width": 1280
             },
-            "avSrcPair": true,
             "dataType": ["audio", "video"],
             "duration": 1,
             "max_files": 9000,
+            "multiFile": true,
             "muxer": "mpegtsmux",
             "sink": "hlssink"
         },
         "m4a.mjs": {
-            "dataType": ["audio"]
+            "dataType": ["audio"],
+            "multiFile": false
         }
     }
 }
