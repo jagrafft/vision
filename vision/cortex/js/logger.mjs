@@ -1,4 +1,3 @@
-/*jslint es6*/
 import Logger from "nedb-logger";
 import moment from "moment";
 import Task from "folktale/concurrency/task";

@@ -1,4 +1,3 @@
-/*jslint es6*/
 import Datastore from "nedb";
 import Task from "folktale/concurrency/task";
 import WS from "ws";

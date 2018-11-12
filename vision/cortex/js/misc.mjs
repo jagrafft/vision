@@ -1,4 +1,3 @@
-/*jslint es6*/
 import mkdirp from "mkdirp";
 import moment from "moment";
 import Task from "folktale/concurrency/task";

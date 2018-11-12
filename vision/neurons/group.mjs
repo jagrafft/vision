@@ -1,4 +1,3 @@
-/*jslint es6*/
 if (!Array.prototype.groupByKey) {
     /**
      * Group array by key.

@@ -1,4 +1,3 @@
-/*jslint es6*/
 import moment from "moment";
 import pm2 from "pm2";
 import Task from "folktale/concurrency/task";
@@ -59,7 +58,6 @@ export const pm2list = () => {
                     logEvent(err, "pm2list", "CANCELLED").run();
                     pm2.disconnect();
                 });
-
                 pm2.list((err, pdl) => {
                     if (err) {
                         logEvent(err, "pm2list", "ERROR").run();
@@ -81,7 +79,7 @@ export const pm2list = () => {
                 })
             });
         }
-    );
+    )
 };
 
 /**
@@ -116,7 +114,6 @@ export const pm2opts = (dev, path, hand) => {
         log_data_format: def.log_date_format,
         autorestart: def.autorestart
     });
-    // return {};
 };
 
 /**

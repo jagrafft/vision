@@ -1,4 +1,3 @@
-/*jslint es6*/
 import Task from "folktale/concurrency/task";
 
 import {logEvent} from "./logger";

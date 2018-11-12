@@ -1,4 +1,3 @@
-/*jslint es6*/
 /**
  * @author jason a. grafft <jason@grafft.co>
  */
