@@ -1,6 +1,6 @@
 ---
 title: vision
-subtitle: sUbtiTlE hErE (suGgeStiOnS?)
+subtitle: Whitepaper
 author: Jason A. Grafft
 bibliography: './whitepaper/src/bib/references.bib'
 csl: './whitepaper/src/bib/chicago-fullnote-bibliography.csl'
@@ -139,7 +139,7 @@ At least one significant patent holder, Technicolor, does not participate in any
 [^megapixel-comment]: As an example, see advertisers' use of megapixel calcuations for advertising digital cameras.
 [^mpeg-la]: http://www.mpegla.com/
 [^mpeg-patents]: The patent list for the most common format as of this writing, AVC/H.264, is 112 pages.[@AVCPatents:2017:misc] The patent list for it's successor, HEVC/H.265, is 91 pages.[@HEVCPatents:2017:misc]
-[^ssl-insecurity]: See https://www.gracefulsecurity.com/tls-ssl-vulnerabilities/ for a list
+[^ssl-insecurity]: See https://www.gracefulsecurity.com/tls-ssl-vulnerabilities/
 [^velos-media]: http://velosmedia.com/
 [^vp9-support]: Safari does not support VP9.
 
