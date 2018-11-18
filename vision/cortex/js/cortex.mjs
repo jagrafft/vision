@@ -86,11 +86,15 @@ const vetPacket = (json) => {
             }).chain((arr) => {
                 if (arr[0] == "OK") {
                     // TODO Implement handler assignment (passed by monocle)
+                    // TODO Check to see if default handler dataTypes are appropriate for given device (PM2 param creation?)
+                    // TODO Make change if not (PM2 param creation?)
+                    // TODO Refactor to n -> m pairing (!video/audio...)
+                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
+
                     const handler = "http-live-stream.mjs";
                     const dType = settings.handlers[handler].dataType;
                     
                     const locGroup = arr[1].groupByKey("location");
-                    // TODO Refactor to n -> m pairing
                     const [single, paired] = Object.keys(locGroup)
                         .reduce((a,c) => {
                             const grp = locGroup[c].groupByKey("dataType");
@@ -99,15 +103,19 @@ const vetPacket = (json) => {
                         }, [[], []])
                         .map((x) => x.flat());
 
-                    // TODO Check to see if default handler dataTypes are appropriate for given device (PM2 param creation?)
-                    // TODO Make change if not (PM2 param creation?)
-                    // const res = single.concat(pairSources(paired, dType));
+                    const pairs = paired.groupByKey("dataType");
 
-                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-                    // const opts = res.map((x) => pm2opts(x, "path/to/nowhere", handler));
-                    // console.log(opts);
+                    const pm2procs = (typeof(pairs.video) !== "undefined" ? pairs.video.reduce((a,c,i) => {
+                        const l = pairs.audio.length;
+                        a.push([i > l ? pairs.audio[i] : pairs.audio[l - 1], c]);
+                        return a;
+                    }, []) : []).concat(single);
 
-                    return Task.of([arr[0], {single: single, paired: paired}, arr[2]]);
+                    return Task.of([
+                        arr[0],
+                        pm2procs,
+                        arr[2]
+                    ]);
                     // return Task.waitAll(tasks);
                 } else {
                     return Task.rejected(arr[0]);

@@ -11,7 +11,7 @@ import settings from "./resources/settings.json";
  * @param {String} path String representing nested path
  * @returns {Folktale<Task>}
  */
-export const createDir = (path) => {
+export const createDir = (path, subpaths = []) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
