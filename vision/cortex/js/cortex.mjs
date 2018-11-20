@@ -3,13 +3,12 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import "../../neurons/group";
-import {createDir, newSession, returnHandler} from "./misc";
+import {createDir, newSession, pairByDataType} from "./misc";
 import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
 import {pm2list, pm2opts, pm2start} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
-import { cursorTo } from "readline";
 
 /**
  * Global datastore for *vision*
@@ -86,21 +85,9 @@ const vetPacket = (json) => {
                 ]);
             }).chain((arr) => {
                 if (arr[0] == "OK") {
-                    // TODO Refactor to n -> m pairing (!video/audio...)
-                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-
                     const locGrps = arr[1].groupByKey("location");
-                    const [pair, single] = Object.entries(locGrps).reduce((a,c) => {
-                        const uniqueDts = new Set(c[1].map((x) => x.dataType));
-                        uniqueDts.size > 1 ? a[0].push(c) : a[1].push(c[1]);
-                        return a;
-                    }, [[], []]);
-
-                    // TODO Where to decide whether to pair BASED ON WHETHER HANDLER SUPPORTS IT?
-
-                    // return Task.of(pair.concat(single.flat()));
-                    return Task.of(new Object({paired: pair, single: single.flat()}));
-                    // return Task.waitAll(tasks);
+                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
+                    return Task.of(pairByDataType(locGrps));
                 } else {
                     return Task.rejected(arr[0]);
                 }
