@@ -93,45 +93,41 @@ const vetPacket = (json) => {
 
                     const handler = "http-live-stream.mjs";
                     const dType = settings.handlers[handler].dataType;
-                    
+
                     const locGroup = arr[1].groupByKey("location");
 
                     // TODO Refactor to `pairSources`
-                    const [single, paired] = Object.keys(locGroup)
+                    const [paired, single] = Object.keys(locGroup)
                         .reduce((a,c) => {
                             const grp = locGroup[c].groupByKey("dataType");
-                            ((x) => x[0] && x[1])(dType.map((x) => x in grp)) ? a[1].push(locGroup[c]) : a[0].push(locGroup[c]);
+                            ((x) => x[0] && x[1])(dType.map((x) => x in grp)) ? a[0].push(locGroup[c]) : a[1].push(locGroup[c]);
                             return a;
                         }, [[], []])
                         .map((x) => x.flat());
-                    
-                    // TODO Generate object above
+
                     const pairs = paired.groupByKey("dataType");
 
-                    const pm2procs = (typeof(pairs.video) !== "undefined" ? pairs.video.reduce((a,c,i) => {
+                    const procPairs = (typeof(pairs.video) !== "undefined" ? pairs.video.reduce((a,c,i) => {
                         const l = pairs.audio.length;
                         a.push([i > l ? pairs.audio[i] : pairs.audio[l - 1], c]);
                         return a;
                     }, []) : []).concat(single);
-                    
-                    const subDirs = pm2procs.reduce((a,c) => {
+
+                    // TODO Does not consider handler.multiFile!!
+                    const pm2objs = procPairs.reduce((a,c) => {
                         const [t, lab] = Array.isArray(c) ? c.reduce((acc,cur) => {
                             acc[0] = cur.dataType;
-                            acc[1].push(cur.label);
+                            acc[1].push(`${cur.label}_${cur.location}`);
                             return acc;
-                        }, [[],[]]) : [c.dataType, [c.label]];
+                        }, [[],[]]) : [c.dataType, [`${c.label}_${c.location}`]];
 
                         const lab_ = lab.map((x) => x.trim().replace(/\s+/g, "")).join("-");
 
-                        if (dType.includes(t)) a.push(`${arr[2].path}/${lab_}`);
+                        a.push(dType.includes(t) ? new Object({path: `${arr[2].path}/${lab_}`, procs: c}) : new Object({path: arr[2].path, procs: c}));
                         return a;
                     }, []);
 
-                    return Task.of([
-                        subDirs,
-                        pm2procs,
-                        arr[2]
-                    ]);
+                    return Task.of(pm2objs);
                     // return Task.waitAll(tasks);
                 } else {
                     return Task.rejected(arr[0]);
