@@ -95,6 +95,8 @@ const vetPacket = (json) => {
                     const dType = settings.handlers[handler].dataType;
                     
                     const locGroup = arr[1].groupByKey("location");
+
+                    // TODO Refactor to `pairSources`
                     const [single, paired] = Object.keys(locGroup)
                         .reduce((a,c) => {
                             const grp = locGroup[c].groupByKey("dataType");
@@ -102,7 +104,8 @@ const vetPacket = (json) => {
                             return a;
                         }, [[], []])
                         .map((x) => x.flat());
-
+                    
+                    // TODO Generate object above
                     const pairs = paired.groupByKey("dataType");
 
                     const pm2procs = (typeof(pairs.video) !== "undefined" ? pairs.video.reduce((a,c,i) => {
@@ -110,9 +113,22 @@ const vetPacket = (json) => {
                         a.push([i > l ? pairs.audio[i] : pairs.audio[l - 1], c]);
                         return a;
                     }, []) : []).concat(single);
+                    
+                    const subDirs = pm2procs.reduce((a,c) => {
+                        const [t, lab] = Array.isArray(c) ? c.reduce((acc,cur) => {
+                            acc[0] = cur.dataType;
+                            acc[1].push(cur.label);
+                            return acc;
+                        }, [[],[]]) : [c.dataType, [c.label]];
+
+                        const lab_ = lab.map((x) => x.trim().replace(/\s+/g, "")).join("-");
+
+                        if (dType.includes(t)) a.push(`${arr[2].path}/${lab_}`);
+                        return a;
+                    }, []);
 
                     return Task.of([
-                        arr[0],
+                        subDirs,
                         pm2procs,
                         arr[2]
                     ]);

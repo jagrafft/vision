@@ -11,7 +11,7 @@ import settings from "./resources/settings.json";
  * @param {String} path String representing nested path
  * @returns {Folktale<Task>}
  */
-export const createDir = (path, subpaths = []) => {
+export const createDir = (path) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
@@ -60,7 +60,6 @@ export const newSession = (name, ids, status, dtGrp = "sessions") => {
  * @returns {Array<Object>}
  */
 export const pairSources = (arr) => {
-    console.log(`PAIR`);
     const devicePairs = dtGrp[dts[0]]
         .map((aud) => {
             return dtGrp[dts[1]]
