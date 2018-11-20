@@ -5,6 +5,7 @@
             "channels": 2
         },
         "db": ".dbs",
+        "handler": "http-live-stream.mjs",
         "localLogDir": "logs",
         "outputDir": "/Users/jg/Desktop/Cortex",
         "pm2": {
@@ -48,6 +49,10 @@
         },
         "m4a.mjs": {
             "dataType": ["audio"],
+            "multiFile": false
+        },
+        "openBCI.mjs": {
+            "dataType": ["json"],
             "multiFile": false
         }
     }

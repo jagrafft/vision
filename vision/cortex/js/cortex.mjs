@@ -3,12 +3,13 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import "../../neurons/group";
-import {createDir, newSession, pairSources} from "./misc";
+import {createDir, newSession, returnHandler} from "./misc";
 import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
 import {pm2list, pm2opts, pm2start} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
+import { cursorTo } from "readline";
 
 /**
  * Global datastore for *vision*
@@ -85,49 +86,20 @@ const vetPacket = (json) => {
                 ]);
             }).chain((arr) => {
                 if (arr[0] == "OK") {
-                    // TODO Implement handler assignment (passed by monocle)
-                    // TODO Check to see if default handler dataTypes are appropriate for given device (PM2 param creation?)
-                    // TODO Make change if not (PM2 param creation?)
                     // TODO Refactor to n -> m pairing (!video/audio...)
                     // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
 
-                    const handler = "http-live-stream.mjs";
-                    const dType = settings.handlers[handler].dataType;
-
-                    const locGroup = arr[1].groupByKey("location");
-
-                    // TODO Refactor to `pairSources`
-                    const [paired, single] = Object.keys(locGroup)
-                        .reduce((a,c) => {
-                            const grp = locGroup[c].groupByKey("dataType");
-                            ((x) => x[0] && x[1])(dType.map((x) => x in grp)) ? a[0].push(locGroup[c]) : a[1].push(locGroup[c]);
-                            return a;
-                        }, [[], []])
-                        .map((x) => x.flat());
-
-                    const pairs = paired.groupByKey("dataType");
-
-                    const procPairs = (typeof(pairs.video) !== "undefined" ? pairs.video.reduce((a,c,i) => {
-                        const l = pairs.audio.length;
-                        a.push([i > l ? pairs.audio[i] : pairs.audio[l - 1], c]);
+                    const locGrps = arr[1].groupByKey("location");
+                    const [pair, single] = Object.entries(locGrps).reduce((a,c) => {
+                        const uniqueDts = new Set(c[1].map((x) => x.dataType));
+                        uniqueDts.size > 1 ? a[0].push(c) : a[1].push(c[1]);
                         return a;
-                    }, []) : []).concat(single);
+                    }, [[], []]);
 
-                    // TODO Does not consider handler.multiFile!!
-                    const pm2objs = procPairs.reduce((a,c) => {
-                        const [t, lab] = Array.isArray(c) ? c.reduce((acc,cur) => {
-                            acc[0] = cur.dataType;
-                            acc[1].push(`${cur.label}_${cur.location}`);
-                            return acc;
-                        }, [[],[]]) : [c.dataType, [`${c.label}_${c.location}`]];
+                    // TODO Where to decide whether to pair BASED ON WHETHER HANDLER SUPPORTS IT?
 
-                        const lab_ = lab.map((x) => x.trim().replace(/\s+/g, "")).join("-");
-
-                        a.push(dType.includes(t) ? new Object({path: `${arr[2].path}/${lab_}`, procs: c}) : new Object({path: arr[2].path, procs: c}));
-                        return a;
-                    }, []);
-
-                    return Task.of(pm2objs);
+                    // return Task.of(pair.concat(single.flat()));
+                    return Task.of(new Object({paired: pair, single: single.flat()}));
                     // return Task.waitAll(tasks);
                 } else {
                     return Task.rejected(arr[0]);

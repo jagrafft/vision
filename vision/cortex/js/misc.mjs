@@ -53,23 +53,17 @@ export const newSession = (name, ids, status, dtGrp = "sessions") => {
 };
 
 /**
- * Pair audio and video devices by shared key
- * @param {Array<Object>} arr Devices for pairing
- * @param {Array<String>} dts Data types to pair
- * @param {String} key Key in device `Object` to use for association
- * @returns {Array<Object>}
+ * Pair sources in an array
+ * @param {Array<Object>} srcs Array of sources
+ * @returns {Array<Array<Object>>}
  */
-export const pairSources = (arr) => {
-    const devicePairs = dtGrp[dts[0]]
-        .map((aud) => {
-            return dtGrp[dts[1]]
-                .map((vid) => {
-                    return new Object({
-                        dataType: dts,
-                        audio: aud,
-                        video: vid
-                    })
-                })
-            }).flat();
-        a.push(devicePairs);
+export const pairSources = (srcs) => {
+};
+
+/**
+ * Return a handler from `settings.handlers` based on dataType
+ * @param {String} dt Datatype to search for
+ * @returns {String} Handler file name
+ */
+export const returnHandler = (dt) => {
 };
