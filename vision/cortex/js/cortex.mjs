@@ -3,7 +3,7 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import "../../neurons/group";
-import {createDir, newSession, pairByDataType} from "./misc";
+import {createDir, newSession, pairByLocation} from "./misc";
 import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
 import {pm2list, pm2opts, pm2start} from "./pm2";
@@ -21,8 +21,8 @@ export const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`
  * @const {WebSocket<Server>}
  */
 const wss = new WS.Server({
-    maxPayload: 20480,  // 20kb
-    port: 12131
+    maxPayload: settings.cortex.maxPayload,
+    port: settings.cortex.port
 });
 
 /**
@@ -67,27 +67,23 @@ const vetPacket = (json) => {
     case "record":
         switch (json.key) {
         case "start":
-            return Task.task((resolver) => {
-                resolver.resolve(
+            return Task.of(
                     newSession(
                         json.val.label.trim().replace(/\s\s+/g, " "),
                         json.val.ids,
                         "INITIATED"
                     )
-                );
-            }).chain((obj) => {
+            ).chain((obj) => {
                 return Task.waitAll([
-                    // TODO Reduce return values for `createDir` to two (2)
-                    // TODO Move createDir? (to accommodate subdirectories)
-                    createDir(`${obj.path}/${settings.defaults.logDir}`),               // 0: {err, EXISTS, OK}
-                    neFind(db, {_id: {$in: json.val.ids}}),                             // 1: array of objects
-                    neInsert(db, obj)                                                   // 2: inserted object(s)
+                    createDir(`${obj.path}/${settings.defaults.logDir}`),   // 0: {err, EXISTS, OK}
+                    neFind(db, {_id: {$in: json.val.ids}}),                 // 1: array of objects
+                    neInsert(db, obj)                                       // 2: inserted object(s)
                 ]);
             }).chain((arr) => {
+                // TODO if arr[0] resolved
                 if (arr[0] == "OK") {
-                    const locGrps = arr[1].groupByKey("location");
                     // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-                    return Task.of(pairByDataType(locGrps));
+                    return Task.of(pairByLocation(locGrps));
                 } else {
                     return Task.rejected(arr[0]);
                 }

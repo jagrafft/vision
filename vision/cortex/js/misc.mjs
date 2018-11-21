@@ -3,6 +3,7 @@ import moment from "moment";
 import Task from "folktale/concurrency/task";
 
 import "../../neurons/group";
+import {setEq} from "../../neurons/sets";
 import {logEvent} from "./logger";
 import settings from "./resources/settings.json";
 
@@ -23,7 +24,6 @@ export const createDir = (path) => {
             });
 
             mkdirp(path, (err, res) => {
-                // TODO Reduce number of return states (err, EXISTS, OK)
                 if (err) resolver.reject(err);
                 res === null ? resolver.reject("EXISTS") : resolver.resolve("OK");
             });
@@ -32,18 +32,18 @@ export const createDir = (path) => {
 };
 
 /**
- * Create *vision* Session object
+ * Create Cortex session object
  * @param {String} name Session name
  * @param {Array<String>} ids Device IDs to include
- * @param {String} status Approximately current status of session
- * @param {String} dtGrp Group membership, defaults to "sessions"
+ * @param {String} status Approximately crent status of session
+ * @param {String} grp Group membership, defaults to "sessions"
  * @returns {Object}
  */
-export const newSession = (name, ids, status, dtGrp = "sessions") => {
+export const newSession = (name, ids, status, grp = "sessions") => {
     return new Object({
         dataType: "session",
         devices: ids,
-        group: dtGrp,
+        group: grp,
         initiated: new Date(),
         lastUpdate: new Date(),
         name: name,
@@ -53,52 +53,38 @@ export const newSession = (name, ids, status, dtGrp = "sessions") => {
 };
 
 /**
- * Pair sources in an array
- * @param {Object} obj Array of sources
+ * Pair sources by dataType within their group
+ * @param {Object} obj Object of sources
  * @returns {Array<Array<Object>>}
  */
-export const pairByDataType = (obj) => {
+export const pairByLocation = (obj) => {
     const defaultHandler = settings.handlers[settings.defaults.handler];
+    const handlers = Object.entries(obj.groupByKey("location")).reduce((a,c) => {
+            a.push(c[1].map((x) => {
+                if ("handler" in x) return x.handler;
+                return Array.isArray(x.dataType) ? (setEq(defaultHandler.dataType, x.dataType) ? settings.defaults.handler : "NOT FOUND 1")
+                    : (defaultHandler.dataType.includes(x.dataType) ? settings.defaults.handler : "NOT FOUND 2")
+            }));
+            return a;
+        }, []).flat();
+    console.log(new Set(handlers));
 
-    return Object.entries(obj).reduce((a,c) => {
-        const u = new Set(c[1].map((x) => x.dataType));
+    return Object.entries(obj).reduce((acc, kv) => {
+        const uniqueDts = new Set(kv[1].map((x) => x.dataType));
 
-        // Only attempt to pair groups with multiple dataTypes
-        if (u.size > 1) {
-            const dtGrps = c[1].groupByKey("dataType");
-            const srcs = Object.entries(dtGrps).reduce((acc,cur) => {
-                // Test if dataType(s) of `defaultHandler` include dataType of `cur`
-                // T: add (dataType => [src...]) to `acc`
-                // F: push [src...] to `a`
-                defaultHandler.dataType.includes(cur[0]) ? acc[cur[0]] = cur[1] : a.push(cur[1]);
-                return acc;
-            }, new Object({}));
+        // Only attempt to pair keys whose values have multiple dataTypes
+        if (uniqueDts.size > 1) {
+            // Collect sources whose dataType is included in `defaultHandler.dataType`
+            const defaultSrcs = Object.entries(kv[1].groupByKey("dataType"))
+                .reduce((a, c) => {
+                    defaultHandler.dataType.includes(c[0]) ? a[c[0]] = c[1] : acc.push(c[1]);
+                    return a;
+                }, new Object({}));
             
-            // All dataTypes in `dtGrps` included in `defaultHandler.dataType`
-            const dtSrcs = Object.keys(srcs);
-            const handlerDtLength = defaultHandler.dataType.length;
-            // Union of `defaultHandler.dataType` and dtSrcs`
-            const dtUnion = new Set([...defaultHandler.dataType, ...dtSrcs]);
-
-            // Test if `dtUnion` is the same length as `defaultHandler.dataType` and dtSrcs`,
-            // indicating whether `srcs` is valid for pairing operation.
-            // T: (1) pair, (2) push to `a`
-            // F: Push values to `a`
-            if ((handlerDtLength === dtSrcs.length) && (handlerDtLength === dtUnion.size)) {
-                // Add dataType to object?
-                a.push("PAIR!!")
-            }
-            else { Object.entries(srcs).forEach((x) => a.push(x[1])); }
+            setEq(defaultHandler.dataType, Object.keys(defaultSrcs)) ? acc.push("PAIR!!")
+                : Object.entries(defaultSrcs).forEach((x) => acc.push(x[1]));
         } 
-        else { a.push(c[1]); }
-        return a;
+        else { acc.push(kv[1]); }
+        return acc;
     }, []).flat()
-};
-
-/**
- * Return a handler from `settings.handlers` based on dataType
- * @param {String} dt Datatype to search for
- * @returns {String} Handler file name
- */
-export const returnHandler = (dt) => {
 };
