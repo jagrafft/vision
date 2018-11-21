@@ -22,7 +22,9 @@
     "nedb": "^1.8.0",
     "nedb-logger": "^0.1.0",
     "pm2": "^3.2.2",
-    "ws": "^6.1.0"
+    "ws": "^6.1.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "tape": "^4.9.1"
+  }
 }

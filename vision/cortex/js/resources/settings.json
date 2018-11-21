@@ -55,5 +55,9 @@
             "dataType": ["json"],
             "multiFile": false
         }
+    }, 
+    "cortex": {
+        "maxPayload": 20480,
+        "port": 12131
     }
 }
