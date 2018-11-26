@@ -83,7 +83,7 @@ const vetPacket = (json) => {
                 // TODO if arr[0] resolved
                 if (arr[0] == "OK") {
                     // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-                    return Task.of(pairByLocation(locGrps));
+                    return Task.of(pairByLocation(arr[1]));
                 } else {
                     return Task.rejected(arr[0]);
                 }
