@@ -41,6 +41,7 @@
                 "width": 1280
             },
             "dataType": ["audio", "video"],
+            "allDataTypes": false,
             "duration": 1,
             "max_files": 9000,
             "multiFile": true,
