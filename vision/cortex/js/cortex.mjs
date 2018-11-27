@@ -3,10 +3,10 @@ import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import "../../neurons/group";
-import {createDir, newSession, pairByLocation} from "./misc";
+import {assignHandlers, createDir, newSession} from "./misc";
 import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
-import {pm2list, pm2opts, pm2start} from "./pm2";
+import {pm2list} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
 import settings from "./resources/settings.json";
 
@@ -67,12 +67,10 @@ const vetPacket = (json) => {
     case "record":
         switch (json.key) {
         case "start":
-            return Task.of(
-                    newSession(
-                        json.val.label.trim().replace(/\s\s+/g, " "),
-                        json.val.ids,
-                        "INITIATED"
-                    )
+            return newSession(
+                json.val.label.trim().replace(/\s\s+/g, " "),
+                json.val.ids,
+                "INITIATED"
             ).chain((obj) => {
                 return Task.waitAll([
                     createDir(`${obj.path}/${settings.defaults.logDir}`),   // 0: {err, EXISTS, OK}
@@ -82,8 +80,12 @@ const vetPacket = (json) => {
             }).chain((arr) => {
                 // TODO if arr[0] resolved
                 if (arr[0] == "OK") {
-                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-                    return Task.of(pairByLocation(arr[1]));
+                    // identify/assign handlers for sources
+                    return assignHandlers(arr[1]);
+                    // pair by location
+                    // const grp = arr[1].groupByKey("location");
+
+                    // iterate over, create pm2 object
                 } else {
                     return Task.rejected(arr[0]);
                 }

@@ -87,33 +87,38 @@ export const pm2list = () => {
  * @param {Object} dev Device information
  * @param {String} path File out path
  * @param {String} hand Handler for `dev`
- * @returns {Object}
+ * @returns {Folktale<Task>}
  */
 export const pm2opts = (dev, path, hand) => {
-    // Add unique identifier to `name`? ---> `ses._id`
-    const name = (dev.label || dev[dev.dataType[1]].label)
-        .replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, " ")
-        .trim()
-        .replace(/\s\s+/g, " ")
-        .replace(/\s/g, "_");
+    return Task.task(
+        (resolver) => {
+            // Add unique identifier to `name`? ---> `ses._id`
+            const name = (dev.label || dev[dev.dataType[1]].label)
+                .replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, " ")
+                .trim()
+                .replace(/\s\s+/g, " ")
+                .replace(/\s/g, "_");
 
-    // console.log(name);
-    const def = settings.defaults.pm2;
-    return new Object({
-        name: name,
-        script: hand,
-        args: [
-            dev,
-        ],
-        cwd: path,
-        output: `./${path}-out.log`,
-        error: `./${path}-error.log`,
-        minUptime: def.minUptime,
-        restartDelay: def.restartDelay,
-        log_type: def.log_type,
-        log_data_format: def.log_date_format,
-        autorestart: def.autorestart
-    });
+            const def = settings.defaults.pm2;
+            resolver.resolve(
+                new Object({
+                    name: name,
+                    script: hand,
+                    args: [
+                        dev,
+                    ],
+                    cwd: path,
+                    output: `./${path}-out.log`,
+                    error: `./${path}-error.log`,
+                    minUptime: def.minUptime,
+                    restartDelay: def.restartDelay,
+                    log_type: def.log_type,
+                    log_data_format: def.log_date_format,
+                    autorestart: def.autorestart
+                })
+            )
+        }
+    );
 };
 
 /**
