@@ -13,18 +13,15 @@ import settings from "./resources/settings.json";
  * @returns {Folktale<Task>}
  */
 export const assignHandlers = (arr) => {
-    const tasks = arr.map((x) => {
-        return returnHandlers(x).chain((h) => {
-            return Task.task(
-                (resolver) => {
-                    let _obj = {...x};
-                    _obj.handler = h;
-                    resolver.resolve(_obj);
-                }
-            );
-        });
-    });
-    return Task.waitAll(tasks);
+    return Task.waitAll(
+        arr.map((x) => {
+            return returnHandlers(x).chain((h) => {
+                let _obj = {...x};
+                _obj.handler = h;
+                return Task.of(_obj);
+            });
+        })
+    )
 };
 
 /**
@@ -56,17 +53,17 @@ export const createDir = (path) => {
  * @param {String} name Session name
  * @param {Array<String>} ids Device IDs to include
  * @param {String} status Approximately crent status of session
- * @param {String} grp Group membership, defaults to "sessions"
+ * @param {String} recType Record type, defaults to "session"
  * @returns {Folktale<Task>}
  */
-export const newSession = (name, ids, status, grp = "sessions") => {
+export const newSession = (name, ids, status, recType = "session") => {
     return Task.task(
         (resolver) => {
             resolver.resolve(
                 new Object({
                     dataType: "session",
                     devices: ids,
-                    group: grp,
+                    recordType: recType,
                     initiated: new Date(),
                     lastUpdate: new Date(),
                     name: name,
@@ -77,6 +74,20 @@ export const newSession = (name, ids, status, grp = "sessions") => {
         }
     );
 };
+
+/**
+ * Pair sources with handler
+ * @param {String} handler Handler to pair `arr` by
+ * @param {Array<Object>} arr Array of source `Object`s
+ * @returns {Folktale<Task>}
+ */
+// export const pairSources = (handler, arr) => {
+//     return Task.task(
+//         (resolver) => {
+
+//         }
+//     );
+// };
 
 /**
  * Return handler(s) for `src`.

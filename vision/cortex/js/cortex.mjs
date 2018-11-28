@@ -78,13 +78,18 @@ const vetPacket = (json) => {
                     neInsert(db, obj)                                       // 2: inserted object(s)
                 ]);
             }).chain((arr) => {
-                // TODO if arr[0] resolved
                 if (arr[0] == "OK") {
-                    // identify/assign handlers for sources
-                    return assignHandlers(arr[1]);
-                    // pair by location
-                    // const grp = arr[1].groupByKey("location");
-
+                    return assignHandlers(arr[1]).chain((h) => {
+                        return Task.task((resolver) => {
+                            resolver.resolve(
+                                Object.entries(h.groupByKey("group")).map((x) => {
+                                    let hGrps = x[1].groupByKey("handler");
+                                    hGrps.group = x[0];
+                                    return hGrps;
+                                })
+                            );
+                        });
+                    });
                     // iterate over, create pm2 object
                 } else {
                     return Task.rejected(arr[0]);
