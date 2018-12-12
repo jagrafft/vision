@@ -49,47 +49,6 @@ export const createDir = (path) => {
 };
 
 /**
- * Create Cortex session object
- * @param {String} name Session name
- * @param {Array<String>} ids Device IDs to include
- * @param {String} status Approximately crent status of session
- * @param {String} recType Record type, defaults to "session"
- * @returns {Folktale<Task>}
- */
-export const newSession = (name, ids, status, recType = "session") => {
-    return Task.task(
-        (resolver) => {
-            resolver.resolve(
-                new Object({
-                    dataType: "session",
-                    devices: ids,
-                    recordType: recType,
-                    initiated: new Date(),
-                    lastUpdate: new Date(),
-                    name: name,
-                    path: `${settings.defaults.outputDir}/${name.replace(/\s/g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
-                    status: status
-                })
-            );
-        }
-    );
-};
-
-/**
- * Pair sources with handler
- * @param {String} handler Handler to pair `arr` by
- * @param {Array<Object>} arr Array of source `Object`s
- * @returns {Folktale<Task>}
- */
-// export const pairSources = (handler, arr) => {
-//     return Task.task(
-//         (resolver) => {
-
-//         }
-//     );
-// };
-
-/**
  * Return handler(s) for `src`.
  * Default handler(s) are given precedence over source-specified ones.
  * @param {Object} src Data source
