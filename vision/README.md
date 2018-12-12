@@ -1,6 +1,6 @@
 # *vision* microservices
 
-| microservice | description | development status |
+| microservice | description | status |
 |---|---|:-:|
 | [Cortex](cortex) | Process manager for *vision* nodes | active |
 | [Monocle](monocle) | Client interface for Cortex data node | active |

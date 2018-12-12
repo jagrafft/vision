@@ -5,7 +5,7 @@
 | | description | status |
 |:-:|---|---|
 | [docs][docs] | Docs, Whitepaper | out-of-date |
-| [vision][vision] | Core microservices | |
+| [vision][vision] | Core microservices | active |
 
 <hr>
 
