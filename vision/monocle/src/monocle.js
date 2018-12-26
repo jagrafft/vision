@@ -70,7 +70,7 @@ const wsDriver = (adr) => {
         const in_ = xs.create({
             start: (listener) => {
                 ws.onopen = () => {
-                    ws.send(JSON.stringify({key: "devices", req: "find", val: "group"}));
+                    ws.send(JSON.stringify({key: "device", req: "find", val: "recordType"}));
                 };
                 ws.onmessage = (msg) => {
                     const j = JSON.parse(msg.data);
@@ -157,11 +157,11 @@ const main = (sources) => {
         .startWith({id: "", addr: ""});
 
     /**
-     * Filters stream for "devices" key
+     * Filters stream for "device" key
      * @const {xs<Stream>}
      */
     const devices_ = sources.ws
-        .filter((x) => x.key == "devices")
+        .filter((x) => x.key == "device")
         .map((x) => x.res)
         .startWith({devices: [{id: null, dataType: null}]});
 
@@ -236,7 +236,7 @@ const main = (sources) => {
                                             {attrs: {id: d.id, dataType: k, type: "checkbox",
                                             checked: deviceQueue.includes(d.id)}}
                                         ),
-                                        span(`(${k[0]}) ${d.label}${d.location ? " (" + d.location + ")" : ""}`)
+                                        span(`(${k[0]}) ${d.label}${d.group ? " (" + d.group + ")" : ""}`)
                                     ]
                                 )
                             })

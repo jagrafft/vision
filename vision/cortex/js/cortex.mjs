@@ -1,28 +1,41 @@
 import Datastore from "nedb";
+import dotenv from "dotenv";
+// import Logger from "nedb-logger";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
 import "../../neurons/group";
-import {createDir, newSession, pairSources} from "./misc";
+import {assignHandlers, createDir, newSession} from "./misc";
 import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
-import {pm2list, pm2opts, pm2start} from "./pm2";
+import {pm2list} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
-import settings from "./resources/settings.json";
+
+dotenv.config();
 
 /**
  * Global datastore for *vision*
  * @const {NeDB<Datastore>}
  */
-export const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autoload: true});
+export const db = new Datastore({filename: `./${process.env.DB_DIR_PATH}/cortex.db`, autoload: true});
+/**
+ * Global datastore `Object`
+ * @const {Object<NeDB<Datastore>>}
+ */
+// export const dbs = new Object({
+//     devices: new Datastore({filename: `./${process.env.DB_DIR_PATH}/devices.db`, autoload: true}),
+//     handlers: new Datastore({filename: `./${process.env.DB_DIR_PATH}/handlers.db`, autoload: true}),
+//     sessions: new Datastore({filename: `./${process.env.DB_DIR_PATH}/sessions.db`, autoload: true}),
+//     log: new Logger({filename: `./${process.env.DB_DIR_PATH}/log.db`, autoload: true})
+// })
 
 /**
  * WebSocket Server for Cortex
  * @const {WebSocket<Server>}
  */
 const wss = new WS.Server({
-    maxPayload: 20480,  // 20kb
-    port: 12131
+    maxPayload: process.env.WS_MAX_PAYLOAD,
+    port: process.env.WS_PORT
 });
 
 /**
@@ -67,68 +80,30 @@ const vetPacket = (json) => {
     case "record":
         switch (json.key) {
         case "start":
-            return Task.task((resolver) => {
-                resolver.resolve(
-                    newSession(
-                        json.val.label.trim().replace(/\s\s+/g, " "),
-                        json.val.ids,
-                        "INITIATED"
-                    )
-                );
-            }).chain((obj) => {
+            return newSession(
+                json.val.label.trim().replace(/\s\s+/g, " "),
+                json.val.ids,
+                "INITIATED"
+            ).chain((obj) => {
                 return Task.waitAll([
-                    // TODO Reduce return values for `createDir` to two (2)
-                    // TODO Move createDir? (to accommodate subdirectories)
-                    createDir(`${obj.path}/${settings.defaults.logDir}`),               // 0: {err, EXISTS, OK}
-                    neFind(db, {_id: {$in: json.val.ids}}),                             // 1: array of objects
-                    neInsert(db, obj)                                                   // 2: inserted object(s)
+                    createDir(`${obj.path}/${process.env.LOCAL_LOG_DIR}`),   // 0: {err, EXISTS, OK}
+                    neFind(db, {_id: {$in: json.val.ids}}),                 // 1: array of objects
+                    neInsert(db, obj)                                       // 2: inserted object(s)
                 ]);
             }).chain((arr) => {
                 if (arr[0] == "OK") {
-                    // TODO Implement handler assignment (passed by monocle)
-                    // TODO Check to see if default handler dataTypes are appropriate for given device (PM2 param creation?)
-                    // TODO Make change if not (PM2 param creation?)
-                    // TODO Refactor to n -> m pairing (!video/audio...)
-                    // TODO create directories for devices matching `handler.dataType` where `handler.multiFile` is `true`
-
-                    const handler = "http-live-stream.mjs";
-                    const dType = settings.handlers[handler].dataType;
-
-                    const locGroup = arr[1].groupByKey("location");
-
-                    // TODO Refactor to `pairSources`
-                    const [paired, single] = Object.keys(locGroup)
-                        .reduce((a,c) => {
-                            const grp = locGroup[c].groupByKey("dataType");
-                            ((x) => x[0] && x[1])(dType.map((x) => x in grp)) ? a[0].push(locGroup[c]) : a[1].push(locGroup[c]);
-                            return a;
-                        }, [[], []])
-                        .map((x) => x.flat());
-
-                    const pairs = paired.groupByKey("dataType");
-
-                    const procPairs = (typeof(pairs.video) !== "undefined" ? pairs.video.reduce((a,c,i) => {
-                        const l = pairs.audio.length;
-                        a.push([i > l ? pairs.audio[i] : pairs.audio[l - 1], c]);
-                        return a;
-                    }, []) : []).concat(single);
-
-                    // TODO Does not consider handler.multiFile!!
-                    const pm2objs = procPairs.reduce((a,c) => {
-                        const [t, lab] = Array.isArray(c) ? c.reduce((acc,cur) => {
-                            acc[0] = cur.dataType;
-                            acc[1].push(`${cur.label}_${cur.location}`);
-                            return acc;
-                        }, [[],[]]) : [c.dataType, [`${c.label}_${c.location}`]];
-
-                        const lab_ = lab.map((x) => x.trim().replace(/\s+/g, "")).join("-");
-
-                        a.push(dType.includes(t) ? new Object({path: `${arr[2].path}/${lab_}`, procs: c}) : new Object({path: arr[2].path, procs: c}));
-                        return a;
-                    }, []);
-
-                    return Task.of(pm2objs);
-                    // return Task.waitAll(tasks);
+                    return assignHandlers(arr[1]).chain((h) => {
+                        return Task.task((resolver) => {
+                            resolver.resolve(
+                                Object.entries(h.groupByKey("group")).map((x) => {
+                                    let hGrps = x[1].groupByKey("handler");
+                                    hGrps.group = x[0];
+                                    return hGrps;
+                                })
+                            );
+                        });
+                    });
+                    // iterate over, create pm2 object
                 } else {
                     return Task.rejected(arr[0]);
                 }

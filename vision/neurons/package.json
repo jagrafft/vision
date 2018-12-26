@@ -1,0 +1,36 @@
+{
+    "name": "neurons",
+    "version": "0.1.0",
+    "description": "Data structures, functions, and tests used by vision microservices.",
+    "nyc": {
+        "extentsion": [
+            ".mjs"
+        ],
+        "require": [
+            "esm"
+        ]
+    },
+    "scripts": {
+        "test": "nyc tape tests/*.tests.js | tap-nyc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jagrafft/vision.git"
+    },
+    "author": "jason a. grafft",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/jagrafft/vision/issues"
+    },
+    "homepage": "https://github.com/jagrafft/vision/tree/master/vision/neurons/#readme",
+    "devDependencies": {
+        "blue-tape": "^1.0.0",
+        "chance": "^1.0.18",
+        "esm": "^3.0.84",
+        "nyc": "^13.1.0",
+        "tap-nyc": "^1.0.3"
+    },
+    "dependencies": {
+        "moment": "^2.22.2"
+    }
+}

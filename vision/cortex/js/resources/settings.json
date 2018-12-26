@@ -2,21 +2,12 @@
     "defaults": {
         "audio": {
             "bitrate": 96000,
-            "channels": 2
+            "channels": 2,
+            "handler": "http-live-stream.mjs"
         },
-        "db": ".dbs",
-        "localLogDir": "logs",
-        "outputDir": "/Users/jg/Desktop/Cortex",
-        "pm2": {
-            "autorestart": true,
-            "log_date_format": "YYYY-MM-DD HH:mm:ss.SSSS",
-            "log_type": "json",
-            "minUptime": 500,
-            "restartDelay": 500
-        },
-        "verbose": false,
         "video": {
             "bitrate": 96000,
+            "handler": "http-live-stream.mjs",
             "height": 720,
             "width": 1280
         }
@@ -40,6 +31,7 @@
                 "width": 1280
             },
             "dataType": ["audio", "video"],
+            "allDataTypes": false,
             "duration": 1,
             "max_files": 9000,
             "multiFile": true,
@@ -48,6 +40,10 @@
         },
         "m4a.mjs": {
             "dataType": ["audio"],
+            "multiFile": false
+        },
+        "openBCI.mjs": {
+            "dataType": ["json"],
             "multiFile": false
         }
     }

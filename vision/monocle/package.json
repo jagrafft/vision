@@ -24,7 +24,6 @@
     "@cycle/isolate": "^3.4.0",
     "@cycle/run": "^4.4.0",
     "dexie": "^2.0.4",
-    "folktale": "^2.3.1",
     "xstream": "^11.7.0"
   },
   "license": "GPL-3.0-or-later",

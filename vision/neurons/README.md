@@ -1,3 +1,3 @@
 # Neurons
 
-Data structures and functions used by *vision* microservices.
+Data structures, functions, and test utilities used by *vision* microservices.

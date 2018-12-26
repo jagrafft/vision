@@ -3,8 +3,26 @@ import moment from "moment";
 import Task from "folktale/concurrency/task";
 
 import "../../neurons/group";
+// import {setEq} from "../../neurons/sets";
 import {logEvent} from "./logger";
 import settings from "./resources/settings.json";
+
+/**
+ * Assign handlers to an array of sources
+ * @param {Array<Object>} arr Array of source objects
+ * @returns {Folktale<Task>}
+ */
+export const assignHandlers = (arr) => {
+    return Task.waitAll(
+        arr.map((x) => {
+            return returnHandlers(x).chain((h) => {
+                let _obj = {...x};
+                _obj.handler = h;
+                return Task.of(_obj);
+            });
+        })
+    )
+};
 
 /**
  * Create `path` with mkdir -p method
@@ -23,7 +41,6 @@ export const createDir = (path) => {
             });
 
             mkdirp(path, (err, res) => {
-                // TODO Reduce number of return states (err, EXISTS, OK)
                 if (err) resolver.reject(err);
                 res === null ? resolver.reject("EXISTS") : resolver.resolve("OK");
             });
@@ -32,44 +49,21 @@ export const createDir = (path) => {
 };
 
 /**
- * Create *vision* Session object
- * @param {String} name Session name
- * @param {Array<String>} ids Device IDs to include
- * @param {String} status Approximately current status of session
- * @param {String} dtGrp Group membership, defaults to "sessions"
- * @returns {Object}
+ * Return handler(s) for `src`.
+ * Default handler(s) are given precedence over source-specified ones.
+ * @param {Object} src Data source
+ * @returns {Folktale<Task>}
  */
-export const newSession = (name, ids, status, dtGrp = "sessions") => {
-    return new Object({
-        dataType: "session",
-        devices: ids,
-        group: dtGrp,
-        initiated: new Date(),
-        lastUpdate: new Date(),
-        name: name,
-        path: `${settings.defaults.outputDir}/${name.replace(/\s/g, "_")}-${moment().format("YYYY-MM-DD_HHmmss")}`,
-        status: status
-    })
-};
+const returnHandlers = (src) => {
+    return Task.task(
+        (resolver) => {
+        const handlers = src.dataType.reduce((a,c) => {
+            typeof settings.defaults[c] !== "undefined" ? a.found.push(settings.defaults[c].handler)
+                : typeof src.handler !== "undefined" ? a.found.push(src.handler)
+                    : a.notFound.push(c);
+            return a;
+        }, new Object({found: [], notFound: []}));
 
-/**
- * Pair audio and video devices by shared key
- * @param {Array<Object>} arr Devices for pairing
- * @param {Array<String>} dts Data types to pair
- * @param {String} key Key in device `Object` to use for association
- * @returns {Array<Object>}
- */
-export const pairSources = (arr) => {
-    const devicePairs = dtGrp[dts[0]]
-        .map((aud) => {
-            return dtGrp[dts[1]]
-                .map((vid) => {
-                    return new Object({
-                        dataType: dts,
-                        audio: aud,
-                        video: vid
-                    })
-                })
-            }).flat();
-        a.push(devicePairs);
+        handlers.notFound.length > 0 ? resolver.reject("NOT FOUND") : resolver.resolve([...new Set(handlers.found.flat())]);
+    });
 };

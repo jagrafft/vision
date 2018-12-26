@@ -3,7 +3,6 @@ import pm2 from "pm2";
 import Task from "folktale/concurrency/task";
 
 import {logEvent} from "./logger";
-import settings from "./resources/settings.json";
 
 /**
  * Monad for PM2 delete
@@ -50,7 +49,7 @@ export const pm2list = () => {
                 if (err) resolver.reject(err);
 
                 resolver.cleanup(() => {
-                    if (settings.defaults.verbose) logEvent(err, "pm2list", "CLEANUP").run();
+                    if (process.env.VERBOSE_LOGGING) logEvent(err, "pm2list", "CLEANUP").run();
                     pm2.disconnect();
                 });
 
@@ -87,33 +86,37 @@ export const pm2list = () => {
  * @param {Object} dev Device information
  * @param {String} path File out path
  * @param {String} hand Handler for `dev`
- * @returns {Object}
+ * @returns {Folktale<Task>}
  */
 export const pm2opts = (dev, path, hand) => {
-    // Add unique identifier to `name`? ---> `ses._id`
-    const name = (dev.label || dev[dev.dataType[1]].label)
-        .replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, " ")
-        .trim()
-        .replace(/\s\s+/g, " ")
-        .replace(/\s/g, "_");
+    return Task.task(
+        (resolver) => {
+            // Add unique identifier to `name`? ---> `ses._id`
+            const name = (dev.label || dev[dev.dataType[1]].label)
+                .replace(/[!@#$%^&\*()\-=_+|;':",.\[\]{}<\\/>?']/g, " ")
+                .trim()
+                .replace(/\s\s+/g, " ")
+                .replace(/\s/g, "_");
 
-    // console.log(name);
-    const def = settings.defaults.pm2;
-    return new Object({
-        name: name,
-        script: hand,
-        args: [
-            dev,
-        ],
-        cwd: path,
-        output: `./${path}-out.log`,
-        error: `./${path}-error.log`,
-        minUptime: def.minUptime,
-        restartDelay: def.restartDelay,
-        log_type: def.log_type,
-        log_data_format: def.log_date_format,
-        autorestart: def.autorestart
-    });
+            resolver.resolve(
+                new Object({
+                    name: name,
+                    script: hand,
+                    args: [
+                        dev,
+                    ],
+                    cwd: path,
+                    output: `./${path}-out.log`,
+                    error: `./${path}-error.log`,
+                    minUptime: process.env.PM2_MIN_UPTIME,
+                    restartDelay: process.env.PM2_RESTART_DELAY,
+                    log_type: process.env.PM2_LOG_TYPE,
+                    log_date_format: process.env.PM2_LOG_DATE_FORMAT,
+                    autorestart: process.env.PM2_AUTORESTART
+                })
+            )
+        }
+    );
 };
 
 /**

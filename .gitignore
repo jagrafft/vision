@@ -28,3 +28,6 @@ project/plugins/project/
 .cache
 .lib/
 .env
+.nyc_output
+
+_unused/
