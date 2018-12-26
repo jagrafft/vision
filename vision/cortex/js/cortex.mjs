@@ -1,4 +1,6 @@
 import Datastore from "nedb";
+import dotenv from "dotenv";
+// import Logger from "nedb-logger";
 import Task from "folktale/concurrency/task";
 import WS from "ws";
 
@@ -8,21 +10,32 @@ import {logEvent} from "./logger";
 import {neFind, neInsert} from "./db";
 import {pm2list} from "./pm2";
 import {prune, reply} from "../../neurons/packet";
-import settings from "./resources/settings.json";
+
+dotenv.config();
 
 /**
  * Global datastore for *vision*
  * @const {NeDB<Datastore>}
  */
-export const db = new Datastore({filename: `./${settings.defaults.db}/cortex.db`, autoload: true});
+export const db = new Datastore({filename: `./${process.env.DB_DIR_PATH}/cortex.db`, autoload: true});
+/**
+ * Global datastore `Object`
+ * @const {Object<NeDB<Datastore>>}
+ */
+// export const dbs = new Object({
+//     devices: new Datastore({filename: `./${process.env.DB_DIR_PATH}/devices.db`, autoload: true}),
+//     handlers: new Datastore({filename: `./${process.env.DB_DIR_PATH}/handlers.db`, autoload: true}),
+//     sessions: new Datastore({filename: `./${process.env.DB_DIR_PATH}/sessions.db`, autoload: true}),
+//     log: new Logger({filename: `./${process.env.DB_DIR_PATH}/log.db`, autoload: true})
+// })
 
 /**
  * WebSocket Server for Cortex
  * @const {WebSocket<Server>}
  */
 const wss = new WS.Server({
-    maxPayload: settings.cortex.maxPayload,
-    port: settings.cortex.port
+    maxPayload: process.env.WS_MAX_PAYLOAD,
+    port: process.env.WS_PORT
 });
 
 /**
@@ -73,7 +86,7 @@ const vetPacket = (json) => {
                 "INITIATED"
             ).chain((obj) => {
                 return Task.waitAll([
-                    createDir(`${obj.path}/${settings.defaults.logDir}`),   // 0: {err, EXISTS, OK}
+                    createDir(`${obj.path}/${process.env.LOCAL_LOG_DIR}`),   // 0: {err, EXISTS, OK}
                     neFind(db, {_id: {$in: json.val.ids}}),                 // 1: array of objects
                     neInsert(db, obj)                                       // 2: inserted object(s)
                 ]);

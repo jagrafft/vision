@@ -2,6 +2,5 @@
 
 |document|status|
 |:-:|---|
-| Architecture | incomplete |
-| Stream test scripts | inactive |
+| Architecture | in progress |
 | Whitepaper | first draft **(outdated)** |

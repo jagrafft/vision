@@ -13,7 +13,7 @@ csl: './architecture/src/bib/chicago-fullnote-bibliography.csl'
 - Monocle
 ```json
 {
-    "mime": {"type": "String", "optional": false},
+    "mime": {"type": "Array<String>", "optional": false},
     "label": {"type": "String", "optional": false},
     "location": {"type": "String", "optional": false},
     "address": {"type": "String", "optional": false},
@@ -36,7 +36,7 @@ csl: './architecture/src/bib/chicago-fullnote-bibliography.csl'
 }
 ```
 
-| key | description |
+| profile | description |
 |:-:|---|
 | record | Used by default *vision* handlers for data written to disk. |
 | stream | Used by *Monocle* for accessing live views. |
@@ -76,8 +76,8 @@ csl: './architecture/src/bib/chicago-fullnote-bibliography.csl'
 {
     "key": {"type": "String", "optional": false},
     "val": {"type": "String", "optional": false},
-    "sender": {"type": "", "optional": false},
-    "status": {"type": "", "optional": true}
+    "sender": {"type": "String", "optional": false},
+    "status": {"type": "String", "optional": true}
 }
 ```
 

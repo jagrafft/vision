@@ -1,0 +1,10 @@
+{
+    "location": ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Ceres", "Pluto", "Haumea", "Makemake", "Eris"],
+    "mime": {
+        "application": ["json", "x-mpegURL"],
+        "audio": ["aac", "opus"],
+        "image": ["jpeg", "png"],
+        "text": ["plain", "xml"],
+        "video": ["mp4", "x-motion-jpeg", "MP2T"]
+    }
+}

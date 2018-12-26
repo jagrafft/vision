@@ -3,7 +3,6 @@ import pm2 from "pm2";
 import Task from "folktale/concurrency/task";
 
 import {logEvent} from "./logger";
-import settings from "./resources/settings.json";
 
 /**
  * Monad for PM2 delete
@@ -50,7 +49,7 @@ export const pm2list = () => {
                 if (err) resolver.reject(err);
 
                 resolver.cleanup(() => {
-                    if (settings.defaults.verbose) logEvent(err, "pm2list", "CLEANUP").run();
+                    if (process.env.VERBOSE_LOGGING) logEvent(err, "pm2list", "CLEANUP").run();
                     pm2.disconnect();
                 });
 
@@ -99,7 +98,6 @@ export const pm2opts = (dev, path, hand) => {
                 .replace(/\s\s+/g, " ")
                 .replace(/\s/g, "_");
 
-            const def = settings.defaults.pm2;
             resolver.resolve(
                 new Object({
                     name: name,
@@ -110,11 +108,11 @@ export const pm2opts = (dev, path, hand) => {
                     cwd: path,
                     output: `./${path}-out.log`,
                     error: `./${path}-error.log`,
-                    minUptime: def.minUptime,
-                    restartDelay: def.restartDelay,
-                    log_type: def.log_type,
-                    log_data_format: def.log_date_format,
-                    autorestart: def.autorestart
+                    minUptime: process.env.PM2_MIN_UPTIME,
+                    restartDelay: process.env.PM2_RESTART_DELAY,
+                    log_type: process.env.PM2_LOG_TYPE,
+                    log_date_format: process.env.PM2_LOG_DATE_FORMAT,
+                    autorestart: process.env.PM2_AUTORESTART
                 })
             )
         }

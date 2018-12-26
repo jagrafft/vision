@@ -2,13 +2,11 @@ import Logger from "nedb-logger";
 import moment from "moment";
 import Task from "folktale/concurrency/task";
 
-import settings from "./resources/settings.json";
-
 /**
  * Logger for *vision*
  * @const {NeDB<Logger>}
  */
-const logstore = new Logger({filename: `./${settings.defaults.db}/logs.db`, autoload: true});
+const logstore = new Logger({filename: `./${process.env.DB_DIR_PATH}/logs.db`, autoload: true});
 
 /**
  * Write log event to NeDB datastore
@@ -21,7 +19,7 @@ export const logEvent = (ev, evType, out) => {
     return Task.task(
         (resolver) => {
             resolver.cleanup(() => {
-                if (settings.defaults.verbose) {
+                if (process.env.VERBOSE_LOGGING) {
                     logstore.insert({t: moment().format("x"), type: evType, outcome: out, event: ev}, (err) => {
                         (err) ? console.error(err) : console.log("logEvent CLEANUP written to log");
                     });
