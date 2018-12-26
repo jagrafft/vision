@@ -1,10 +1,10 @@
 {
-    "location": ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Ceres", "Pluto", "Haumea", "Makemake", "Eris"],
+    "locations": ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Ceres", "Pluto", "Haumea", "Makemake", "Eris", "OGLE-2012-BLG-1323", "OGLE-2017-BLG-0560", "Milky Way", "Andromeda", "Triangulum", "Local Group", "Whirlpool", "Sombrero", "Large Magellanic Cloud", "Black Eye", "Elliptical", "IC 1101", "Pinwheel", "Cartwheel", "Hoag's Object", "Messier 81", "Markarian", "Seyfert", "Irregular", "Ring", "Polar-ring", "Spiral", "Radio"],
     "mime": {
         "application": ["json", "x-mpegURL"],
         "audio": ["aac", "opus"],
         "image": ["jpeg", "png"],
         "text": ["plain", "xml"],
-        "video": ["mp4", "x-motion-jpeg", "MP2T"]
+        "video": ["MP2T", "mp4", "x-motion-jpeg"]
     }
 }

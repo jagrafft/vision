@@ -1,6 +1,6 @@
 # Relay
 
-Relay is a [Kodi][kodi] plugin for the [LibreELEC][lelec] platform for playing back HLS streams from [Cortex][cortex] nodes.
+[Kodi][kodi] plugin for the [LibreELEC][lelec] platform for playback of sessions stored on [Cortex][cortex] nodes.
 
 [cortex]: https://github.com/jagrafft/vision/tree/master/vision/cortex/
 [kodi]: https://kodi.tv/

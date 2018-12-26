@@ -1,6 +1,5 @@
 # *vision*
-
-*vision* is an open-source human factors data service developed by Jason A. Grafft (<graf0096@umn.edu>) at the [University of Minnesota SimPORTAL](https://www.simportal.umn.edu/).
+Microservice platform for the coordination, capture, and management of connected data sources, developed by Jason A. Grafft (<graf0096@umn.edu>) at the [University of Minnesota SimPORTAL][sprtl].
 
 | | description | status |
 |:-:|---|---|
@@ -14,4 +13,5 @@
 | late α | 2018-12-12 |
 
 [docs]: https://github.com/jagrafft/vision/tree/master/docs
+[sprtl]: https://www.simportal.umn.edu/
 [vision]: https://github.com/jagrafft/vision/tree/master/vision
