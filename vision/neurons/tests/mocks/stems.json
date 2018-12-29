@@ -6,5 +6,6 @@
         "image": ["jpeg", "png"],
         "text": ["plain", "xml"],
         "video": ["MP2T", "mp4", "x-motion-jpeg"]
-    }
+    },
+    "tags": ["alpha", "beta", "gamma", "rho", "lambda", "omega", "epsilon", "delta", "iota"]
 }

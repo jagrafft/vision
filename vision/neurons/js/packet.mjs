@@ -28,23 +28,25 @@ export const packet = (key, val, sender, status) => {
  * @returns {Promise<Array>}
  */
 export const prune = (arr) => {
-    return arr.map((x) => {
-        let r = {
-            id: x._id,
-            dataType: x.dataType,
-            label: x.label,
-            location: x.location
-        };
-
-        if (typeof x.stream !== "undefined") {
-            r.stream = {
-                address: x.address,
-                path: x.stream.path,
-                protocol: x.stream.protocol
+    return Promise.resolve(
+        arr.map((x) => {
+            let r = {
+                id: x._id,
+                dataType: x.dataType,
+                label: x.label,
+                location: x.location
             };
-        }
-        return r;
-    });
+
+            if (typeof x.stream !== "undefined") {
+                r.stream = {
+                    address: x.address,
+                    path: x.stream.path,
+                    protocol: x.stream.protocol
+                };
+            }
+            return r;
+        })
+    );
 };
 
 /**
