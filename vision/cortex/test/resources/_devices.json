@@ -1,0 +1,52 @@
+[
+    {
+        "group": "devices",
+        "dataType": "video",
+        "label": "Patient Left",
+        "location": "Anesthesia",
+        "address": "192.168.1.201",
+        "handlers": ["http-live-stream.mjs", "h264.mjs"],
+        "record": {
+            "protocol": "rtsp",
+            "port": 554,
+            "path": "/axis-media/media.amp?profile=Quality"
+        },
+        "stream": {
+            "protocol": "http",
+            "path": "/mjpg/1/video.mjpg"
+        }
+	},
+    {
+        "group": "CORTEX_TEST",
+        "dataType": "CORTEX_TEST",
+        "label": "",
+        "location": "CORTEX_TEST",
+        "address": "",
+        "handlers": ["CORTEX_TEST..."],
+        "record": {
+            "protocol": "",
+            "port": "",
+            "path": ""
+        },
+        "stream": {
+            "protocol": "",
+            "path": ""
+        }
+	},
+	{
+        "group": "devices",
+        "dataType": "audio",
+        "label": "Overhead",
+        "location": "Anesthesia",
+        "address": "alsa_input.pci-0000_00_1f.3.analog-stereo",
+        "handlers": ["http-live-stream.mjs", "m4a.mjs"]
+    },
+    {
+        "group": "devices",
+        "dataType": "json",
+        "label": "OpenBCI-54A",
+        "protocol": "http",
+        "address": "",
+        "handlers": []
+    }
+]

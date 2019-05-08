@@ -1,0 +1,59 @@
+{
+    "defaults": {
+        "audio": {
+            "bitrate": 96000,
+            "channels": 2
+        },
+        "db": ".dbs",
+        "handler": "http-live-stream.mjs",
+        "localLogDir": "logs",
+        "outputDir": "/Users/jg/Desktop/Cortex",
+        "pm2": {
+            "autorestart": true,
+            "log_date_format": "YYYY-MM-DD HH:mm:ss.SSSS",
+            "log_type": "json",
+            "minUptime": 500,
+            "restartDelay": 500
+        },
+        "verbose": false,
+        "video": {
+            "bitrate": 96000,
+            "height": 720,
+            "width": 1280
+        }
+    },
+    "handlers": {
+        "h264.mjs": {
+            "dataType": ["video"],
+            "multiFile": false
+        },
+        "http-live-stream.mjs": {
+            "audio": {
+                "bitrate": 96000,
+                "encoder": "avenc_aac",
+                "source": "pulsesrc"
+            },
+            "video": {
+                "framerate": 30,
+                "height": 720,
+                "parser": "h264parse",
+                "source": "rtspsrc",
+                "width": 1280
+            },
+            "dataType": ["audio", "video"],
+            "duration": 1,
+            "max_files": 9000,
+            "multiFile": true,
+            "muxer": "mpegtsmux",
+            "sink": "hlssink"
+        },
+        "m4a.mjs": {
+            "dataType": ["audio"],
+            "multiFile": false
+        },
+        "openBCI.mjs": {
+            "dataType": ["json"],
+            "multiFile": false
+        }
+    }
+}

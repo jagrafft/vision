@@ -1,0 +1,12 @@
+{
+    "addrs": {
+        "cortex": "ws://localhost:12131"
+    },
+    "paths": {
+        "cortex": "../js",
+        "devices": "./resources/_devices.json",
+        "handlers": "./handlers",
+        "settings": "./resources/_settings.json",
+        "utilities": "./utilities"
+    }
+}
