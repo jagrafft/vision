@@ -1,9 +1,0 @@
-{
-    "source": {
-        "include": ["js/"],
-        "includePattern": ".+\\.(js(doc|x)?|mjs)$"
-    },
-    "opts": {
-        "destination": "docs/api"
-    }
-}
